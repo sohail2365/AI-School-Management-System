@@ -826,6 +826,17 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card" style="margin-top:20px;">
+                        <div class="card-header">
+                            <h3 class="card-title">🧑‍🏫 Recent Teacher Activity</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="teacherActivityList" style="font-size:0.9rem;">
+                                <div style="color:#94a3b8; padding:10px 0;">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- STUDENTS VIEW -->
@@ -1853,8 +1864,74 @@
 
                 const todayAttendance = await apiRequest("/dashboard/attendance-today");
                 document.getElementById("todayPresent").textContent = todayAttendance.present || 0;
+
+                await loadTeacherActivity();
             } catch (error) {
                 console.error("Error loading dashboard:", error);
+            }
+        }
+
+        function timeAgo(isoString) {
+            const diffMs = Date.now() - new Date(isoString).getTime();
+            const mins = Math.floor(diffMs / 60000);
+            if (mins < 1) return "just now";
+            if (mins < 60) return `${mins}m ago`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs}h ago`;
+            return `${Math.floor(hrs / 24)}d ago`;
+        }
+
+        const ACTIVITY_ICONS = { attendance: "✅", grade: "📈", test_record: "📝", document: "🪪" };
+        const ACTIVITY_DELETE_PATH = {
+            attendance: (a) => `/attendance/${a.id}`,
+            grade: (a) => `/grades/${a.id}`,
+            test_record: (a) => `/test-records/${a.id}`,
+            document: (a) => `/students/${a.student_id}/documents/${a.id}`,
+        };
+        const ACTIVITY_EDIT_VIEW = { attendance: "attendance", grade: "grades", test_record: null, document: null };
+
+        async function loadTeacherActivity() {
+            const container = document.getElementById("teacherActivityList");
+            try {
+                const data = await apiRequest("/dashboard/teacher-activity?limit=15");
+                const activities = data.activities || [];
+                if (activities.length === 0) {
+                    container.innerHTML = `<div style="color:#94a3b8; padding:10px 0;">Abhi tak teachers ki koi activity nahi (attendance, grades, test records, ya uploads).</div>`;
+                    return;
+                }
+                container.innerHTML = activities.map(a => {
+                    const editView = ACTIVITY_EDIT_VIEW[a.type];
+                    const editBtn = editView
+                        ? `<button class="btn btn-sm btn-secondary" onclick="switchView('${editView}')" style="margin-right:6px;">Edit</button>`
+                        : "";
+                    return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+                        <div>
+                            <span style="margin-right:6px;">${ACTIVITY_ICONS[a.type] || "•"}</span>
+                            <strong>${a.teacher}</strong> — ${a.detail}
+                            <span style="color:#64748b;"> (${a.student})</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#94a3b8; font-size:0.8rem; white-space:nowrap;">${timeAgo(a.at)}</span>
+                            ${editBtn}
+                            <button class="btn btn-sm" style="background:#dc2626; color:#fff; border:none;" onclick="deleteTeacherActivity('${a.type}', ${a.id}, ${a.student_id || "null"})">Delete</button>
+                        </div>
+                    </div>`;
+                }).join("");
+            } catch (error) {
+                container.innerHTML = `<div style="color:#94a3b8; padding:10px 0;">Activity load nahi ho saki.</div>`;
+            }
+        }
+
+        async function deleteTeacherActivity(type, id, studentId) {
+            if (!confirm("Yeh entry delete karni hai? Yeh wapis nahi aayegi.")) return;
+            try {
+                const path = ACTIVITY_DELETE_PATH[type]({ id, student_id: studentId });
+                await apiRequest(path, { method: "DELETE" });
+                showAlert("Deleted.");
+                await loadTeacherActivity();
+            } catch (error) {
+                showAlert("Delete nahi ho saka: " + error.message, "error");
             }
         }
 
