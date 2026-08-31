@@ -497,3 +497,65 @@ def send_student_message(
     db.commit()
     db.refresh(msg)
     return {"id": msg.id, "created_at": msg.created_at.isoformat()}
+
+
+# ==================== ADMIN: PARENT LOGIN MANAGEMENT ====================
+# Passwords are hashed, never stored in plaintext — so there is no "view the
+# current password" action. Admin can RESET (issue a new one-time temp
+# password, same pattern as teacher logins) or REMOVE the login entirely.
+
+@router.post("/{student_id}/reset-parent-password")
+def reset_parent_password(
+    student_id: int,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    if not student.parent_user_id:
+        raise HTTPException(status_code=422, detail="No parent login exists for this student yet.")
+
+    user = db.query(User).filter(User.id == student.parent_user_id, User.school_id == token["school_id"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Linked parent login not found")
+
+    temp_password = secrets.token_urlsafe(9)
+    user.password_hash = hash_password(temp_password)
+    user.is_active = True
+    db.commit()
+
+    return {
+        "message": f"Password reset for parent login ({user.email}).",
+        "email": user.email,
+        "temporary_password": temp_password,
+    }
+
+
+@router.delete("/{student_id}/parent-login", status_code=status.HTTP_204_NO_CONTENT)
+def remove_parent_login(
+    student_id: int,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """Deactivates and unlinks the parent login for this student. Does not delete the student's own data."""
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    if not student.parent_user_id:
+        raise HTTPException(status_code=422, detail="No parent login exists for this student.")
+
+    user = db.query(User).filter(User.id == student.parent_user_id, User.school_id == token["school_id"]).first()
+    if user:
+        user.is_active = False
+    student.parent_user_id = None
+    db.commit()
+    return None

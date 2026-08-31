@@ -279,3 +279,83 @@ def recent_teacher_activity(
         e["at"] = e["at"].isoformat()
 
     return {"activities": events}
+
+
+@router.get("/charts")
+def dashboard_charts(
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Aggregated data for the main dashboard's charts. Kept as one endpoint
+    (rather than one per chart) so the dashboard loads its visuals in a
+    single round-trip.
+    """
+    school_id = token["school_id"]
+
+    # ---- Attendance trend: last 30 calendar days, % present per day ----
+    from datetime import timedelta
+    today = date.today()
+    start_date = today - timedelta(days=29)
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.school_id == school_id,
+            Attendance.date >= start_date,
+            Attendance.date <= today,
+        )
+        .all()
+    )
+    by_day: dict[str, list[int]] = {}
+    for a in attendance_records:
+        key = a.date.isoformat()
+        by_day.setdefault(key, []).append(1 if a.is_present else 0)
+
+    attendance_trend = []
+    for i in range(30):
+        d = (start_date + timedelta(days=i)).isoformat()
+        marks = by_day.get(d, [])
+        pct = round((sum(marks) / len(marks)) * 100, 1) if marks else None
+        attendance_trend.append({"date": d, "attendance_rate": pct})
+
+    # ---- Fee collection: last 6 months, due vs collected ----
+    fees = db.query(Fee).filter(Fee.school_id == school_id).all()
+    month_totals: dict[str, dict[str, float]] = {}
+    for f in fees:
+        key = f.month or (f.created_at.strftime("%Y-%m") if f.created_at else "unknown")
+        bucket = month_totals.setdefault(key, {"due": 0.0, "paid": 0.0})
+        bucket["due"] += f.amount or 0
+        bucket["paid"] += f.paid_amount or 0
+
+    months_sorted = sorted(k for k in month_totals.keys() if k != "unknown")[-6:]
+    fee_trend = [
+        {
+            "month": m,
+            "due": round(month_totals[m]["due"], 2),
+            "collected": round(month_totals[m]["paid"], 2),
+        }
+        for m in months_sorted
+    ]
+
+    # ---- Class-wise average grade ----
+    students = db.query(Student).filter(Student.school_id == school_id).all()
+    class_student_ids: dict[str, list[int]] = {}
+    for s in students:
+        class_student_ids.setdefault(s.class_name or "Unassigned", []).append(s.id)
+
+    all_grades = db.query(Grade).filter(Grade.school_id == school_id).all()
+    grades_by_student: dict[int, list[float]] = {}
+    for g in all_grades:
+        grades_by_student.setdefault(g.student_id, []).append(g.percentage)
+
+    class_averages = []
+    for class_name, sids in sorted(class_student_ids.items()):
+        pcts = [p for sid in sids for p in grades_by_student.get(sid, [])]
+        if pcts:
+            class_averages.append({"class_name": class_name, "average_percentage": round(sum(pcts) / len(pcts), 1)})
+
+    return {
+        "attendance_trend": attendance_trend,
+        "fee_trend": fee_trend,
+        "class_averages": class_averages,
+    }

@@ -4,28 +4,39 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Teacher Portal - SchoolHub</title>
-<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { background: #f4f6f9; margin: 0; }
-  .topbar { background: #1e293b; color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-  .topbar h1 { font-size: 1.15rem; margin: 0; }
-  .topbar button { background: transparent; border: 1px solid #64748b; color: #fff; padding: 0.4rem 0.9rem; border-radius: 6px; cursor: pointer; }
+  :root {
+    --teal-900: #0a5a54; --teal-700: #0c6e6b; --teal-500: #14958c; --teal-100: #e3f3f1;
+    --clay-500: #c87757; --ink-900: #1a2b29; --ink-500: #5c6b69;
+    --paper: #fbfaf7; --card: #ffffff; --line: #e6e8e5;
+    --success: #1a8c5c; --danger: #c4453b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink-900); }
+  .topbar { background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%); color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .topbar h1 { font-family: 'Poppins', sans-serif; font-size: 1.15rem; margin: 0; }
+  .topbar button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; }
   .container { max-width: 960px; margin: 1.5rem auto; padding: 0 1rem; }
-  .card { background: #fff; border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  .card h2 { font-size: 1.05rem; margin: 0 0 0.9rem; }
+  .card { background: var(--card); border-radius: 14px; padding: 1.3rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 2px 12px rgba(10,90,84,0.06); border: 1px solid var(--line); }
+  .card h2 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; margin: 0 0 0.9rem; }
   .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .tab-btn { padding: 0.5rem 1rem; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
-  .tab-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .tab-btn { padding: 0.5rem 1rem; border: 1px solid var(--line); background: var(--card); border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--ink-500); }
+  .tab-btn.active { background: var(--teal-700); color: #fff; border-color: var(--teal-700); }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #eee; }
-  select, input { padding: 0.4rem 0.6rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); }
+  th { color: var(--ink-500); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  select, input { padding: 0.5rem 0.7rem; border: 1.5px solid var(--line); border-radius: 8px; font-size: 0.88rem; font-family: inherit; }
+  select:focus, input:focus { outline: none; border-color: var(--teal-500); box-shadow: 0 0 0 3px var(--teal-100); }
   .row-form { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-  .row-form button { padding: 0.45rem 1rem; border: none; border-radius: 6px; background: #16a34a; color: #fff; cursor: pointer; }
+  .row-form button { padding: 0.5rem 1.1rem; border: none; border-radius: 8px; background: var(--teal-700); color: #fff; font-weight: 600; cursor: pointer; }
+  .row-form button:hover { background: var(--teal-900); }
   .msg { font-size: 0.85rem; margin-top: 0.5rem; }
-  .msg.error { color: #dc2626; } .msg.ok { color: #16a34a; }
-  .pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.78rem; }
-  .pill.present { background: #dcfce7; color: #166534; }
-  .pill.absent { background: #fee2e2; color: #991b1b; }
+  .msg.error { color: var(--danger); } .msg.ok { color: var(--success); }
+  .pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+  .pill.present { background: #e7f5ee; color: var(--success); }
+  .pill.absent { background: #fbeae8; color: var(--danger); }
 </style>
 </head>
 <body>
