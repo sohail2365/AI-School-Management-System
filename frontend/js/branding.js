@@ -13,9 +13,9 @@
  */
 const BRANDING = {
   SHOW_CREDIT: true,
-  DEVELOPER_NAME: "Sohail Sandhu",
-  PHONE: "+92303-9642426",          // <-- yahan apna number daalein
-  TAGLINE: "System designed & developed by(NexEra AI)",
+  DEVELOPER_NAME: "Sohail",
+  PHONE: "0300-0000000",          // <-- yahan apna number daalein
+  TAGLINE: "System designed & developed by",
 };
 
 (function renderCredit() {
@@ -29,9 +29,9 @@ const BRANDING = {
     "right:10px",
     "z-index:9998",
     "font-family:Arial, sans-serif",
-    "font-size:13px",
+    "font-size:10px",
     "color:#94a3b8",
-    "background:rgba(241, 241, 245, 0.75)",
+    "background:rgba(255,255,255,0.75)",
     "padding:2px 8px",
     "border-radius:6px",
     "pointer-events:none",

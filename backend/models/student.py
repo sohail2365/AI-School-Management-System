@@ -43,6 +43,15 @@ class Student(Base):
     father_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     mother_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     email: Mapped[str | None] = mapped_column(String(150), nullable=True)
+
+    # Parent Portal linkage. Adding a parent_email here (via student create/
+    # update) auto-provisions a portal login for that parent — see
+    # backend/routes/students.py's _auto_create_parent_login helper.
+    parent_email: Mapped[str | None] = mapped_column(String(150), nullable=True, index=True)
+    parent_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     address: Mapped[str | None] = mapped_column(Text, nullable=True)
 

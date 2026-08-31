@@ -147,6 +147,7 @@ def mark_my_class_attendance(
         date=date,
         is_present=is_present,
         remarks=remarks,
+        marked_by_user_id=token["user_id"],
     )
     db.add(record)
     db.commit()

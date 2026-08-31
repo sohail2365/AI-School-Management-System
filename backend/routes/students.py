@@ -1,4 +1,5 @@
 from datetime import date
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -10,8 +11,10 @@ from backend.models.grade import Grade
 from backend.models.payment import Payment
 from backend.models.school import School
 from backend.models.student import Student
-from backend.schemas.student import StudentCreate, StudentOut, StudentUpdate
+from backend.models.user import User, UserRole
+from backend.schemas.student import StudentCreate, StudentCreateResponse, StudentOut, StudentUpdate
 from backend.utils.jwt_handler import verify_token
+from backend.utils.password import hash_password
 from backend.utils.rbac import require_roles
 
 router = APIRouter(prefix="/students", tags=["students"])
@@ -85,6 +88,50 @@ def _auto_create_fee_for_student(db: Session, school: School, student: Student) 
         status=FeeStatus.pending,
     )
     db.add(fee)
+
+
+def _auto_create_parent_login(db: Session, school: School, student: Student) -> str | None:
+    """
+    When a student is created/updated with a parent_email set, auto-provision
+    a Parent Portal login for that email (if one doesn't already exist) and
+    link it to this student via Student.parent_user_id.
+
+    Returns the ONE-TIME temporary password if a new login was just created,
+    so the caller can hand it back to the admin — same pattern as teacher
+    login creation. Returns None if no login was created (already existed,
+    or no parent_email set) — never blocks student creation on failure.
+    """
+    if not student.parent_email:
+        return None
+    if student.parent_user_id:
+        return None  # already linked, don't recreate
+
+    # A parent with multiple kids at the same school should get ONE login,
+    # not one per child — reuse an existing account with this email if found.
+    existing_user = (
+        db.query(User)
+        .filter(User.email == student.parent_email, User.school_id == school.id)
+        .first()
+    )
+    if existing_user:
+        student.parent_user_id = existing_user.id
+        return None  # login already existed, no new password to report
+
+    temp_password = secrets.token_urlsafe(9)
+    user = User(
+        school_id=school.id,
+        username=student.parent_email.split("@")[0],
+        email=student.parent_email,
+        password_hash=hash_password(temp_password),
+        full_name=f"Parent of {student.name}",
+        role=UserRole.parent,
+        is_active=True,
+    )
+    db.add(user)
+    db.flush()  # get user.id before linking
+
+    student.parent_user_id = user.id
+    return temp_password
 
 
 @router.get("", response_model=list[StudentOut])
@@ -243,7 +290,7 @@ def get_student_profile(
     }
 
 
-@router.post("", response_model=StudentOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=StudentCreateResponse, status_code=status.HTTP_201_CREATED)
 def create_student(
     payload: StudentCreate,
     token: dict = Depends(require_roles(["admin", "teacher"])),
@@ -278,15 +325,20 @@ def create_student(
 
     # Auto-assign this month's fee based on the class fee structure (if set).
     school = db.query(School).filter(School.id == token["school_id"]).first()
+    parent_temp_password = None
     if school:
         _auto_create_fee_for_student(db, school, student)
+        parent_temp_password = _auto_create_parent_login(db, school, student)
 
     db.commit()
     db.refresh(student)
-    return student
+
+    result = StudentCreateResponse.model_validate(student)
+    result.parent_temp_password = parent_temp_password
+    return result
 
 
-@router.put("/{student_id}", response_model=StudentOut)
+@router.put("/{student_id}", response_model=StudentCreateResponse)
 def update_student(
     student_id: int,
     payload: StudentUpdate,
@@ -325,9 +377,18 @@ def update_student(
     for key, value in data.items():
         setattr(student, key, value)
 
+    parent_temp_password = None
+    if "parent_email" in data and data["parent_email"]:
+        school = db.query(School).filter(School.id == token["school_id"]).first()
+        if school:
+            parent_temp_password = _auto_create_parent_login(db, school, student)
+
     db.commit()
     db.refresh(student)
-    return student
+
+    result = StudentCreateResponse.model_validate(student)
+    result.parent_temp_password = parent_temp_password
+    return result
 
 
 @router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -369,3 +430,70 @@ def student_report(
         "class_name": student.class_name,
         "message": "Detailed report endpoint ready for grades/attendance aggregation",
     }
+
+
+# ==================== ADMIN/TEACHER SIDE OF PARENT MESSAGING ====================
+
+@router.get("/{student_id}/messages")
+def get_student_messages(
+    student_id: int,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    from backend.models.parent_message import ParentMessage
+
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    messages = (
+        db.query(ParentMessage)
+        .filter(ParentMessage.school_id == token["school_id"], ParentMessage.student_id == student_id)
+        .order_by(ParentMessage.created_at.asc())
+        .all()
+    )
+    return [
+        {
+            "id": m.id,
+            "sender_role": m.sender_role,
+            "message": m.message,
+            "created_at": m.created_at.isoformat(),
+        }
+        for m in messages
+    ]
+
+
+@router.post("/{student_id}/messages", status_code=status.HTTP_201_CREATED)
+def send_student_message(
+    student_id: int,
+    message: str,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    from backend.models.parent_message import ParentMessage
+
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    if not message or not message.strip():
+        raise HTTPException(status_code=422, detail="Message cannot be empty")
+
+    msg = ParentMessage(
+        school_id=token["school_id"],
+        student_id=student_id,
+        sender_user_id=token["user_id"],
+        sender_role="staff",
+        message=message.strip()[:2000],
+    )
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return {"id": msg.id, "created_at": msg.created_at.isoformat()}

@@ -33,6 +33,22 @@ class School(Base):
     fee_due_day: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
     late_fee_percent: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
 
+    # Parent Portal — admin-controlled visibility. Each toggle gates what a
+    # parent can see for their own child; default ON (most schools want
+    # parents to see this), admin can turn any of them off in Settings.
+    parent_portal_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_attendance: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_grades: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_fees: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_documents: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    parent_allow_messages: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    # Payment info shown to parents on the Fees screen — informational only
+    # (bank/JazzCash/EasyPaisa account details for manual transfer). No
+    # payment gateway integration; this is display text, nothing is charged
+    # or processed through SchoolHub.
+    payment_info: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     # Holidays
     holidays: Mapped[str | None] = mapped_column(Text, nullable=True)
 

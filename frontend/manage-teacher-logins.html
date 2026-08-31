@@ -71,8 +71,13 @@ async function loadStaff() {
       statusHtml = `<span class="pill no-class">Missing email/class</span>`;
       actionHtml = `<button disabled title="Add email and class_assigned first">Create Login</button>`;
     } else if (s.user_id) {
-      statusHtml = `<span class="pill has-login">Has login</span>`;
-      actionHtml = `<button class="btn-reset" onclick="createLogin(${s.id})">Reset Password</button>`;
+      const blocked = s.login_active === false;
+      statusHtml = blocked
+        ? `<span class="pill no-login">Blocked</span>`
+        : `<span class="pill has-login">Has login</span>`;
+      actionHtml = `
+        <button class="btn-reset" onclick="createLogin(${s.id})">Reset Password</button>
+        <button class="${blocked ? 'btn-create' : 'btn-reset'}" style="margin-left:6px;background:${blocked ? '#16a34a' : '#dc2626'};" onclick="toggleLogin(${s.id})">${blocked ? 'Unblock' : 'Block'}</button>`;
     } else {
       statusHtml = `<span class="pill no-login">No login yet</span>`;
       actionHtml = `<button class="btn-create" onclick="createLogin(${s.id})">Create Login</button>`;
@@ -85,6 +90,21 @@ async function loadStaff() {
       <td>${actionHtml}</td>
     </tr>`;
   }).join("") || "<tr><td colspan='5'>No teachers found. Add one under Staff first.</td></tr>";
+}
+
+async function toggleLogin(staffId) {
+  const box = document.getElementById("credBox");
+  try {
+    const result = await authFetch(`/staff/${staffId}/toggle-login`, { method: "POST" });
+    box.style.display = "block";
+    box.style.background = "#eff6ff";
+    box.innerHTML = result.message;
+    await loadStaff();
+  } catch (err) {
+    box.style.display = "block";
+    box.style.background = "#fee2e2";
+    box.innerHTML = err.message;
+  }
 }
 
 async function createLogin(staffId) {

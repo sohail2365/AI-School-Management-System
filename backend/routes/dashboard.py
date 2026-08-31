@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -8,7 +8,11 @@ from backend.models.attendance import Attendance
 from backend.models.fee import Fee, FeeStatus
 from backend.models.grade import Grade
 from backend.models.payment import Payment
+from backend.models.staff import Staff
 from backend.models.student import Student
+from backend.models.student_document import StudentDocument
+from backend.models.test_record import TestRecord
+from backend.models.user import User
 from backend.utils.rbac import require_roles
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -177,3 +181,101 @@ def recent_activities(
             for f in latest_fees
         ],
     }
+
+
+@router.get("/teacher-activity")
+def recent_teacher_activity(
+    limit: int = Query(default=20, ge=1, le=100),
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Combines attendance marks, grades, test records, and document uploads
+    made by TEACHERS (not the admin themselves) into one recent-activity
+    feed, newest first. Admin-only — lets the admin see what teachers have
+    been doing without hunting through each section separately.
+    """
+    school_id = token["school_id"]
+
+    # Map of user_id -> display name, scoped to this school's teacher staff,
+    # so the feed shows "Miss Sara" instead of a raw user id.
+    teacher_names = {
+        s.user_id: s.name
+        for s in db.query(Staff).filter(Staff.school_id == school_id, Staff.user_id.isnot(None))
+    }
+    student_names = {s.id: s.name for s in db.query(Student).filter(Student.school_id == school_id)}
+
+    if not teacher_names:
+        return {"activities": []}
+
+    teacher_user_ids = list(teacher_names.keys())
+    events = []
+
+    for a in (
+        db.query(Attendance)
+        .filter(Attendance.school_id == school_id, Attendance.marked_by_user_id.in_(teacher_user_ids))
+        .order_by(Attendance.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": a.id,
+            "type": "attendance",
+            "teacher": teacher_names.get(a.marked_by_user_id, "Unknown"),
+            "student": student_names.get(a.student_id, "Unknown"),
+            "detail": f"Marked {'Present' if a.is_present else 'Absent'} for {a.date.isoformat()}",
+            "at": a.created_at,
+        })
+
+    for g in (
+        db.query(Grade)
+        .filter(Grade.school_id == school_id, Grade.teacher_id.in_(teacher_user_ids))
+        .order_by(Grade.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": g.id,
+            "type": "grade",
+            "teacher": teacher_names.get(g.teacher_id, "Unknown"),
+            "student": student_names.get(g.student_id, "Unknown"),
+            "detail": f"Added {g.subject} grade: {g.marks_obtained}/{g.total_marks}",
+            "at": g.created_at,
+        })
+
+    for t in (
+        db.query(TestRecord)
+        .filter(TestRecord.school_id == school_id, TestRecord.recorded_by_user_id.in_(teacher_user_ids))
+        .order_by(TestRecord.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": t.id,
+            "type": "test_record",
+            "teacher": teacher_names.get(t.recorded_by_user_id, "Unknown"),
+            "student": student_names.get(t.student_id, "Unknown"),
+            "detail": f"Added {t.term_type.value} test record: {t.subject} ({t.marks_obtained}/{t.total_marks})"
+            + (" with photo" if t.image_url else ""),
+            "at": t.created_at,
+        })
+
+    for d in (
+        db.query(StudentDocument)
+        .filter(StudentDocument.school_id == school_id, StudentDocument.uploaded_by_user_id.in_(teacher_user_ids))
+        .order_by(StudentDocument.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": d.id,
+            "student_id": d.student_id,
+            "type": "document",
+            "teacher": teacher_names.get(d.uploaded_by_user_id, "Unknown"),
+            "student": student_names.get(d.student_id, "Unknown"),
+            "detail": f"Uploaded {d.doc_type.value.replace('_', ' ')}",
+            "at": d.created_at,
+        })
+
+    events.sort(key=lambda e: e["at"], reverse=True)
+    events = events[:limit]
+    for e in events:
+        e["at"] = e["at"].isoformat()
+
+    return {"activities": events}

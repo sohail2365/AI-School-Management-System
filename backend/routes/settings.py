@@ -9,6 +9,8 @@ from backend.schemas.settings import (
     ClassesUpdate,
     FeeSettingsUpdate,
     HolidaysUpdate,
+    ParentPortalSettingsResponse,
+    ParentPortalSettingsUpdate,
     SchoolSettingsResponse,
     SchoolSettingsUpdate,
 )
@@ -200,3 +202,34 @@ def get_user_role(
         "school_id": token.get("school_id"),
         "permissions": permissions,
     }
+
+
+# ==================== PARENT PORTAL SETTINGS ====================
+
+@router.get("/parent-portal", response_model=ParentPortalSettingsResponse)
+def get_parent_portal_settings(
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+    return school
+
+
+@router.put("/parent-portal", response_model=ParentPortalSettingsResponse)
+def update_parent_portal_settings(
+    payload: ParentPortalSettingsUpdate,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(school, key, value)
+
+    db.commit()
+    db.refresh(school)
+    return school

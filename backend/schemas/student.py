@@ -19,11 +19,7 @@ class StudentBase(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(default=None, max_length=20)
     address: Optional[str] = None
-
-
-    # =========================
-    # VALIDATION: DOB
-    # =========================
+    parent_email: Optional[EmailStr] = None
     @field_validator("date_of_birth")
     @classmethod
     def validate_dob(cls, v):
@@ -74,14 +70,7 @@ class StudentUpdate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(default=None, max_length=20)
     address: Optional[str] = None
-
-
-    @field_validator("date_of_birth")
-    @classmethod
-    def validate_dob(cls, v):
-        if v and v > date.today():
-            raise ValueError("DOB cannot be a future date")
-        return v
+    parent_email: Optional[EmailStr] = None
 
 
     @field_validator("gender")
@@ -105,9 +94,17 @@ class StudentOut(StudentBase):
     id: int
     school_id: int
     user_id: Optional[int] = None
+    parent_user_id: Optional[int] = None
     photo_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class StudentCreateResponse(StudentOut):
+    # Set only when this request just auto-provisioned a NEW parent login
+    # (i.e. parent_email was set and no login existed for it yet). The admin
+    # must copy this now — it is never retrievable again after this response.
+    parent_temp_password: Optional[str] = None

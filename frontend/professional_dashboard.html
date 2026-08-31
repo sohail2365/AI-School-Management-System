@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Management System - Professional Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,25 +14,25 @@
         }
 
         :root {
-            /* Modern Professional Colors */
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #7c3aed;
-            --accent: #ec4899;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #06b6d4;
-            
+            /* SchoolHub teal design system — matches login page */
+            --primary: #0c6e6b;
+            --primary-dark: #0a5a54;
+            --secondary: #14958c;
+            --accent: #c87757;
+            --success: #1a8c5c;
+            --warning: #c78a1e;
+            --danger: #c4453b;
+            --info: #14958c;
+
             /* Neutral Colors */
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --gray: #6b7280;
-            --border: #e5e7eb;
-            
+            --dark: #1a2b29;
+            --light: #fbfaf7;
+            --gray: #5c6b69;
+            --border: #e6e8e5;
+
             /* Backgrounds */
             --bg-primary: #ffffff;
-            --bg-secondary: #f3f4f6;
+            --bg-secondary: #fbfaf7;
         }
 
         html, body {
@@ -38,9 +40,13 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
             background-color: var(--bg-secondary);
             color: var(--dark);
+        }
+
+        h1, h2, h3, .card-title, .sidebar-header h2 {
+            font-family: 'Poppins', sans-serif;
         }
 
         /* ==================== LAYOUT ==================== */
@@ -57,11 +63,11 @@
         /* ==================== SIDEBAR ==================== */
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(165deg, var(--primary-dark) 0%, var(--primary) 70%);
             color: white;
             padding: 30px 0;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(10, 90, 84, 0.18);
             position: fixed;
             left: 0;
             top: 0;
@@ -71,7 +77,7 @@
 
         .sidebar-logo {
             padding: 0 20px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             margin-bottom: 20px;
         }
 
@@ -79,8 +85,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
         }
 
         .sidebar-menu {
@@ -88,30 +95,32 @@
         }
 
         .sidebar-menu li {
-            margin: 8px 10px;
+            margin: 4px 10px;
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 18px;
+            color: rgba(255, 255, 255, 0.78);
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
+            border-radius: 10px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
             cursor: pointer;
         }
 
         .sidebar-menu a:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
         }
 
         .sidebar-menu a.active {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12);
             color: white;
             font-weight: 600;
+            border-left: 3px solid var(--accent);
         }
 
         .sidebar-menu .icon {
@@ -132,16 +141,17 @@
         .top-header {
             background: var(--bg-primary);
             padding: 20px 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(10, 90, 84, 0.04);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 1px solid var(--border);
         }
 
         .header-title {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
+            font-family: 'Poppins', sans-serif;
             color: var(--dark);
         }
 
@@ -240,10 +250,11 @@
         /* ==================== CARDS ==================== */
         .card {
             background: var(--bg-primary);
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(10, 90, 84, 0.06);
             overflow: hidden;
             margin-bottom: 20px;
+            border: 1px solid var(--border);
         }
 
         .card-header {
@@ -300,18 +311,18 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(20, 149, 140, 0.14);
         }
 
         /* ==================== BUTTONS ==================== */
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-size: 14px;
             display: inline-flex;
             align-items: center;
@@ -319,13 +330,12 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+            background: var(--primary-dark);
         }
 
         .btn-secondary {
@@ -767,8 +777,9 @@
                     <h1 class="header-title" id="pageTitle">Dashboard</h1>
                 </div>
                 <div class="user-section">
-                    <a href="manage-teacher-logins.html" style="text-decoration:none; background:#f1f5f9; color:#334155; padding:0.45rem 0.9rem; border-radius:8px; font-size:0.85rem; font-weight:600; margin-right:8px; white-space:nowrap;">🔑 Teacher Logins</a>
-                    <a href="teacher-login.html" target="_blank" style="text-decoration:none; background:#eef2ff; color:#3730a3; padding:0.45rem 0.9rem; border-radius:8px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">🧑‍💻 Teacher Portal</a>
+                    <a href="manage-teacher-logins.html" style="text-decoration:none; background:var(--light); color:var(--gray); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:8px; white-space:nowrap;">🔑 Teacher Logins</a>
+                    <a href="teacher-login.html" target="_blank" style="text-decoration:none; background:var(--light); color:var(--primary-dark); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">🧑‍💻 Teacher Portal</a>
+                    <a href="parent-login.html" target="_blank" style="text-decoration:none; background:var(--light); color:var(--primary-dark); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">👨‍👩‍👧 Parent Portal</a>
                     <div class="user-avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <div class="user-name" id="userName">User Name</div>
@@ -1222,6 +1233,36 @@
                             <button class="btn btn-primary" onclick="saveFeeSettings()">💾 Save Fee Structure</button>
                         </div>
                     </div>
+
+                    <!-- Parent Portal Settings -->
+                    <div class="card" style="margin-top:20px;">
+                        <div class="card-header">
+                            <h3 class="card-title">👨‍👩‍👧 Parent Portal</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">
+                                Student add karte waqt "Parent Email" bharne se parent ka login automatically ban jata hai.
+                                Yahan control karein parent ko kya-kya dikhna chahiye.
+                            </p>
+                            <div class="form-group" style="margin-bottom:14px;">
+                                <label style="display:flex; align-items:center; gap:8px;">
+                                    <input type="checkbox" id="ppEnabled" style="width:auto;"> Parent Portal enabled
+                                </label>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppAttendance" style="width:auto;"> Attendance</label>
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppGrades" style="width:auto;"> Grades / Test Records</label>
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppFees" style="width:auto;"> Fees</label>
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppDocuments" style="width:auto;"> Documents (ID card, B-form, test papers)</label>
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppMessages" style="width:auto;"> Messaging with school</label>
+                            </div>
+                            <div class="form-group" style="margin-bottom:14px;">
+                                <label>Payment Info (parent ko Fees tab mein dikhega — Bank/JazzCash/EasyPaisa account details)</label>
+                                <textarea id="ppPaymentInfo" rows="4" placeholder="e.g.&#10;Bank: HBL, Account: 1234567890, Title: School Name&#10;JazzCash: 0300-1234567&#10;EasyPaisa: 0300-7654321" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-family:inherit;"></textarea>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveParentPortalSettings()">💾 Save Parent Portal Settings</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1249,6 +1290,10 @@
                 <div class="form-group">
                     <label>Phone</label>
                     <input type="text" id="studentPhone" placeholder="Enter phone">
+                </div>
+                <div class="form-group">
+                    <label>Parent Email <span style="color:#64748b; font-weight:400;">(auto-creates Parent Portal login)</span></label>
+                    <input type="email" id="studentParentEmail" placeholder="parent@example.com">
                 </div>
                 <div class="form-group">
                     <label>Class</label>
@@ -2117,6 +2162,7 @@
                     father_name: document.getElementById("studentFatherName").value || null,
                     email: document.getElementById("studentEmail").value || null,
                     phone: document.getElementById("studentPhone").value || null,
+                    parent_email: document.getElementById("studentParentEmail").value || null,
                     class_name: document.getElementById("studentClass").value,
                     roll_number: document.getElementById("studentRoll").value,
                     date_of_birth: document.getElementById("studentDob").value || null,
@@ -2129,18 +2175,29 @@
                     return;
                 }
 
+                let result;
                 if (editingId) {
-                    await apiRequest(`/students/${editingId}`, {
+                    result = await apiRequest(`/students/${editingId}`, {
                         method: "PUT",
                         body: JSON.stringify(payload)
                     });
                     showAlert("Student updated successfully");
                 } else {
-                    await apiRequest("/students", {
+                    result = await apiRequest("/students", {
                         method: "POST",
                         body: JSON.stringify(payload)
                     });
                     showAlert("Student added successfully");
+                }
+
+                if (result && result.parent_temp_password) {
+                    setTimeout(() => {
+                        alert(
+                            `Parent Portal login created for ${payload.parent_email}\n\n` +
+                            `Temporary Password: ${result.parent_temp_password}\n\n` +
+                            `Share this with the parent now — it will not be shown again.`
+                        );
+                    }, 300);
                 }
 
                 closeModal("addStudentModal");
@@ -2169,6 +2226,7 @@
             document.getElementById("studentFatherName").value = "";
             document.getElementById("studentEmail").value = "";
             document.getElementById("studentPhone").value = "";
+            document.getElementById("studentParentEmail").value = "";
             document.getElementById("studentClass").value = "";
             document.getElementById("studentRoll").value = "";
             document.getElementById("studentDob").value = "";
@@ -2188,6 +2246,7 @@
             document.getElementById("studentFatherName").value = student.father_name || "";
             document.getElementById("studentEmail").value = student.email || "";
             document.getElementById("studentPhone").value = student.phone || "";
+            document.getElementById("studentParentEmail").value = student.parent_email || "";
             document.getElementById("studentClass").value = student.class_name || "";
             document.getElementById("studentRoll").value = student.roll_number || "";
             document.getElementById("studentDob").value = student.date_of_birth ? student.date_of_birth.slice(0, 10) : "";
@@ -3638,6 +3697,36 @@
             } catch (e) {
                 document.getElementById("feeStructureRows").innerHTML = "";
                 addFeeRow();
+            }
+
+            // Load parent portal settings
+            try {
+                const pp = await apiRequest("/settings/parent-portal");
+                document.getElementById("ppEnabled").checked = !!pp.parent_portal_enabled;
+                document.getElementById("ppAttendance").checked = !!pp.parent_show_attendance;
+                document.getElementById("ppGrades").checked = !!pp.parent_show_grades;
+                document.getElementById("ppFees").checked = !!pp.parent_show_fees;
+                document.getElementById("ppDocuments").checked = !!pp.parent_show_documents;
+                document.getElementById("ppMessages").checked = !!pp.parent_allow_messages;
+                document.getElementById("ppPaymentInfo").value = pp.payment_info || "";
+            } catch (e) { /* ignore — defaults stay unchecked until loaded */ }
+        }
+
+        async function saveParentPortalSettings() {
+            try {
+                const payload = {
+                    parent_portal_enabled: document.getElementById("ppEnabled").checked,
+                    parent_show_attendance: document.getElementById("ppAttendance").checked,
+                    parent_show_grades: document.getElementById("ppGrades").checked,
+                    parent_show_fees: document.getElementById("ppFees").checked,
+                    parent_show_documents: document.getElementById("ppDocuments").checked,
+                    parent_allow_messages: document.getElementById("ppMessages").checked,
+                    payment_info: document.getElementById("ppPaymentInfo").value.trim(),
+                };
+                await apiRequest("/settings/parent-portal", { method: "PUT", body: JSON.stringify(payload) });
+                showAlert("Parent Portal settings saved.");
+            } catch (e) {
+                showAlert("Could not save: " + e.message, "error");
             }
         }
 
