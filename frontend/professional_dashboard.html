@@ -108,18 +108,29 @@
             text-decoration: none;
             border-radius: 10px;
             border-left: 3px solid transparent;
-            transition: all 0.2s;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
             cursor: pointer;
+            position: relative;
+        }
+
+        .sidebar-menu a .icon {
+            transition: transform 0.25s ease;
         }
 
         .sidebar-menu a:hover {
             background: rgba(255, 255, 255, 0.08);
             color: white;
+            transform: translateX(4px);
+        }
+
+        .sidebar-menu a:hover .icon {
+            transform: scale(1.18) rotate(-4deg);
         }
 
         .sidebar-menu a.active {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.14);
             color: white;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
             font-weight: 600;
             border-left: 3px solid var(--accent);
         }
@@ -780,7 +791,6 @@
                 <li><a class="menu-link" data-view="grades"><span class="icon">📈</span> Grades</a></li>
                 <li><a class="menu-link" data-view="staff"><span class="icon">🧑‍🏫</span> Staff</a></li>
                 <li><a class="menu-link" data-view="announcements"><span class="icon">📢</span> Announcements</a></li>
-                <li><a class="menu-link" data-view="ai"><span class="icon">✨</span> AI Insights</a></li>
                 <li><a class="menu-link" data-view="settings"><span class="icon">⚙️</span> Settings</a></li>
                 <li><a class="menu-link" href="student-documents.html"><span class="icon">🪪</span> Student Documents</a></li>
             </ul>
@@ -1228,47 +1238,8 @@
                 </div>
 
                 <!-- AI INSIGHTS VIEW -->
-                <div class="view" id="aiView">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">✨ AI Student Summary</h3>
-                        </div>
-                        <div class="card-body">
-                            <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">
-                                Ek student choose karein — AI attendance, grades aur fees ka summary bana dega.
-                            </p>
-                            <div class="form-group" style="max-width:320px; margin-bottom:14px;">
-                                <label>Student</label>
-                                <select id="aiStudentSelect"></select>
-                            </div>
-                            <button class="btn btn-primary" onclick="generateAIStudentSummaryFromInsights()">✨ Generate Summary</button>
-                        </div>
-                    </div>
+                <!-- AI Insights now lives in the floating widget (bottom-right), not a sidebar view. -->
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">✨ AI Class Report</h3>
-                        </div>
-                        <div class="card-body">
-                            <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">
-                                Ek class choose karein — AI us poori class ki attendance, grades aur fee collection ka report bana dega.
-                            </p>
-                            <div class="form-group" style="max-width:320px; margin-bottom:14px;">
-                                <label>Class</label>
-                                <select id="aiClassSelect"></select>
-                            </div>
-                            <button class="btn btn-primary" onclick="generateAIClassReportFromInsights()">✨ Generate Report</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-body">
-                            <p style="color:#94a3b8; font-size:0.82rem; margin:0;">
-                                ℹ️ AI features student ka naam, grades, attendance aur fee totals Groq (third-party AI service) ko bhejte hain summary banane ke liye. Koi data add/edit/delete nahi karta — sirf padh kar text likhta hai.
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- SETTINGS VIEW -->
                 <div class="view" id="settingsView">
@@ -1480,7 +1451,6 @@
             <div class="btn-group">
                 <button class="btn btn-primary" id="studentProfileReportCardBtn" onclick="printReportCard()">🖨️ Print Report Card</button>
                 <button class="btn btn-whatsapp" onclick="shareReportCardOnWhatsapp()">📱 Share Report on WhatsApp</button>
-                <button class="btn btn-secondary" id="aiSummaryBtn" onclick="generateAISummary()">✨ AI Summary</button>
                 <button class="btn btn-secondary" onclick="printStudentIdCard()">🪪 Print ID Card</button>
                 <button class="btn btn-secondary" onclick="printAdmissionSlip()">📝 Print Admission Slip</button>
                 <button class="btn btn-secondary" onclick="closeModal('studentProfileModal')">Close</button>
@@ -1978,9 +1948,6 @@
                         break;
                     case "announcements":
                         await loadAnnouncements();
-                        break;
-                    case "ai":
-                        await loadAIInsightsView();
                         break;
                     case "settings":
                         await loadSettings();
@@ -4917,6 +4884,172 @@
 
         // Stubs for edit functions
 
+    </script>
+
+    <!-- ==================== FLOATING AI INSIGHTS WIDGET ==================== -->
+    <button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
+            <rect x="9" y="2" width="2" height="4" rx="1" fill="currentColor"/>
+            <circle cx="10" cy="2" r="1.4" fill="currentColor"/>
+            <circle cx="9" cy="13.5" r="1.6" fill="#0c6e6b"/>
+            <circle cx="15" cy="13.5" r="1.6" fill="#0c6e6b"/>
+            <rect x="8.5" y="17" width="7" height="1.6" rx="0.8" fill="#0c6e6b"/>
+            <rect x="1.5" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
+            <rect x="20.3" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
+        </svg>
+        <span id="aiFabPulse"></span>
+    </button>
+
+    <div id="aiWidgetPanel">
+        <div id="aiWidgetHeader">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div id="aiWidgetHeaderIcon">✨</div>
+                <div>
+                    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;">AI Insights</div>
+                    <div style="font-size:11.5px; opacity:0.8;">Powered by Groq</div>
+                </div>
+            </div>
+            <span onclick="toggleAIWidget()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
+        </div>
+        <div id="aiWidgetBody">
+            <div class="ai-widget-section">
+                <div class="ai-widget-label">📄 Student Summary</div>
+                <p class="ai-widget-hint">Ek student choose karein — attendance, grades aur fees ka summary bane ga.</p>
+                <select id="aiStudentSelect" class="ai-widget-select"></select>
+                <button class="ai-widget-btn" onclick="generateAIStudentSummaryFromInsights()">✨ Generate Summary</button>
+            </div>
+            <div class="ai-widget-section">
+                <div class="ai-widget-label">📊 Class Report</div>
+                <p class="ai-widget-hint">Ek class choose karein — poori class ka attendance/grades/fee report bane ga.</p>
+                <select id="aiClassSelect" class="ai-widget-select"></select>
+                <button class="ai-widget-btn" onclick="generateAIClassReportFromInsights()">✨ Generate Report</button>
+            </div>
+            <p class="ai-widget-footnote">ℹ️ Student ka naam, grades, attendance aur fee totals Groq ko summary banane ke liye bhejte hain. AI koi data add/edit/delete nahi karta.</p>
+        </div>
+    </div>
+
+    <style>
+        #aiFabBtn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(10, 90, 84, 0.35);
+            z-index: 1200;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: aiFabFloat 3s ease-in-out infinite;
+        }
+        #aiFabBtn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 10px 30px rgba(10, 90, 84, 0.45);
+        }
+        #aiFabBtn svg { position: relative; z-index: 1; }
+        #aiFabPulse {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.55;
+            animation: aiFabPulse 2.2s ease-out infinite;
+        }
+        @keyframes aiFabPulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            70% { transform: scale(1.7); opacity: 0; }
+            100% { transform: scale(1.7); opacity: 0; }
+        }
+        @keyframes aiFabFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        #aiWidgetPanel {
+            position: fixed;
+            right: 24px;
+            bottom: 96px;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            max-height: 70vh;
+            max-height: 70dvh;
+            background: var(--bg-primary);
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25);
+            border: 1px solid var(--border);
+            z-index: 1199;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(16px) scale(0.97);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.22s ease, opacity 0.22s ease;
+        }
+        #aiWidgetPanel.open {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #aiWidgetHeader {
+            background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%);
+            color: #fff;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #aiWidgetHeaderIcon {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        #aiWidgetBody {
+            padding: 16px;
+            overflow-y: auto;
+        }
+        .ai-widget-section { margin-bottom: 18px; }
+        .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--dark); }
+        .ai-widget-hint { font-size: 12px; color: var(--gray); margin: 0 0 8px; line-height: 1.4; }
+        .ai-widget-select {
+            width: 100%; padding: 9px 10px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px;
+        }
+        .ai-widget-btn {
+            width: 100%; padding: 9px; border: none; border-radius: 8px;
+            background: var(--primary); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer;
+        }
+        .ai-widget-btn:hover { background: var(--primary-dark); }
+        .ai-widget-footnote { font-size: 10.5px; color: #94a3b8; line-height: 1.5; margin: 0; }
+
+        @media (max-width: 480px) {
+            #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); }
+            #aiFabBtn { right: 16px; bottom: 16px; }
+        }
+    </style>
+
+    <script>
+        let aiWidgetOpen = false;
+        let aiWidgetLoaded = false;
+
+        async function toggleAIWidget() {
+            const panel = document.getElementById("aiWidgetPanel");
+            aiWidgetOpen = !aiWidgetOpen;
+            panel.classList.toggle("open", aiWidgetOpen);
+            if (aiWidgetOpen && !aiWidgetLoaded) {
+                aiWidgetLoaded = true;
+                await loadAIInsightsView();
+            }
+        }
     </script>
     <script src="js/branding.js"></script>
 </body>
