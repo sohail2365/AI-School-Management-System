@@ -23,6 +23,7 @@ from backend.database import get_db
 from backend.models.attendance import Attendance
 from backend.models.fee import Fee
 from backend.models.grade import Grade
+from backend.models.staff import Staff
 from backend.models.student import Student
 from backend.utils.rbac import require_roles
 
@@ -60,12 +61,17 @@ def _call_groq(system_prompt: str, user_prompt: str) -> str:
             },
             timeout=30,
         )
-    except http_requests.RequestException:
+    except http_requests.RequestException as e:
+        print(f"❌ Groq request failed (network): {e}")
         raise HTTPException(status_code=502, detail="Could not reach the AI service. Please try again shortly.")
 
     if response.status_code == 429:
         raise HTTPException(status_code=429, detail="AI service rate limit reached. Please wait a minute and try again.")
     if response.status_code != 200:
+        # Log Groq's actual error body — this is what tells us WHY (bad
+        # model name, invalid/revoked key, quota exceeded, etc.) instead of
+        # a generic 502 that hides the real cause.
+        print(f"❌ Groq API error {response.status_code}: {response.text[:500]}")
         raise HTTPException(status_code=502, detail="AI service returned an error. Please try again shortly.")
 
     try:
@@ -98,6 +104,11 @@ def ai_student_summary(
     )
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
+
+    if token.get("role") == "teacher":
+        staff = db.query(Staff).filter(Staff.user_id == token["user_id"], Staff.school_id == token["school_id"]).first()
+        if not staff or not staff.class_assigned or student.class_name != staff.class_assigned:
+            raise HTTPException(status_code=403, detail="You can only generate summaries for students in your own class.")
 
     attendance_records = (
         db.query(Attendance)
@@ -156,6 +167,11 @@ def ai_class_report(
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
+    if token.get("role") == "teacher":
+        staff = db.query(Staff).filter(Staff.user_id == token["user_id"], Staff.school_id == token["school_id"]).first()
+        if not staff or not staff.class_assigned or class_name != staff.class_assigned:
+            raise HTTPException(status_code=403, detail="You can only generate a report for your own class.")
+
     students = (
         db.query(Student)
         .filter(Student.school_id == token["school_id"], Student.class_name == class_name)

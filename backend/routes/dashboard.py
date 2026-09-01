@@ -283,6 +283,8 @@ def recent_teacher_activity(
 
 @router.get("/charts")
 def dashboard_charts(
+    class_name: str | None = Query(default=None, description="Filter attendance trend to one class"),
+    days: int = Query(default=30, ge=7, le=90, description="Attendance trend window in days"),
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
@@ -293,26 +295,32 @@ def dashboard_charts(
     """
     school_id = token["school_id"]
 
-    # ---- Attendance trend: last 30 calendar days, % present per day ----
+    # ---- Attendance trend: last N calendar days, % present per day, optionally filtered to one class ----
     from datetime import timedelta
     today = date.today()
-    start_date = today - timedelta(days=29)
-    attendance_records = (
-        db.query(Attendance)
-        .filter(
-            Attendance.school_id == school_id,
-            Attendance.date >= start_date,
-            Attendance.date <= today,
-        )
-        .all()
+    start_date = today - timedelta(days=days - 1)
+
+    trend_query = db.query(Attendance).filter(
+        Attendance.school_id == school_id,
+        Attendance.date >= start_date,
+        Attendance.date <= today,
     )
+    if class_name:
+        class_student_ids_filter = [
+            s.id for s in db.query(Student.id).filter(
+                Student.school_id == school_id, Student.class_name == class_name
+            )
+        ]
+        trend_query = trend_query.filter(Attendance.student_id.in_(class_student_ids_filter))
+
+    attendance_records = trend_query.all()
     by_day: dict[str, list[int]] = {}
     for a in attendance_records:
         key = a.date.isoformat()
         by_day.setdefault(key, []).append(1 if a.is_present else 0)
 
     attendance_trend = []
-    for i in range(30):
+    for i in range(days):
         d = (start_date + timedelta(days=i)).isoformat()
         marks = by_day.get(d, [])
         pct = round((sum(marks) / len(marks)) * 100, 1) if marks else None

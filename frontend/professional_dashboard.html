@@ -786,13 +786,13 @@
             <ul class="sidebar-menu">
                 <li><a class="menu-link active" data-view="dashboard"><span class="icon">📊</span> Dashboard</a></li>
                 <li><a class="menu-link" data-view="students"><span class="icon">👨‍🎓</span> Students</a></li>
+                <li><a class="menu-link" href="student-documents.html"><span class="icon">🪪</span> Student Documents</a></li>
                 <li><a class="menu-link" data-view="fees"><span class="icon">💰</span> Fees</a></li>
                 <li><a class="menu-link" data-view="attendance"><span class="icon">✅</span> Attendance</a></li>
                 <li><a class="menu-link" data-view="grades"><span class="icon">📈</span> Grades</a></li>
                 <li><a class="menu-link" data-view="staff"><span class="icon">🧑‍🏫</span> Staff</a></li>
                 <li><a class="menu-link" data-view="announcements"><span class="icon">📢</span> Announcements</a></li>
                 <li><a class="menu-link" data-view="settings"><span class="icon">⚙️</span> Settings</a></li>
-                <li><a class="menu-link" href="student-documents.html"><span class="icon">🪪</span> Student Documents</a></li>
             </ul>
 
             <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
@@ -804,12 +804,14 @@
         <div class="main-content">
             <!-- ==================== HEADER ==================== -->
             <div class="top-header">
-                <div style="display: flex; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 14px;">
                     <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
                     <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                    <div id="liveClock" style="display:flex; align-items:center; gap:6px; background:var(--light); border:1px solid var(--border); padding:0.35rem 0.75rem; border-radius:10px; font-size:0.82rem; color:var(--gray); font-weight:600; white-space:nowrap;">
+                        <span>🕐</span><span id="liveClockTime">--:--:--</span>
+                    </div>
                 </div>
                 <div class="user-section">
-                    <a href="manage-teacher-logins.html" style="text-decoration:none; background:var(--light); color:var(--gray); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:8px; white-space:nowrap;">🔑 Teacher Logins</a>
                     <a href="teacher-login.html" target="_blank" style="text-decoration:none; background:var(--light); color:var(--primary-dark); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">🧑‍💻 Teacher Portal</a>
                     <a href="parent-login.html" target="_blank" style="text-decoration:none; background:var(--light); color:var(--primary-dark); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">👨‍👩‍👧 Parent Portal</a>
                     <div class="user-avatar" id="userAvatar">U</div>
@@ -873,9 +875,20 @@
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px; margin-top:20px;">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">📈 Attendance Trend (30 days)</h3>
+                                <h3 class="card-title">📈 Attendance Trend</h3>
                             </div>
                             <div class="card-body">
+                                <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                                    <select id="attendanceChartClassFilter" onchange="loadDashboardCharts()" style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.82rem; font-family:inherit;">
+                                        <option value="">All Classes</option>
+                                    </select>
+                                    <select id="attendanceChartDaysFilter" onchange="loadDashboardCharts()" style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.82rem; font-family:inherit;">
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30" selected>Last 30 days</option>
+                                        <option value="60">Last 60 days</option>
+                                        <option value="90">Last 90 days</option>
+                                    </select>
+                                </div>
                                 <canvas id="attendanceTrendChart" height="180"></canvas>
                             </div>
                         </div>
@@ -1265,6 +1278,18 @@
                                 <input type="text" id="settingsAddress" placeholder="Enter school address">
                             </div>
                             <button class="btn btn-primary" onclick="saveSettings()">💾 Save School Info</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px;">
+                        <div class="card-header">
+                            <h3 class="card-title">🔑 Teacher Logins</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">
+                                Teachers ke portal login banayein, reset karein, ya block karein.
+                            </p>
+                            <a href="manage-teacher-logins.html" class="btn btn-primary">🔑 Manage Teacher Logins</a>
                         </div>
                     </div>
 
@@ -1987,7 +2012,19 @@
                 return;
             }
             try {
-                const data = await apiRequest("/dashboard/charts");
+                const classFilter = document.getElementById("attendanceChartClassFilter");
+                if (classFilter && classFilter.options.length <= 1) {
+                    if (!students || students.length === 0) students = await apiRequest("/students");
+                    const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
+                    classes.forEach(c => classFilter.add(new Option(c, c)));
+                }
+
+                const selectedClass = classFilter ? classFilter.value : "";
+                const selectedDays = document.getElementById("attendanceChartDaysFilter")?.value || "30";
+                const params = new URLSearchParams({ days: selectedDays });
+                if (selectedClass) params.set("class_name", selectedClass);
+
+                const data = await apiRequest(`/dashboard/charts?${params.toString()}`);
                 renderAttendanceTrendChart(data.attendance_trend);
                 renderFeeTrendChart(data.fee_trend);
                 renderClassAveragesChart(data.class_averages);
@@ -3950,6 +3987,16 @@
             window.location.href = "index.html";
         }
 
+        function startLiveClock() {
+            const el = document.getElementById("liveClockTime");
+            if (!el) return;
+            function tick() {
+                el.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            }
+            tick();
+            setInterval(tick, 1000);
+        }
+
         async function init() {
             try {
                 const token = getToken();
@@ -3966,6 +4013,8 @@
                         switchView(view);
                     });
                 });
+
+                startLiveClock();
 
                 // Load initial dashboard
                 await loadDashboard();

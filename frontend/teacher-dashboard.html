@@ -305,7 +305,117 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 loadMyClass().catch(err => {
   document.getElementById("classInfo").textContent = err.message;
 });
+
+// ==================== FLOATING AI WIDGET (own class only) ====================
+let aiWidgetOpen = false;
+let aiWidgetLoaded = false;
+
+async function toggleAIWidget() {
+  const panel = document.getElementById("aiWidgetPanel");
+  aiWidgetOpen = !aiWidgetOpen;
+  panel.classList.toggle("open", aiWidgetOpen);
+  if (aiWidgetOpen && !aiWidgetLoaded) {
+    aiWidgetLoaded = true;
+    const select = document.getElementById("aiStudentSelect");
+    select.innerHTML = myStudents.map(s => `<option value="${s.id}" data-name="${s.name}">${s.roll_number} - ${s.name}</option>`).join("")
+      || `<option value="">No students in your class yet</option>`;
+  }
+}
+
+async function generateAIStudentSummary() {
+  const select = document.getElementById("aiStudentSelect");
+  const studentId = select.value;
+  if (!studentId) return;
+  const resultBox = document.getElementById("aiWidgetResult");
+  resultBox.style.display = "block";
+  resultBox.textContent = "Generating...";
+  try {
+    const result = await authFetch(`/ai/student-summary/${studentId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: "roman_urdu" }),
+    });
+    resultBox.textContent = result.summary;
+  } catch (err) {
+    resultBox.textContent = "Error: " + err.message;
+  }
+}
 </script>
-    <script src="js/branding.js"></script>
+
+<button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
+        <rect x="9" y="2" width="2" height="4" rx="1" fill="currentColor"/>
+        <circle cx="10" cy="2" r="1.4" fill="currentColor"/>
+        <circle cx="9" cy="13.5" r="1.6" fill="#0c6e6b"/>
+        <circle cx="15" cy="13.5" r="1.6" fill="#0c6e6b"/>
+        <rect x="8.5" y="17" width="7" height="1.6" rx="0.8" fill="#0c6e6b"/>
+        <rect x="1.5" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
+        <rect x="20.3" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
+    </svg>
+    <span id="aiFabPulse"></span>
+</button>
+
+<div id="aiWidgetPanel">
+    <div id="aiWidgetHeader">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div id="aiWidgetHeaderIcon">✨</div>
+            <div>
+                <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;">AI Insights</div>
+                <div style="font-size:11.5px; opacity:0.8;">Your class only</div>
+            </div>
+        </div>
+        <span onclick="toggleAIWidget()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
+    </div>
+    <div id="aiWidgetBody">
+        <div class="ai-widget-section">
+            <div class="ai-widget-label">📄 Student Summary</div>
+            <p class="ai-widget-hint">Apni class ka koi student choose karein.</p>
+            <select id="aiStudentSelect" class="ai-widget-select"></select>
+            <button class="ai-widget-btn" onclick="generateAIStudentSummary()">✨ Generate Summary</button>
+        </div>
+        <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--paper,#fbfaf7); border-radius:10px; font-size:12.5px; line-height:1.6; white-space:pre-wrap;"></div>
+    </div>
+</div>
+
+<style>
+    #aiFabBtn {
+        position: fixed; right: 24px; bottom: 24px; width: 58px; height: 58px;
+        border-radius: 50%; border: none;
+        background: linear-gradient(165deg, var(--teal-900,#0a5a54), var(--teal-700,#0c6e6b) 70%);
+        color: #fff; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; box-shadow: 0 8px 24px rgba(10,90,84,0.35); z-index: 1200;
+        transition: transform 0.2s ease; animation: aiFabFloat 3s ease-in-out infinite;
+    }
+    #aiFabBtn:hover { transform: scale(1.08); }
+    #aiFabPulse {
+        position: absolute; inset: 0; border-radius: 50%; background: var(--teal-700,#0c6e6b);
+        opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite;
+    }
+    @keyframes aiFabPulse { 0% { transform: scale(1); opacity: 0.5; } 70%, 100% { transform: scale(1.7); opacity: 0; } }
+    @keyframes aiFabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    #aiWidgetPanel {
+        position: fixed; right: 24px; bottom: 96px; width: 320px; max-width: calc(100vw - 32px);
+        max-height: 70vh; max-height: 70dvh; background: #fff; border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(10,90,84,0.25); border: 1px solid var(--line,#e6e8e5);
+        z-index: 1199; display: flex; flex-direction: column; overflow: hidden;
+        transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none;
+        transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+    #aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+    #aiWidgetHeader {
+        background: linear-gradient(165deg, var(--teal-900,#0a5a54), var(--teal-700,#0c6e6b) 70%);
+        color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    #aiWidgetHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    #aiWidgetBody { padding: 16px; overflow-y: auto; }
+    .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+    .ai-widget-hint { font-size: 12px; color: var(--ink-500,#5c6b69); margin: 0 0 8px; }
+    .ai-widget-select { width: 100%; padding: 9px 10px; border: 1.5px solid var(--line,#e6e8e5); border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px; }
+    .ai-widget-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--teal-700,#0c6e6b); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .ai-widget-btn:hover { background: var(--teal-900,#0a5a54); }
+    @media (max-width: 480px) { #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); } #aiFabBtn { right: 16px; bottom: 16px; } }
+</style>
+<script src="js/branding.js"></script>
 </body>
 </html>
