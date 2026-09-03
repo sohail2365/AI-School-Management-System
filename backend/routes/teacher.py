@@ -264,3 +264,94 @@ def get_my_class_test_records(
         .order_by(TestRecord.created_at.desc())
         .all()
     )
+
+
+# ==================== PARENT MESSAGES (own class only) ====================
+
+@router.get("/messages")
+def get_my_class_message_threads(
+    token: dict = Depends(require_roles(["teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    One row per student in the teacher's class who has at least one message,
+    with the latest message preview — powers a conversation list, same idea
+    as the admin's per-student inbox.
+    """
+    from backend.models.parent_message import ParentMessage
+
+    staff = _current_teacher(token, db)
+    class_students = (
+        db.query(Student)
+        .filter(Student.school_id == token["school_id"], Student.class_name == staff.class_assigned)
+        .all()
+    )
+
+    threads = []
+    for s in class_students:
+        last = (
+            db.query(ParentMessage)
+            .filter(ParentMessage.school_id == token["school_id"], ParentMessage.student_id == s.id)
+            .order_by(ParentMessage.created_at.desc())
+            .first()
+        )
+        if last:
+            threads.append({
+                "student_id": s.id,
+                "student_name": s.name,
+                "last_message": last.message,
+                "last_sender_role": last.sender_role,
+                "last_at": last.created_at.isoformat(),
+            })
+    threads.sort(key=lambda t: t["last_at"], reverse=True)
+    return threads
+
+
+@router.get("/messages/{student_id}")
+def get_my_class_student_messages(
+    student_id: int,
+    token: dict = Depends(require_roles(["teacher"])),
+    db: Session = Depends(get_db),
+):
+    from backend.models.parent_message import ParentMessage
+
+    staff = _current_teacher(token, db)
+    _assert_student_in_my_class(db, token, staff, student_id)
+
+    messages = (
+        db.query(ParentMessage)
+        .filter(ParentMessage.school_id == token["school_id"], ParentMessage.student_id == student_id)
+        .order_by(ParentMessage.created_at.asc())
+        .all()
+    )
+    return [
+        {"id": m.id, "sender_role": m.sender_role, "message": m.message, "created_at": m.created_at.isoformat()}
+        for m in messages
+    ]
+
+
+@router.post("/messages/{student_id}", status_code=status.HTTP_201_CREATED)
+def send_my_class_student_message(
+    student_id: int,
+    message: str,
+    token: dict = Depends(require_roles(["teacher"])),
+    db: Session = Depends(get_db),
+):
+    from backend.models.parent_message import ParentMessage
+
+    staff = _current_teacher(token, db)
+    _assert_student_in_my_class(db, token, staff, student_id)
+    if not message or not message.strip():
+        raise HTTPException(status_code=422, detail="Message cannot be empty")
+
+    msg = ParentMessage(
+        school_id=token["school_id"],
+        student_id=student_id,
+        sender_user_id=token["user_id"],
+        sender_role="staff",
+        message=message.strip()[:2000],
+    )
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return {"id": msg.id, "created_at": msg.created_at.isoformat()}

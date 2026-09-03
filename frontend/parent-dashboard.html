@@ -21,14 +21,16 @@
   .topbar .word { font-family:'Poppins',sans-serif; font-weight:800; font-size:18px; }
   .topbar button { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:0.4rem 0.9rem; border-radius:8px; cursor:pointer; font-size:13px; }
   .container { max-width:920px; margin:1.5rem auto; padding:0 1rem 3rem; }
-  .card { background:var(--card); border-radius:14px; padding:1.3rem 1.5rem; margin-bottom:1.2rem; box-shadow:0 2px 12px rgba(10,90,84,0.06); border:1px solid var(--line); }
+  .card { background:var(--card); border-radius:14px; padding:1.3rem 1.5rem; margin-bottom:1.2rem; box-shadow:0 2px 12px rgba(10,90,84,0.06); border:1px solid var(--line); transition: box-shadow 0.25s ease; }
+  .card:hover { box-shadow: 0 8px 24px rgba(10,90,84,0.10); }
   .card h2 { font-family:'Poppins',sans-serif; font-size:1.05rem; margin:0 0 1rem; }
   .student-hero { display:flex; align-items:center; gap:14px; }
   .student-avatar { width:52px; height:52px; border-radius:50%; background:var(--teal-100); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-weight:700; font-size:20px; flex-shrink:0; }
   .student-hero h1 { font-family:'Poppins',sans-serif; font-size:1.2rem; margin:0; }
   .student-hero .meta { color:var(--ink-500); font-size:0.88rem; margin-top:2px; }
   .tabs { display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; }
-  .tab-btn { padding:0.5rem 1rem; border:1px solid var(--line); background:var(--card); border-radius:10px; cursor:pointer; font-size:0.88rem; font-weight:600; color:var(--ink-500); }
+  .tab-btn { padding:0.5rem 1rem; border:1px solid var(--line); background:var(--card); border-radius:10px; cursor:pointer; font-size:0.88rem; font-weight:600; color:var(--ink-500); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease; }
+  .tab-btn:hover { transform: translateY(-1px); border-color: var(--teal-500); color: var(--teal-700); }
   .tab-btn.active { background:var(--teal-700); color:#fff; border-color:var(--teal-700); }
   table { width:100%; border-collapse:collapse; font-size:0.9rem; }
   th, td { text-align:left; padding:0.55rem 0.6rem; border-bottom:1px solid var(--line); }
@@ -276,6 +278,20 @@ async function sendMessage() {
     alert(err.message);
   }
 }
+
+async function applyPortalBackground() {
+  try {
+    const result = await api("/settings/background-image");
+    if (result.url) {
+      document.body.style.backgroundImage =
+        `linear-gradient(rgba(251,250,247,0.93), rgba(251,250,247,0.93)), url('${result.url}')`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundAttachment = "fixed";
+      document.body.style.backgroundPosition = "center";
+    }
+  } catch (e) { /* no background set — fine */ }
+}
+applyPortalBackground();
 
 init();
 </script>

@@ -791,6 +791,7 @@
                 <li><a class="menu-link" data-view="attendance"><span class="icon">✅</span> Attendance</a></li>
                 <li><a class="menu-link" data-view="grades"><span class="icon">📈</span> Grades</a></li>
                 <li><a class="menu-link" data-view="staff"><span class="icon">🧑‍🏫</span> Staff</a></li>
+                <li><a class="menu-link" data-view="messages"><span class="icon">💬</span> Messages</a></li>
                 <li><a class="menu-link" data-view="announcements"><span class="icon">📢</span> Announcements</a></li>
                 <li><a class="menu-link" data-view="settings"><span class="icon">⚙️</span> Settings</a></li>
             </ul>
@@ -1236,6 +1237,36 @@
                     </div>
                 </div>
 
+                <!-- MESSAGES VIEW -->
+                <div class="view" id="messagesView">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">💬 Parent Messages</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:grid; grid-template-columns: 260px 1fr; gap:20px; min-height:380px;">
+                                <div>
+                                    <select id="msgClassFilter" onchange="loadAdminMessageThreads()" style="width:100%; margin-bottom:10px; padding:8px; border:1.5px solid var(--border); border-radius:8px;">
+                                        <option value="">All Classes</option>
+                                    </select>
+                                    <div id="adminMsgThreadList" style="border-top:1px solid var(--border); padding-top:10px; overflow-y:auto; max-height:420px;">
+                                        <div style="color:var(--gray); font-size:0.85rem;">Loading...</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div id="adminMsgConversation" style="min-height:300px; max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px; padding:4px;">
+                                        <div style="color:var(--gray); font-size:0.9rem;">Select a student to view messages.</div>
+                                    </div>
+                                    <div id="adminMsgReplyBox" style="display:none; gap:8px;">
+                                        <input type="text" id="adminMsgReplyInput" placeholder="Type a reply..." style="flex:1; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;" />
+                                        <button class="btn btn-primary" onclick="sendAdminMessage()">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ANNOUNCEMENTS VIEW -->
                 <div class="view" id="announcementsView">
                     <div class="card">
@@ -1278,6 +1309,23 @@
                                 <input type="text" id="settingsAddress" placeholder="Enter school address">
                             </div>
                             <button class="btn btn-primary" onclick="saveSettings()">💾 Save School Info</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px;">
+                        <div class="card-header">
+                            <h3 class="card-title">🖼️ Portal Background Image</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">
+                                Ek school photo upload karein — admin, teacher aur parent portal, teenon jagah subtle background ke taur pe dikhegi.
+                            </p>
+                            <div id="backgroundImagePreview" style="margin-bottom:14px;"></div>
+                            <input type="file" id="backgroundImageInput" accept="image/*" style="margin-bottom:10px;">
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-primary" onclick="uploadBackgroundImage()">⬆️ Upload</button>
+                                <button class="btn btn-secondary" onclick="removeBackgroundImage()">🗑️ Remove Background</button>
+                            </div>
                         </div>
                     </div>
 
@@ -1970,6 +2018,9 @@
                         break;
                     case "staff":
                         await loadStaffTab();
+                        break;
+                    case "messages":
+                        await loadAdminMessageThreads();
                         break;
                     case "announcements":
                         await loadAnnouncements();
@@ -3946,6 +3997,55 @@
             tbody.appendChild(tr);
         }
 
+        // ==================== PORTAL BACKGROUND IMAGE ====================
+        async function applyPortalBackground() {
+            try {
+                const result = await apiRequest("/settings/background-image");
+                if (result.url) {
+                    document.body.style.backgroundImage =
+                        `linear-gradient(rgba(251,250,247,0.93), rgba(251,250,247,0.93)), url('${result.url}')`;
+                    document.body.style.backgroundSize = "cover";
+                    document.body.style.backgroundAttachment = "fixed";
+                    document.body.style.backgroundPosition = "center";
+                    const preview = document.getElementById("backgroundImagePreview");
+                    if (preview) preview.innerHTML = `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">`;
+                }
+            } catch (error) {
+                console.error("Could not load background image:", error);
+            }
+        }
+
+        async function uploadBackgroundImage() {
+            const input = document.getElementById("backgroundImageInput");
+            const file = input.files[0];
+            if (!file) {
+                showAlert("Pehle ek image choose karein", "error");
+                return;
+            }
+            const form = new FormData();
+            form.append("file", file);
+            try {
+                await apiRequest("/settings/background-image", { method: "POST", body: form });
+                showAlert("Background image updated.");
+                input.value = "";
+                await applyPortalBackground();
+            } catch (error) {
+                showAlert("Upload failed: " + error.message, "error");
+            }
+        }
+
+        async function removeBackgroundImage() {
+            if (!confirm("Remove the portal background image?")) return;
+            try {
+                await apiRequest("/settings/background-image", { method: "DELETE" });
+                document.body.style.backgroundImage = "";
+                document.getElementById("backgroundImagePreview").innerHTML = "";
+                showAlert("Background image removed.");
+            } catch (error) {
+                showAlert("Could not remove: " + error.message, "error");
+            }
+        }
+
         async function saveSettings() {
             try {
                 const payload = {
@@ -4015,6 +4115,7 @@
                 });
 
                 startLiveClock();
+                applyPortalBackground();
 
                 // Load initial dashboard
                 await loadDashboard();
@@ -4586,6 +4687,78 @@
         // ==================== AI FEATURES (read-only summaries via Groq) ====================
         let aiMode = null;        // "student" or "class"
         let aiTargetId = null;    // student id or class name
+
+        // ==================== ADMIN MESSAGES ====================
+        let activeAdminMsgStudentId = null;
+
+        async function loadAdminMessageThreads() {
+            try {
+                if (!students || students.length === 0) students = await apiRequest("/students");
+                const classFilter = document.getElementById("msgClassFilter");
+                if (classFilter && classFilter.options.length <= 1) {
+                    const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
+                    classes.forEach(c => classFilter.add(new Option(c, c)));
+                }
+
+                const selectedClass = classFilter ? classFilter.value : "";
+                const params = selectedClass ? `?class_name=${encodeURIComponent(selectedClass)}` : "";
+                const threads = await apiRequest(`/students/messages/threads${params}`);
+                const container = document.getElementById("adminMsgThreadList");
+
+                if (threads.length === 0) {
+                    container.innerHTML = `<div style="color:var(--gray); font-size:0.85rem;">No messages yet.</div>`;
+                    return;
+                }
+                container.innerHTML = threads.map(t => `
+                    <div onclick="openAdminMessageThread(${t.student_id}, '${t.student_name.replace(/'/g, "\\'")}')"
+                         style="padding:9px 10px; border-radius:8px; cursor:pointer; margin-bottom:4px; ${activeAdminMsgStudentId === t.student_id ? "background:var(--teal-100,#e3f3f1);" : ""}">
+                        <div style="font-weight:600; font-size:0.85rem;">${t.student_name} <span style="font-weight:400; color:var(--gray); font-size:0.75rem;">(${t.class_name || "-"})</span></div>
+                        <div style="font-size:0.78rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${t.last_sender_role === "parent" ? "👨‍👩‍👧 " : "You: "}${t.last_message}
+                        </div>
+                    </div>
+                `).join("");
+            } catch (error) {
+                document.getElementById("adminMsgThreadList").innerHTML = `<div style="color:var(--danger);">${error.message}</div>`;
+            }
+        }
+
+        async function openAdminMessageThread(studentId, studentName) {
+            activeAdminMsgStudentId = studentId;
+            await loadAdminMessageThreads();
+            const convo = document.getElementById("adminMsgConversation");
+            convo.innerHTML = `<div style="color:var(--gray); font-size:0.9rem;">Loading...</div>`;
+            document.getElementById("adminMsgReplyBox").style.display = "flex";
+            try {
+                const messages = await apiRequest(`/students/${studentId}/messages`);
+                convo.innerHTML = messages.length === 0
+                    ? `<div style="color:var(--gray); font-size:0.9rem;">No messages with ${studentName}'s parent yet.</div>`
+                    : messages.map(m => `
+                        <div style="align-self:${m.sender_role === "parent" ? "flex-start" : "flex-end"}; max-width:75%; padding:9px 13px; border-radius:12px; font-size:0.88rem;
+                                    background:${m.sender_role === "parent" ? "var(--bg-secondary)" : "var(--primary)"};
+                                    color:${m.sender_role === "parent" ? "var(--dark)" : "#fff"};">
+                            ${m.message}
+                        </div>
+                    `).join("");
+                convo.scrollTop = convo.scrollHeight;
+            } catch (error) {
+                convo.innerHTML = `<div style="color:var(--danger);">${error.message}</div>`;
+            }
+        }
+
+        async function sendAdminMessage() {
+            const input = document.getElementById("adminMsgReplyInput");
+            const text = input.value.trim();
+            if (!text || !activeAdminMsgStudentId) return;
+            try {
+                await apiRequest(`/students/${activeAdminMsgStudentId}/messages?message=${encodeURIComponent(text)}`, { method: "POST" });
+                input.value = "";
+                const s = students.find(x => x.id === activeAdminMsgStudentId);
+                await openAdminMessageThread(activeAdminMsgStudentId, s ? s.name : "");
+            } catch (error) {
+                showAlert("Could not send: " + error.message, "error");
+            }
+        }
 
         async function loadAIInsightsView() {
             try {

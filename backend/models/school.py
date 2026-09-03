@@ -18,6 +18,11 @@ class School(Base):
     principal_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
+    # Background image (Supabase Storage path) shown across admin/teacher/
+    # parent portal pages. Optional — pages fall back to the plain paper
+    # background when unset.
+    background_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     # Platform-level control (used by the super admin panel). A deactivated
     # school can't log in at all, but its data is preserved (not deleted) —
     # use this for suspending a demo/spam signup without losing anything,

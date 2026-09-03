@@ -14,19 +14,24 @@
     --success: #1a8c5c; --danger: #c4453b;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink-900); }
-  .topbar { background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%); color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink-900); background-size: cover; background-attachment: fixed; }
+  .topbar { background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%); color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(10,90,84,0.15); position: sticky; top: 0; z-index: 50; }
   .topbar h1 { font-family: 'Poppins', sans-serif; font-size: 1.15rem; margin: 0; }
-  .topbar button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; }
+  .topbar button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; transition: background 0.2s ease; }
+  .topbar button:hover { background: rgba(255,255,255,0.25); }
   .container { max-width: 960px; margin: 1.5rem auto; padding: 0 1rem; }
-  .card { background: var(--card); border-radius: 14px; padding: 1.3rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 2px 12px rgba(10,90,84,0.06); border: 1px solid var(--line); }
+  .card { background: var(--card); border-radius: 14px; padding: 1.3rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 2px 12px rgba(10,90,84,0.06); border: 1px solid var(--line); transition: box-shadow 0.25s ease, transform 0.25s ease; }
+  .card:hover { box-shadow: 0 8px 24px rgba(10,90,84,0.10); }
   .card h2 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; margin: 0 0 0.9rem; }
   .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .tab-btn { padding: 0.5rem 1rem; border: 1px solid var(--line); background: var(--card); border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--ink-500); }
+  .tab-btn { padding: 0.5rem 1rem; border: 1px solid var(--line); background: var(--card); border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--ink-500); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease; }
+  .tab-btn:hover { transform: translateY(-1px); border-color: var(--teal-500); color: var(--teal-700); }
   .tab-btn.active { background: var(--teal-700); color: #fff; border-color: var(--teal-700); }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); }
   th { color: var(--ink-500); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  tbody tr { transition: background 0.15s ease; }
+  tbody tr:hover { background: var(--paper); }
   select, input { padding: 0.5rem 0.7rem; border: 1.5px solid var(--line); border-radius: 8px; font-size: 0.88rem; font-family: inherit; }
   select:focus, input:focus { outline: none; border-color: var(--teal-500); box-shadow: 0 0 0 3px var(--teal-100); }
   .row-form { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
@@ -54,6 +59,7 @@
       <button class="tab-btn active" data-tab="attendance">Attendance</button>
       <button class="tab-btn" data-tab="grades">Grades</button>
       <button class="tab-btn" data-tab="testrecords">Monthly/Annual Test Records</button>
+      <button class="tab-btn" data-tab="messages">Parent Messages</button>
     </div>
 
     <!-- ATTENDANCE -->
@@ -115,6 +121,25 @@
         <thead><tr><th>Student</th><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th><th>Photo</th></tr></thead>
         <tbody id="trTable"></tbody>
       </table>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="card" id="tab-messages" style="display:none">
+      <h2>Parent Messages</h2>
+      <div style="display:grid; grid-template-columns: 220px 1fr; gap:16px; min-height:320px;">
+        <div id="msgThreadList" style="border-right:1px solid var(--line,#e6e8e5); padding-right:12px; overflow-y:auto; max-height:420px;">
+          <div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">Loading...</div>
+        </div>
+        <div>
+          <div id="msgConversation" style="min-height:280px; max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
+            <div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">Select a student to view messages.</div>
+          </div>
+          <div id="msgReplyBox" style="display:none; gap:8px;">
+            <input type="text" id="msgReplyInput" placeholder="Type a reply..." style="flex:1;" />
+            <button onclick="sendClassMessage()">Send</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -296,11 +321,87 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    ["attendance", "grades", "testrecords"].forEach(t => {
+    ["attendance", "grades", "testrecords", "messages"].forEach(t => {
       document.getElementById(`tab-${t}`).style.display = (t === btn.dataset.tab) ? "block" : "none";
     });
+    if (btn.dataset.tab === "messages") loadMessageThreads();
   });
 });
+
+let activeMessageStudentId = null;
+
+async function loadMessageThreads() {
+  const container = document.getElementById("msgThreadList");
+  try {
+    const threads = await authFetch("/teacher/messages");
+    if (threads.length === 0) {
+      container.innerHTML = `<div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">No messages yet.</div>`;
+      return;
+    }
+    container.innerHTML = threads.map(t => `
+      <div onclick="openMessageThread(${t.student_id}, '${t.student_name.replace(/'/g, "\\'")}')"
+           style="padding:8px 10px; border-radius:8px; cursor:pointer; margin-bottom:4px; ${activeMessageStudentId === t.student_id ? 'background:var(--teal-100,#e3f3f1);' : ''}">
+        <div style="font-weight:600; font-size:0.85rem;">${t.student_name}</div>
+        <div style="font-size:0.78rem; color:var(--ink-500,#5c6b69); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          ${t.last_sender_role === "parent" ? "👨‍👩‍👧 " : "You: "}${t.last_message}
+        </div>
+      </div>
+    `).join("");
+  } catch (error) {
+    container.innerHTML = `<div style="color:var(--danger,#c4453b); font-size:0.85rem;">${error.message}</div>`;
+  }
+}
+
+async function openMessageThread(studentId, studentName) {
+  activeMessageStudentId = studentId;
+  await loadMessageThreads();
+  const convo = document.getElementById("msgConversation");
+  convo.innerHTML = `<div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">Loading...</div>`;
+  document.getElementById("msgReplyBox").style.display = "flex";
+  try {
+    const messages = await authFetch(`/teacher/messages/${studentId}`);
+    convo.innerHTML = messages.length === 0
+      ? `<div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">No messages with ${studentName}'s parent yet.</div>`
+      : messages.map(m => `
+          <div style="align-self:${m.sender_role === "parent" ? "flex-start" : "flex-end"}; max-width:75%; padding:8px 12px; border-radius:10px; font-size:0.85rem;
+                      background:${m.sender_role === "parent" ? "var(--bg-secondary,#f1f5f9)" : "var(--teal-700,#0c6e6b)"};
+                      color:${m.sender_role === "parent" ? "inherit" : "#fff"};">
+            ${m.message}
+          </div>
+        `).join("");
+    convo.scrollTop = convo.scrollHeight;
+  } catch (error) {
+    convo.innerHTML = `<div style="color:var(--danger,#c4453b); font-size:0.85rem;">${error.message}</div>`;
+  }
+}
+
+async function sendClassMessage() {
+  const input = document.getElementById("msgReplyInput");
+  const text = input.value.trim();
+  if (!text || !activeMessageStudentId) return;
+  try {
+    await authFetch(`/teacher/messages/${activeMessageStudentId}?message=${encodeURIComponent(text)}`, { method: "POST" });
+    input.value = "";
+    const students = myStudents.find(s => s.id === activeMessageStudentId);
+    await openMessageThread(activeMessageStudentId, students ? students.name : "");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function applyPortalBackground() {
+  try {
+    const result = await authFetch("/settings/background-image");
+    if (result.url) {
+      document.body.style.backgroundImage =
+        `linear-gradient(rgba(251,250,247,0.93), rgba(251,250,247,0.93)), url('${result.url}')`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundAttachment = "fixed";
+      document.body.style.backgroundPosition = "center";
+    }
+  } catch (e) { /* no background set, or not yet configured — fine */ }
+}
+applyPortalBackground();
 
 loadMyClass().catch(err => {
   document.getElementById("classInfo").textContent = err.message;

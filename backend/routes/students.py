@@ -434,6 +434,40 @@ def student_report(
 
 # ==================== ADMIN/TEACHER SIDE OF PARENT MESSAGING ====================
 
+@router.get("/messages/threads")
+def get_all_message_threads(
+    class_name: str | None = Query(default=None),
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """One row per student with a message, newest message first — powers the admin's inbox list."""
+    from backend.models.parent_message import ParentMessage
+
+    query = db.query(Student).filter(Student.school_id == token["school_id"])
+    if class_name:
+        query = query.filter(Student.class_name == class_name)
+
+    threads = []
+    for s in query.all():
+        last = (
+            db.query(ParentMessage)
+            .filter(ParentMessage.school_id == token["school_id"], ParentMessage.student_id == s.id)
+            .order_by(ParentMessage.created_at.desc())
+            .first()
+        )
+        if last:
+            threads.append({
+                "student_id": s.id,
+                "student_name": s.name,
+                "class_name": s.class_name,
+                "last_message": last.message,
+                "last_sender_role": last.sender_role,
+                "last_at": last.created_at.isoformat(),
+            })
+    threads.sort(key=lambda t: t["last_at"], reverse=True)
+    return threads
+
+
 @router.get("/{student_id}/messages")
 def get_student_messages(
     student_id: int,
