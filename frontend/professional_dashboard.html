@@ -1936,7 +1936,13 @@
             const headers = { ...options.headers || {} };
             const token = getToken();
             if (token) headers.Authorization = `Bearer ${token}`;
-            if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
+            // Don't force JSON content-type for FormData uploads — the browser
+            // must set its own multipart/form-data boundary header, or the
+            // server can't parse the file (this was silently breaking every
+            // file upload that went through apiRequest, e.g. background image).
+            if (!headers['Content-Type'] && options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+            }
 
             const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
             const data = await response.json().catch(() => ({}));
