@@ -33,6 +33,7 @@ class StaffOut(BaseModel):
     id: int
     school_id: int
     user_id: int | None = None
+    login_active: bool | None = None
     name: str
     designation: str
     role: str

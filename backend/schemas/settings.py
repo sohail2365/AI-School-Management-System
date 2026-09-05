@@ -45,3 +45,26 @@ class FeeSettingsUpdate(BaseModel):
 
 class HolidaysUpdate(BaseModel):
     holidays: str = Field(default="", description='Newline-separated "YYYY-MM-DD (Reason)" entries')
+
+
+class ParentPortalSettingsUpdate(BaseModel):
+    parent_portal_enabled: bool | None = None
+    parent_show_attendance: bool | None = None
+    parent_show_grades: bool | None = None
+    parent_show_fees: bool | None = None
+    parent_show_documents: bool | None = None
+    parent_allow_messages: bool | None = None
+    payment_info: str | None = None
+
+
+class ParentPortalSettingsResponse(BaseModel):
+    parent_portal_enabled: bool
+    parent_show_attendance: bool
+    parent_show_grades: bool
+    parent_show_fees: bool
+    parent_show_documents: bool
+    parent_allow_messages: bool
+    payment_info: str | None = None
+
+    class Config:
+        from_attributes = True

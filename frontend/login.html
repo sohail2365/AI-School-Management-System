@@ -3,290 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Management System - Login</title>
+    <title>SchoolHub — Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #7c3aed;
-            --accent: #ec4899;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #06b6d4;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --gray: #6b7280;
-            --border: #e5e7eb;
+            --teal-900: #0a5a54;
+            --teal-700: #0c6e6b;
+            --teal-500: #14958c;
+            --teal-100: #e3f3f1;
+            --clay-500: #c87757;
+            --ink-900: #1a2b29;
+            --ink-500: #5c6b69;
+            --paper: #fbfaf7;
+            --card: #ffffff;
+            --line: #e6e8e5;
+            --success: #1a8c5c;
+            --danger: #c4453b;
+            --radius-lg: 20px;
+            --radius-md: 12px;
         }
 
-        html, body {
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        html, body { height: 100%; }
         body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--paper);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: grid;
+            grid-template-columns: 1fr;
+            color: var(--ink-900);
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            min-height: 100dvh;
+        }
+        @media (min-width: 880px) {
+            .shell { grid-template-columns: 1fr 1fr; }
+        }
+
+        .brand-panel {
+            background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 48px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+            width: 480px; height: 480px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+            top: -120px; right: -120px;
+        }
+        @media (max-width: 879px) {
+            .brand-panel {
+                padding: 32px 24px 28px;
+                min-height: 0;
+            }
+        }
+
+        .brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .brand-mark .notch {
+            width: 10px; height: 34px;
+            border-radius: 4px;
+            background: var(--clay-500);
+            flex-shrink: 0;
+        }
+        .brand-mark .wordmark {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 26px;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-copy {
+            margin-top: 28px;
+            max-width: 380px;
+            position: relative;
+            z-index: 1;
+        }
+        .brand-copy h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+        .brand-copy p {
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.82);
+        }
+        @media (max-width: 879px) {
+            .brand-copy { display: none; }
+        }
+
+        .form-panel {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            min-height: 100dvh;
-            padding: 20px;
+            padding: 32px 20px 48px;
         }
 
-        .login-container {
+        .login-card {
             width: 100%;
-            max-width: 420px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 50px;
-            animation: slideUp 0.5s ease-out;
+            max-width: 380px;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-        }
-
-        .logo-text {
-            font-size: 28px;
+        .login-card h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 22px;
             font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 10px;
+            margin-bottom: 6px;
+        }
+        .login-card .sub {
+            font-size: 13.5px;
+            color: var(--ink-500);
+            margin-bottom: 28px;
         }
 
-        .logo-subtitle {
-            font-size: 14px;
-            color: var(--gray);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
+        .form-group { margin-bottom: 18px; }
         .form-group label {
             display: block;
             font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 8px;
-            font-size: 14px;
+            font-size: 13px;
+            color: var(--ink-900);
+            margin-bottom: 7px;
         }
-
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius-md);
             font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 14.5px;
+            background: var(--card);
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--teal-500);
+            box-shadow: 0 0 0 3px var(--teal-100);
         }
-
-        .form-group input::placeholder {
-            color: #9ca3af;
-        }
+        .form-group input::placeholder { color: #a3aeac; }
 
         .login-btn {
             width: 100%;
             padding: 13px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            background: var(--teal-700);
+            color: #fff;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
+            transition: background 0.15s, transform 0.1s;
+            margin-top: 6px;
         }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn.loading {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
+        .login-btn:hover { background: var(--teal-900); }
+        .login-btn:active { transform: scale(0.99); }
+        .login-btn.loading { opacity: 0.65; cursor: not-allowed; }
+        .login-btn:focus-visible { outline: 3px solid var(--teal-100); outline-offset: 2px; }
 
         .alert {
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 11px 14px;
+            border-radius: var(--radius-md);
+            margin-bottom: 18px;
+            font-size: 13.5px;
             display: none;
-            animation: slideDown 0.3s ease-out;
         }
+        .alert.show { display: block; }
+        .alert-error { background: #fbeae8; color: var(--danger); border-left: 3px solid var(--danger); }
+        .alert-success { background: #e7f5ee; color: var(--success); border-left: 3px solid var(--success); }
 
-        .alert.show {
-            display: block;
+        .forgot-link { text-align: right; margin-bottom: 18px; }
+        .forgot-link a, .switch-link a {
+            font-size: 13px;
+            color: var(--teal-700);
+            text-decoration: none;
+            font-weight: 600;
         }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid var(--danger);
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid var(--success);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .forgot-link a:hover, .switch-link a:hover { text-decoration: underline; }
 
         .login-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 26px;
             font-size: 13px;
-            color: var(--gray);
+            color: var(--ink-500);
         }
-
-        .demo-credentials {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 25px;
-            border-left: 4px solid var(--info);
-        }
-
-        .demo-credentials h4 {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .demo-credentials p {
-            font-size: 13px;
-            color: var(--gray);
-            margin: 4px 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .demo-btn {
-            background: var(--info);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s;
-            width: 100%;
-        }
-
-        .demo-btn:hover {
-            background: #0891b2;
-        }
-
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 30px 20px;
-            }
-
-            .logo-text {
-                font-size: 24px;
-            }
-
-            .logo-icon {
-                font-size: 50px;
-            }
-        }
+        .login-footer p:first-child { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="logo-icon">🎓</div>
-            <div class="logo-text">SchoolHub</div>
-            <div class="logo-subtitle">Professional School Management System</div>
+    <div class="shell">
+        <div class="brand-panel">
+            <div class="brand-mark">
+                <div class="notch"></div>
+                <div class="wordmark">SchoolHub</div>
+            </div>
+            <div class="brand-copy">
+                <h1>Everything your school runs on, in one place.</h1>
+                <p>Students, fees, attendance, and staff — managed from a single dashboard, built for the way your school actually works.</p>
+            </div>
         </div>
 
-        <div class="alert alert-error" id="errorAlert"></div>
-        <div class="alert alert-success" id="successAlert"></div>
+        <div class="form-panel">
+            <div class="login-card">
+                <h2>Welcome back</h2>
+                <div class="sub">Sign in to your school's dashboard</div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="email" placeholder="your@email.com" required>
+                <div class="alert alert-error" id="errorAlert"></div>
+                <div class="alert alert-success" id="successAlert"></div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="forgot-link">
+                        <a href="#" onclick="showForgotPasswordForm(event)">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+                </form>
+
+                <!-- Forgot Password form (hidden by default, toggled by the link above) -->
+                <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" style="display: none;">
+                    <div class="form-group">
+                        <label>Enter your account email</label>
+                        <input type="email" id="forgotEmail" placeholder="your@email.com" required>
+                    </div>
+                    <button type="submit" class="login-btn" id="forgotPasswordBtn">Send Reset Link</button>
+                    <div class="switch-link" style="text-align: center; margin-top: 14px;">
+                        <a href="#" onclick="showLoginForm(event)">Back to login</a>
+                    </div>
+                </form>
+
+                <div class="login-footer">
+                    <p>Don't have an account? <a href="register.html" style="color: var(--teal-700); font-weight: 700; text-decoration: none;">Sign up</a></p>
+                    <p>© 2026 SchoolHub. All rights reserved.</p>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-
-            <div style="text-align: right; margin-bottom: 16px;">
-                <a href="#" onclick="showForgotPasswordForm(event)" style="font-size: 13px; color: #667eea; text-decoration: none;">Forgot Password?</a>
-            </div>
-
-            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
-        </form>
-
-        <!-- Forgot Password form (hidden by default, toggled by the link above) -->
-        <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" style="display: none;">
-            <div class="form-group">
-                <label>Enter your account email</label>
-                <input type="email" id="forgotEmail" placeholder="your@email.com" required>
-            </div>
-            <button type="submit" class="login-btn" id="forgotPasswordBtn">Send Reset Link</button>
-            <div style="text-align: center; margin-top: 12px;">
-                <a href="#" onclick="showLoginForm(event)" style="font-size: 13px; color: #667eea; text-decoration: none;">Back to login</a>
-            </div>
-        </form>
-
-        <div class="login-footer">
-            <p style="margin-bottom: 12px; font-size: 14px;">Don't have an account? <a href="register.html" style="color: #667eea; font-weight: 600; text-decoration: none;">Sign up</a></p>
-            <p>© 2024 School Management System. All rights reserved.</p>
         </div>
     </div>
 
@@ -350,11 +329,6 @@
             }
         }
 
-        function fillDemoCredentials() {
-            document.getElementById("email").value = "admin@school.com";
-            document.getElementById("password").value = "admin123";
-        }
-
         async function handleLogin(event) {
             event.preventDefault();
 
@@ -388,7 +362,6 @@
                     throw new Error(data.detail || "Login failed");
                 }
 
-                // Store token
                 localStorage.setItem("access_token", data.access_token);
                 localStorage.setItem("user_role", data.role || "user");
                 localStorage.setItem("user_full_name", data.full_name || "");
@@ -404,7 +377,6 @@
             }
         }
 
-        // Check if already logged in
         window.addEventListener("load", () => {
             const token = localStorage.getItem("access_token");
             if (token) {

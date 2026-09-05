@@ -50,7 +50,20 @@ def list_staff(
         query = query.filter(Staff.class_assigned == class_assigned)
     if search:
         query = query.filter(Staff.name.ilike(f"%{search}%"))
-    return query.order_by(Staff.id.desc()).all()
+    results = query.order_by(Staff.id.desc()).all()
+
+    # Attach login_active (from the linked User row) without touching the
+    # Staff model itself — plain instance attribute, never committed.
+    user_ids = [s.user_id for s in results if s.user_id]
+    if user_ids:
+        active_map = {
+            u.id: u.is_active
+            for u in db.query(User).filter(User.id.in_(user_ids))
+        }
+        for s in results:
+            s.login_active = active_map.get(s.user_id) if s.user_id else None
+
+    return results
 
 
 @router.get("/{staff_id}", response_model=StaffOut)
@@ -442,3 +455,34 @@ def delete_salary_payment(
     db.delete(payment)
     db.commit()
     return None
+
+
+# ==================== BLOCK / UNBLOCK TEACHER LOGIN ====================
+# Purely additive: toggles the existing User.is_active flag, which
+# backend/routes/auth.py's login() already checks and rejects on. No
+# existing logic changed — this just exposes an admin-facing switch for it.
+
+@router.post("/{staff_id}/toggle-login")
+def toggle_teacher_login(
+    staff_id: int,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """Blocks (or unblocks) a staff member's portal login without deleting the account."""
+    staff = db.query(Staff).filter(Staff.id == staff_id, Staff.school_id == token["school_id"]).first()
+    if not staff:
+        raise HTTPException(status_code=404, detail="Staff member not found")
+    if not staff.user_id:
+        raise HTTPException(status_code=422, detail="This staff member has no portal login to block.")
+
+    user = db.query(User).filter(User.id == staff.user_id, User.school_id == token["school_id"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Linked login not found")
+
+    user.is_active = not user.is_active
+    db.commit()
+
+    return {
+        "message": f"Login {'unblocked' if user.is_active else 'blocked'} for {staff.name}.",
+        "is_active": user.is_active,
+    }

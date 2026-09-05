@@ -4,22 +4,35 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Teacher Portal Login - SchoolHub</title>
-<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f4f6f9; }
-  .login-box { background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 380px; }
-  .login-box h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
-  .login-box p.sub { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
-  .login-box label { display: block; font-size: 0.85rem; margin: 0.8rem 0 0.3rem; color: #333; }
-  .login-box input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
-  .login-box button { width: 100%; margin-top: 1.5rem; padding: 0.7rem; border: none; border-radius: 6px; background: #2563eb; color: #fff; font-size: 1rem; cursor: pointer; }
+  :root {
+    --teal-900: #0a5a54; --teal-700: #0c6e6b; --teal-500: #14958c; --teal-100: #e3f3f1;
+    --clay-500: #c87757; --ink-900: #1a2b29; --ink-500: #5c6b69;
+    --paper: #fbfaf7; --card: #ffffff; --line: #e6e8e5; --danger: #c4453b;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Inter',sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; min-height: 100dvh; background: var(--paper); color: var(--ink-900); }
+  .login-box { background: var(--card); padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(10,90,84,0.08); width: 100%; max-width: 380px; }
+  .brand { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .notch { width:8px; height:26px; border-radius:4px; background:var(--clay-500); }
+  .word { font-family:'Poppins',sans-serif; font-weight:800; font-size:20px; color:var(--teal-900); }
+  .login-box h1 { font-family:'Poppins',sans-serif; font-size: 1.2rem; margin: 18px 0 0.25rem; }
+  .login-box p.sub { color: var(--ink-500); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .login-box label { display: block; font-weight:600; font-size: 0.82rem; margin: 0.9rem 0 0.4rem; color: var(--ink-900); }
+  .login-box input { width: 100%; padding: 0.65rem 0.8rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.9rem; font-family: inherit; }
+  .login-box input:focus { outline:none; border-color: var(--teal-500); box-shadow: 0 0 0 3px var(--teal-100); }
+  .login-box button { width: 100%; margin-top: 1.5rem; padding: 0.75rem; border: none; border-radius: 10px; background: var(--teal-700); color: #fff; font-weight:700; font-size: 0.95rem; cursor: pointer; }
+  .login-box button:hover { background: var(--teal-900); }
   .login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
-  .error-msg { color: #dc2626; font-size: 0.85rem; margin-top: 0.8rem; display: none; }
-  .back-link { display: block; text-align: center; margin-top: 1.2rem; font-size: 0.85rem; }
+  .error-msg { color: var(--danger); font-size: 0.82rem; margin-top: 0.8rem; display: none; background:#fbeae8; padding:9px 12px; border-radius:8px; }
+  .back-link { display: block; text-align: center; margin-top: 1.2rem; font-size: 0.82rem; color: var(--ink-500); text-decoration: none; }
 </style>
 </head>
 <body>
   <div class="login-box">
+    <div class="brand"><div class="notch"></div><div class="word">SchoolHub</div></div>
     <h1>Teacher Portal</h1>
     <p class="sub">Sign in with the email &amp; password your school admin gave you.</p>
     <form id="teacherLoginForm">

@@ -18,6 +18,11 @@ class School(Base):
     principal_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
+    # Background image (Supabase Storage path) shown across admin/teacher/
+    # parent portal pages. Optional — pages fall back to the plain paper
+    # background when unset.
+    background_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     # Platform-level control (used by the super admin panel). A deactivated
     # school can't log in at all, but its data is preserved (not deleted) —
     # use this for suspending a demo/spam signup without losing anything,
@@ -32,6 +37,22 @@ class School(Base):
     fee_structure: Mapped[str | None] = mapped_column(Text, nullable=True)
     fee_due_day: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
     late_fee_percent: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
+
+    # Parent Portal — admin-controlled visibility. Each toggle gates what a
+    # parent can see for their own child; default ON (most schools want
+    # parents to see this), admin can turn any of them off in Settings.
+    parent_portal_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_attendance: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_grades: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_fees: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    parent_show_documents: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    parent_allow_messages: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    # Payment info shown to parents on the Fees screen — informational only
+    # (bank/JazzCash/EasyPaisa account details for manual transfer). No
+    # payment gateway integration; this is display text, nothing is charged
+    # or processed through SchoolHub.
+    payment_info: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Holidays
     holidays: Mapped[str | None] = mapped_column(Text, nullable=True)

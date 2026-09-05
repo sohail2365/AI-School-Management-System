@@ -1,6 +1,6 @@
 # backend/routes/settings.py
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -9,10 +9,13 @@ from backend.schemas.settings import (
     ClassesUpdate,
     FeeSettingsUpdate,
     HolidaysUpdate,
+    ParentPortalSettingsResponse,
+    ParentPortalSettingsUpdate,
     SchoolSettingsResponse,
     SchoolSettingsUpdate,
 )
 from backend.utils.rbac import require_roles
+from backend.utils.storage import get_signed_url, upload_school_file
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
@@ -200,3 +203,82 @@ def get_user_role(
         "school_id": token.get("school_id"),
         "permissions": permissions,
     }
+
+
+# ==================== PARENT PORTAL SETTINGS ====================
+
+@router.get("/parent-portal", response_model=ParentPortalSettingsResponse)
+def get_parent_portal_settings(
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+    return school
+
+
+@router.put("/parent-portal", response_model=ParentPortalSettingsResponse)
+def update_parent_portal_settings(
+    payload: ParentPortalSettingsUpdate,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(school, key, value)
+
+    db.commit()
+    db.refresh(school)
+    return school
+
+
+# ==================== BACKGROUND IMAGE (portal-wide) ====================
+
+@router.post("/background-image")
+def upload_background_image(
+    file: UploadFile = File(...),
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+
+    path = upload_school_file(file, token["school_id"], subfolder="background")
+    school.background_image_url = path
+    db.commit()
+
+    return {"message": "Background image updated.", "url": get_signed_url(path, expires_in=3600)}
+
+
+@router.delete("/background-image")
+def remove_background_image(
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+    school.background_image_url = None
+    db.commit()
+    return {"message": "Background image removed."}
+
+
+@router.get("/background-image")
+def get_background_image(
+    token: dict = Depends(require_roles(["admin", "teacher", "parent"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns a signed URL for the school's background image, or null if none
+    is set. Callers should cache this for the session — it's called once per
+    portal page load, and the signed URL is valid for an hour.
+    """
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school or not school.background_image_url:
+        return {"url": None}
+    return {"url": get_signed_url(school.background_image_url, expires_in=3600)}

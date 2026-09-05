@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -8,7 +8,11 @@ from backend.models.attendance import Attendance
 from backend.models.fee import Fee, FeeStatus
 from backend.models.grade import Grade
 from backend.models.payment import Payment
+from backend.models.staff import Staff
 from backend.models.student import Student
+from backend.models.student_document import StudentDocument
+from backend.models.test_record import TestRecord
+from backend.models.user import User
 from backend.utils.rbac import require_roles
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -176,4 +180,190 @@ def recent_activities(
             {"id": f.id, "fee_name": f.fee_name, "updated_at": f.updated_at.isoformat()}
             for f in latest_fees
         ],
+    }
+
+
+@router.get("/teacher-activity")
+def recent_teacher_activity(
+    limit: int = Query(default=20, ge=1, le=100),
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Combines attendance marks, grades, test records, and document uploads
+    made by TEACHERS (not the admin themselves) into one recent-activity
+    feed, newest first. Admin-only — lets the admin see what teachers have
+    been doing without hunting through each section separately.
+    """
+    school_id = token["school_id"]
+
+    # Map of user_id -> display name, scoped to this school's teacher staff,
+    # so the feed shows "Miss Sara" instead of a raw user id.
+    teacher_names = {
+        s.user_id: s.name
+        for s in db.query(Staff).filter(Staff.school_id == school_id, Staff.user_id.isnot(None))
+    }
+    student_names = {s.id: s.name for s in db.query(Student).filter(Student.school_id == school_id)}
+
+    if not teacher_names:
+        return {"activities": []}
+
+    teacher_user_ids = list(teacher_names.keys())
+    events = []
+
+    for a in (
+        db.query(Attendance)
+        .filter(Attendance.school_id == school_id, Attendance.marked_by_user_id.in_(teacher_user_ids))
+        .order_by(Attendance.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": a.id,
+            "type": "attendance",
+            "teacher": teacher_names.get(a.marked_by_user_id, "Unknown"),
+            "student": student_names.get(a.student_id, "Unknown"),
+            "detail": f"Marked {'Present' if a.is_present else 'Absent'} for {a.date.isoformat()}",
+            "at": a.created_at,
+        })
+
+    for g in (
+        db.query(Grade)
+        .filter(Grade.school_id == school_id, Grade.teacher_id.in_(teacher_user_ids))
+        .order_by(Grade.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": g.id,
+            "type": "grade",
+            "teacher": teacher_names.get(g.teacher_id, "Unknown"),
+            "student": student_names.get(g.student_id, "Unknown"),
+            "detail": f"Added {g.subject} grade: {g.marks_obtained}/{g.total_marks}",
+            "at": g.created_at,
+        })
+
+    for t in (
+        db.query(TestRecord)
+        .filter(TestRecord.school_id == school_id, TestRecord.recorded_by_user_id.in_(teacher_user_ids))
+        .order_by(TestRecord.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": t.id,
+            "type": "test_record",
+            "teacher": teacher_names.get(t.recorded_by_user_id, "Unknown"),
+            "student": student_names.get(t.student_id, "Unknown"),
+            "detail": f"Added {t.term_type.value} test record: {t.subject} ({t.marks_obtained}/{t.total_marks})"
+            + (" with photo" if t.image_url else ""),
+            "at": t.created_at,
+        })
+
+    for d in (
+        db.query(StudentDocument)
+        .filter(StudentDocument.school_id == school_id, StudentDocument.uploaded_by_user_id.in_(teacher_user_ids))
+        .order_by(StudentDocument.created_at.desc())
+        .limit(limit)
+    ):
+        events.append({
+            "id": d.id,
+            "student_id": d.student_id,
+            "type": "document",
+            "teacher": teacher_names.get(d.uploaded_by_user_id, "Unknown"),
+            "student": student_names.get(d.student_id, "Unknown"),
+            "detail": f"Uploaded {d.doc_type.value.replace('_', ' ')}",
+            "at": d.created_at,
+        })
+
+    events.sort(key=lambda e: e["at"], reverse=True)
+    events = events[:limit]
+    for e in events:
+        e["at"] = e["at"].isoformat()
+
+    return {"activities": events}
+
+
+@router.get("/charts")
+def dashboard_charts(
+    class_name: str | None = Query(default=None, description="Filter attendance trend to one class"),
+    days: int = Query(default=30, ge=7, le=90, description="Attendance trend window in days"),
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Aggregated data for the main dashboard's charts. Kept as one endpoint
+    (rather than one per chart) so the dashboard loads its visuals in a
+    single round-trip.
+    """
+    school_id = token["school_id"]
+
+    # ---- Attendance trend: last N calendar days, % present per day, optionally filtered to one class ----
+    from datetime import timedelta
+    today = date.today()
+    start_date = today - timedelta(days=days - 1)
+
+    trend_query = db.query(Attendance).filter(
+        Attendance.school_id == school_id,
+        Attendance.date >= start_date,
+        Attendance.date <= today,
+    )
+    if class_name:
+        class_student_ids_filter = [
+            s.id for s in db.query(Student.id).filter(
+                Student.school_id == school_id, Student.class_name == class_name
+            )
+        ]
+        trend_query = trend_query.filter(Attendance.student_id.in_(class_student_ids_filter))
+
+    attendance_records = trend_query.all()
+    by_day: dict[str, list[int]] = {}
+    for a in attendance_records:
+        key = a.date.isoformat()
+        by_day.setdefault(key, []).append(1 if a.is_present else 0)
+
+    attendance_trend = []
+    for i in range(days):
+        d = (start_date + timedelta(days=i)).isoformat()
+        marks = by_day.get(d, [])
+        pct = round((sum(marks) / len(marks)) * 100, 1) if marks else None
+        attendance_trend.append({"date": d, "attendance_rate": pct})
+
+    # ---- Fee collection: last 6 months, due vs collected ----
+    fees = db.query(Fee).filter(Fee.school_id == school_id).all()
+    month_totals: dict[str, dict[str, float]] = {}
+    for f in fees:
+        key = f.month or (f.created_at.strftime("%Y-%m") if f.created_at else "unknown")
+        bucket = month_totals.setdefault(key, {"due": 0.0, "paid": 0.0})
+        bucket["due"] += f.amount or 0
+        bucket["paid"] += f.paid_amount or 0
+
+    months_sorted = sorted(k for k in month_totals.keys() if k != "unknown")[-6:]
+    fee_trend = [
+        {
+            "month": m,
+            "due": round(month_totals[m]["due"], 2),
+            "collected": round(month_totals[m]["paid"], 2),
+        }
+        for m in months_sorted
+    ]
+
+    # ---- Class-wise average grade ----
+    students = db.query(Student).filter(Student.school_id == school_id).all()
+    class_student_ids: dict[str, list[int]] = {}
+    for s in students:
+        class_student_ids.setdefault(s.class_name or "Unassigned", []).append(s.id)
+
+    all_grades = db.query(Grade).filter(Grade.school_id == school_id).all()
+    grades_by_student: dict[int, list[float]] = {}
+    for g in all_grades:
+        grades_by_student.setdefault(g.student_id, []).append(g.percentage)
+
+    class_averages = []
+    for class_name, sids in sorted(class_student_ids.items()):
+        pcts = [p for sid in sids for p in grades_by_student.get(sid, [])]
+        if pcts:
+            class_averages.append({"class_name": class_name, "average_percentage": round(sum(pcts) / len(pcts), 1)})
+
+    return {
+        "attendance_trend": attendance_trend,
+        "fee_trend": fee_trend,
+        "class_averages": class_averages,
     }

@@ -4,21 +4,33 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Student Documents - SchoolHub</title>
-<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { background: #f4f6f9; margin: 0; font-family: inherit; }
-  .topbar { background: #1e293b; color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  :root {
+    --teal-900: #0a5a54; --teal-700: #0c6e6b; --teal-500: #14958c; --teal-100: #e3f3f1;
+    --clay-500: #c87757; --ink-900: #1a2b29; --ink-500: #5c6b69;
+    --paper: #fbfaf7; --card: #ffffff; --line: #e6e8e5;
+    --success: #1a8c5c; --danger: #c4453b;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); margin: 0; font-family: 'Inter', sans-serif; color: var(--ink-900); }
+  .topbar { background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%); color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .topbar h1 { font-family: 'Poppins', sans-serif; }
   .container { max-width: 800px; margin: 1.5rem auto; padding: 0 1rem; }
-  .card { background: #fff; border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  select, input, button { padding: 0.5rem 0.7rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+  .card { background: var(--card); border-radius: 14px; padding: 1.3rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 2px 12px rgba(10,90,84,0.06); border: 1px solid var(--line); }
+  select, input, button { padding: 0.55rem 0.75rem; border: 1.5px solid var(--line); border-radius: 8px; font-size: 0.9rem; font-family: inherit; }
+  select:focus, input:focus { outline: none; border-color: var(--teal-500); box-shadow: 0 0 0 3px var(--teal-100); }
   .row-form { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-  .row-form button { background: #16a34a; color: #fff; border: none; cursor: pointer; }
+  .row-form button { background: var(--teal-700); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+  .row-form button:hover { background: var(--teal-900); }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #eee; }
+  th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); }
+  th { color: var(--ink-500); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
   .msg { font-size: 0.85rem; margin-top: 0.5rem; }
-  .msg.error { color: #dc2626; } .msg.ok { color: #16a34a; }
-  .doc-tag { display:inline-block; padding:0.15rem 0.55rem; border-radius:999px; background:#e0e7ff; color:#3730a3; font-size:0.78rem; }
-  a.back { color: #cbd5e1; text-decoration: none; font-size: 0.9rem; }
+  .msg.error { color: var(--danger); } .msg.ok { color: var(--success); }
+  .doc-tag { display:inline-block; padding:0.15rem 0.6rem; border-radius:999px; background:var(--teal-100); color:var(--teal-900); font-size:0.78rem; font-weight: 600; }
+  a.back { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.9rem; }
 </style>
 </head>
 <body>

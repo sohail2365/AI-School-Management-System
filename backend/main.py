@@ -20,6 +20,7 @@ from backend.routes.uploads import router as uploads_router
 from backend.routes.test_records import router as test_records_router
 from backend.routes.teacher import router as teacher_router
 from backend.routes.backup import router as backup_router
+from backend.routes.parent import router as parent_router
 
 # ✅ ERROR MONITORING (Sentry) — initialized before the app is created so it
 # captures everything, including startup failures. Fully optional: without
@@ -160,6 +161,14 @@ async def startup():
         _ensure_columns(inspector, existing_tables, "schools", {
             "city": "city VARCHAR(50)",
             "is_active": "is_active BOOLEAN NOT NULL DEFAULT TRUE",
+            "parent_portal_enabled": "parent_portal_enabled BOOLEAN NOT NULL DEFAULT TRUE",
+            "parent_show_attendance": "parent_show_attendance BOOLEAN NOT NULL DEFAULT TRUE",
+            "parent_show_grades": "parent_show_grades BOOLEAN NOT NULL DEFAULT TRUE",
+            "parent_show_fees": "parent_show_fees BOOLEAN NOT NULL DEFAULT TRUE",
+            "parent_show_documents": "parent_show_documents BOOLEAN NOT NULL DEFAULT FALSE",
+            "parent_allow_messages": "parent_allow_messages BOOLEAN NOT NULL DEFAULT TRUE",
+            "payment_info": "payment_info TEXT",
+            "background_image_url": "background_image_url VARCHAR(500)",
         })
         _ensure_columns(inspector, existing_tables, "staff", {
             "role": "role VARCHAR(20) NOT NULL DEFAULT 'teacher'",
@@ -167,10 +176,15 @@ async def startup():
         })
         _ensure_columns(inspector, existing_tables, "students", {
             "photo_url": "photo_url VARCHAR(500)",
+            "parent_email": "parent_email VARCHAR(150)",
+            "parent_user_id": "parent_user_id INTEGER",
         })
         _ensure_columns(inspector, existing_tables, "users", {
             "failed_login_attempts": "failed_login_attempts INTEGER NOT NULL DEFAULT 0",
             "locked_until": "locked_until TIMESTAMP",
+        })
+        _ensure_columns(inspector, existing_tables, "attendance", {
+            "marked_by_user_id": "marked_by_user_id INTEGER",
         })
 
         # ⚠️ SECURITY: these two secrets, if left at their placeholder default,
@@ -292,6 +306,8 @@ app.include_router(teacher_router, tags=["teacher-portal"])
 print("✅ Teacher portal routes loaded")
 app.include_router(backup_router, tags=["backup"])
 print("✅ Backup routes loaded")
+app.include_router(parent_router, tags=["parent-portal"])
+print("✅ Parent portal routes loaded")
 
 @app.get("/health")
 async def health_check():

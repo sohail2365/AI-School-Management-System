@@ -12,30 +12,30 @@
         }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #7c3aed;
-            --accent: #ec4899;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #06b6d4;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --gray: #6b7280;
-            --border: #e5e7eb;
+            --primary: #0c6e6b;
+            --primary-dark: #0a5a54;
+            --secondary: #14958c;
+            --accent: #c87757;
+            --success: #1a8c5c;
+            --warning: #c78a1e;
+            --danger: #c4453b;
+            --info: #14958c;
+            --dark: #1a2b29;
+            --light: #fbfaf7;
+            --gray: #5c6b69;
+            --border: #e6e8e5;
         }
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
         }
 
         body {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(165deg, #0a5a54, #0c6e6b 70%);
             min-height: 100vh;
             min-height: 100dvh;
             padding: 20px;
@@ -326,23 +326,16 @@
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="your@email.com" value="admin@school.com" required>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password" value="admin123" required>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
                 </div>
 
                 <button type="submit" class="submit-btn" id="loginBtn">Sign In</button>
             </form>
-
-            <div class="demo-info show" id="demoLoginInfo">
-                <h4>📌 Demo Account (Pre-filled Above)</h4>
-                <p><strong>Email:</strong> admin@school.com</p>
-                <p><strong>Password:</strong> admin123</p>
-                <button type="button" class="demo-btn" onclick="useDemoAccount()">Use Demo Account</button>
-            </div>
 
             <div class="debug-info" id="loginDebugInfo"></div>
         </div>
@@ -396,7 +389,7 @@
         </div>
 
         <div class="footer-text">
-            <p style="margin-bottom: 10px; font-size: 14px;">Already have an account? <a href="login.html" style="color: #667eea; font-weight: 600; text-decoration: none;">Sign in</a></p>
+            <p style="margin-bottom: 10px; font-size: 14px;">Already have an account? <a href="login.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign in</a></p>
             <p>© 2024 SchoolHub. All rights reserved.</p>
         </div>
     </div>
@@ -436,10 +429,8 @@
             event.target.classList.add('active');
 
             if (tabName === 'register') {
-                document.getElementById('demoLoginInfo').classList.remove('show');
                 document.getElementById('registerDebugInfo').classList.add('show');
             } else {
-                document.getElementById('demoLoginInfo').classList.add('show');
                 document.getElementById('loginDebugInfo').classList.add('show');
             }
         }
@@ -465,12 +456,6 @@
             } else {
                 setTimeout(() => alert.classList.remove("show"), 5000);
             }
-        }
-
-        function useDemoAccount() {
-            log("Using demo account");
-            document.getElementById("loginEmail").value = "admin@school.com";
-            document.getElementById("loginPassword").value = "admin123";
         }
 
         function checkPasswordStrength() {

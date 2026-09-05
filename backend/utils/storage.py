@@ -35,6 +35,52 @@ def _require_configured():
         )
 
 
+def upload_school_file(file: UploadFile, school_id: int, subfolder: str) -> str:
+    """
+    Same as upload_student_file but for school-level assets (e.g. background
+    image) that aren't tied to a specific student.
+    """
+    _require_configured()
+
+    content_type = file.content_type or "application/octet-stream"
+    if content_type not in ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=422,
+            detail="Only JPG, PNG, WEBP images or PDF files are allowed.",
+        )
+
+    file_bytes = file.file.read()
+    if len(file_bytes) > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(status_code=422, detail="File too large (max 8 MB).")
+    if len(file_bytes) == 0:
+        raise HTTPException(status_code=422, detail="Uploaded file is empty.")
+
+    ext = (file.filename or "").rsplit(".", 1)[-1].lower() if "." in (file.filename or "") else "jpg"
+    unique_name = f"{int(time.time())}_{uuid.uuid4().hex[:8]}.{ext}"
+    path = f"school_{school_id}/{subfolder}/{unique_name}"
+
+    upload_url = f"{settings.SUPABASE_URL}/storage/v1/object/{settings.SUPABASE_BUCKET}/{path}"
+    resp = requests.post(
+        upload_url,
+        headers={
+            "Authorization": f"Bearer {settings.SUPABASE_SERVICE_KEY}",
+            "apikey": settings.SUPABASE_SERVICE_KEY,
+            "Content-Type": content_type,
+            "x-upsert": "true",
+        },
+        data=file_bytes,
+        timeout=20,
+    )
+
+    if resp.status_code not in (200, 201):
+        raise HTTPException(
+            status_code=502,
+            detail=f"Upload to storage failed: {resp.status_code} {resp.text[:200]}",
+        )
+
+    return path
+
+
 def upload_student_file(file: UploadFile, school_id: int, student_id: int, subfolder: str) -> str:
     """
     Uploads a single file and returns the storage PATH (not a public URL).

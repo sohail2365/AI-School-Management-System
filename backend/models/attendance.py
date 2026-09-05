@@ -29,6 +29,11 @@ class Attendance(Base):
     is_present: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     remarks: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
+    marked_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
