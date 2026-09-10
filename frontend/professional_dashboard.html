@@ -4013,7 +4013,7 @@
                 const result = await apiRequest("/settings/background-image");
                 if (result.url) {
                     document.body.style.backgroundImage =
-                        `linear-gradient(rgba(251,250,247,0.93), rgba(251,250,247,0.93)), url('${result.url}')`;
+                        `linear-gradient(rgba(251,250,247,0.55), rgba(251,250,247,0.72)), url('${result.url}')`;
                     document.body.style.backgroundSize = "cover";
                     document.body.style.backgroundAttachment = "fixed";
                     document.body.style.backgroundPosition = "center";
@@ -4101,7 +4101,7 @@
             const el = document.getElementById("liveClockTime");
             if (!el) return;
             function tick() {
-                el.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                el.textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true });
             }
             tick();
             setInterval(tick, 1000);
