@@ -330,6 +330,45 @@
             color: #a3aeac;
         }
 
+        /* ==================== TOGGLE SWITCH ==================== */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            border-radius: 24px;
+            transition: background-color 0.2s ease;
+        }
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(18px);
+        }
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -1322,8 +1361,15 @@
                         </div>
                         <div class="card-body">
                             <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">
-                                Ek school photo upload karein — admin, teacher aur parent portal, teenon jagah subtle background ke taur pe dikhegi.
+                                Ek school photo upload karein — admin, teacher aur parent portal, teenon jagah subtle background ke taur pe dikhegi. Yeh feature bilkul optional hai, jab chahen switch se on/off kar sakte hain.
                             </p>
+                            <label style="display:flex; align-items:center; gap:10px; margin-bottom:16px; cursor:pointer; width:fit-content;">
+                                <span class="toggle-switch">
+                                    <input type="checkbox" id="backgroundImageToggle" onchange="toggleBackgroundImage()">
+                                    <span class="toggle-slider"></span>
+                                </span>
+                                <span style="font-weight:600; font-size:0.9rem;" id="backgroundToggleLabel">Background image: Off</span>
+                            </label>
                             <div id="backgroundImagePreview" style="margin-bottom:14px;"></div>
                             <input type="file" id="backgroundImageInput" accept="image/*" style="margin-bottom:10px;">
                             <div style="display:flex; gap:10px;">
@@ -4017,8 +4063,25 @@
                     document.body.style.backgroundSize = "cover";
                     document.body.style.backgroundAttachment = "fixed";
                     document.body.style.backgroundPosition = "center";
-                    const preview = document.getElementById("backgroundImagePreview");
-                    if (preview) preview.innerHTML = `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">`;
+                } else {
+                    document.body.style.backgroundImage = "";
+                }
+
+                // Settings UI reflection — only present on the Settings page.
+                const preview = document.getElementById("backgroundImagePreview");
+                if (preview) preview.innerHTML = result.url
+                    ? `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">`
+                    : "";
+                const toggle = document.getElementById("backgroundImageToggle");
+                const label = document.getElementById("backgroundToggleLabel");
+                if (toggle) {
+                    toggle.checked = !!result.enabled;
+                    toggle.disabled = !result.has_image;
+                }
+                if (label) {
+                    label.textContent = !result.has_image
+                        ? "Background image: no image uploaded yet"
+                        : `Background image: ${result.enabled ? "On" : "Off"}`;
                 }
             } catch (error) {
                 console.error("Could not load background image:", error);
@@ -4049,10 +4112,22 @@
             try {
                 await apiRequest("/settings/background-image", { method: "DELETE" });
                 document.body.style.backgroundImage = "";
-                document.getElementById("backgroundImagePreview").innerHTML = "";
                 showAlert("Background image removed.");
+                await applyPortalBackground();
             } catch (error) {
                 showAlert("Could not remove: " + error.message, "error");
+            }
+        }
+
+        async function toggleBackgroundImage() {
+            const toggle = document.getElementById("backgroundImageToggle");
+            const enabled = toggle.checked;
+            try {
+                await apiRequest(`/settings/background-image/toggle?enabled=${enabled}`, { method: "POST" });
+                await applyPortalBackground();
+            } catch (error) {
+                showAlert("Could not update: " + error.message, "error");
+                toggle.checked = !enabled; // revert on failure
             }
         }
 

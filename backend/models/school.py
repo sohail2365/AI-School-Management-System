@@ -22,6 +22,7 @@ class School(Base):
     # parent portal pages. Optional — pages fall back to the plain paper
     # background when unset.
     background_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    background_image_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Platform-level control (used by the super admin panel). A deactivated
     # school can't log in at all, but its data is preserved (not deleted) —

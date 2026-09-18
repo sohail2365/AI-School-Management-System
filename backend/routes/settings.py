@@ -250,6 +250,7 @@ def upload_background_image(
 
     path = upload_school_file(file, token["school_id"], subfolder="background")
     school.background_image_url = path
+    school.background_image_enabled = True
     db.commit()
 
     return {"message": "Background image updated.", "url": get_signed_url(path, expires_in=3600)}
@@ -268,6 +269,21 @@ def remove_background_image(
     return {"message": "Background image removed."}
 
 
+@router.post("/background-image/toggle")
+def toggle_background_image(
+    enabled: bool,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """Turns the background image on/off without deleting the uploaded file — admin can re-enable later."""
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+    school.background_image_enabled = enabled
+    db.commit()
+    return {"message": f"Background image {'enabled' if enabled else 'disabled'}.", "enabled": enabled}
+
+
 @router.get("/background-image")
 def get_background_image(
     token: dict = Depends(require_roles(["admin", "teacher", "parent"])),
@@ -275,10 +291,11 @@ def get_background_image(
 ):
     """
     Returns a signed URL for the school's background image, or null if none
-    is set. Callers should cache this for the session — it's called once per
-    portal page load, and the signed URL is valid for an hour.
+    is set OR the admin has toggled it off. Callers should cache this for the
+    session — it's called once per portal page load, and the signed URL is
+    valid for an hour.
     """
     school = db.query(School).filter(School.id == token["school_id"]).first()
-    if not school or not school.background_image_url:
-        return {"url": None}
-    return {"url": get_signed_url(school.background_image_url, expires_in=3600)}
+    if not school or not school.background_image_url or not school.background_image_enabled:
+        return {"url": None, "enabled": school.background_image_enabled if school else True, "has_image": bool(school and school.background_image_url)}
+    return {"url": get_signed_url(school.background_image_url, expires_in=3600), "enabled": True, "has_image": True}
