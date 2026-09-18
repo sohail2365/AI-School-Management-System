@@ -1,0 +1,136 @@
+/* ============================================================
+   SCHOOLHUB — DARK MODE
+   ============================================================ */
+
+body.dark-mode {
+  --bg-primary: #121a19;
+  --bg-secondary: #0d1514;
+  --dark: #e8edec;
+  --gray: #9aa8a5;
+  --border: #253331;
+  --light: #0d1514;
+  --card: #1a2422;
+  --paper: #121a19;
+  --teal-100: #1a3a37;
+  --teal-900: #7fd1c9;
+}
+
+body.dark-mode {
+  background-color: #0d1514 !important;
+  color: #e8edec;
+}
+
+body.dark-mode .card,
+body.dark-mode .metric-card,
+body.dark-mode .phone-card,
+body.dark-mode .auth-container,
+body.dark-mode .box,
+body.dark-mode .login-box,
+body.dark-mode .modal-content,
+body.dark-mode .stat-card,
+body.dark-mode .gate {
+  background: #1a2422 !important;
+  border-color: #253331 !important;
+  color: #e8edec;
+}
+
+body.dark-mode .card-header,
+body.dark-mode .top-header,
+body.dark-mode .topbar {
+  background: #1a2422 !important;
+  border-color: #253331 !important;
+  color: #e8edec;
+}
+
+body.dark-mode table thead {
+  background: #16201e !important;
+}
+body.dark-mode table td {
+  border-color: #253331 !important;
+}
+body.dark-mode table tbody tr:hover {
+  background: #16201e !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #121a19 !important;
+  color: #e8edec !important;
+  border-color: #253331 !important;
+}
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #6b7a77;
+}
+
+body.dark-mode .bg-secondary,
+body.dark-mode [style*="background: var(--bg-secondary)"],
+body.dark-mode [style*="background:var(--bg-secondary)"] {
+  background: #16201e !important;
+}
+
+body.dark-mode .metric-value {
+  background: linear-gradient(135deg, #7fd1c9, #14958c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.dark-mode .modal {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.dark-mode .sidebar {
+  background: linear-gradient(165deg, #062825 0%, #0a3d3a 70%) !important;
+}
+
+body.dark-mode .alert-error {
+  background: #3a1a1a !important;
+  color: #ffb4a8 !important;
+}
+body.dark-mode .alert-success {
+  background: #143025 !important;
+  color: #a0e8c0 !important;
+}
+
+body.dark-mode .toast {
+  background: #1a2422 !important;
+  color: #e8edec !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5) !important;
+}
+
+/* Smooth transition on toggle */
+body, .card, .metric-card, .top-header, table, input, select, textarea {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #0c6e6b, #0a5a54);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(10, 90, 84, 0.3);
+  z-index: 9998;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.dark-mode-toggle:hover {
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 8px 28px rgba(10, 90, 84, 0.45);
+}
+.dark-mode-toggle:active { transform: scale(0.95); }
+
+body.dark-mode .dark-mode-toggle {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1a2422;
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.35);
+}

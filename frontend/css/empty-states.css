@@ -1,0 +1,65 @@
+/* ============================================================
+   SCHOOLHUB — EMPTY STATES
+   ============================================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  animation: pageEnter 0.5s ease;
+}
+.empty-state-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e3f3f1, #c9e5e2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #0c6e6b;
+  position: relative;
+}
+.empty-state-icon::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px dashed #c9e5e2;
+  animation: emptyRotate 20s linear infinite;
+}
+@keyframes emptyRotate {
+  to { transform: rotate(360deg); }
+}
+.empty-state-icon svg {
+  width: 40px;
+  height: 40px;
+  stroke-width: 1.5;
+}
+.empty-state h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  color: var(--dark, #1a2b29);
+  margin-bottom: 8px;
+}
+.empty-state p {
+  color: var(--gray, #5c6b69);
+  font-size: 0.9rem;
+  max-width: 360px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.empty-state .btn {
+  margin-top: 4px;
+}
+
+body.dark-mode .empty-state-icon {
+  background: linear-gradient(135deg, #1a3a37, #0a5a54);
+  color: #7fd1c9;
+}
+body.dark-mode .empty-state-icon::before {
+  border-color: #1a3a37;
+}

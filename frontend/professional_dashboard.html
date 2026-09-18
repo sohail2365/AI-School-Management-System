@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/empty-states.css">
+    <link rel="stylesheet" href="css/success-anim.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <style>
@@ -21,7 +24,6 @@
         }
 
         :root {
-            /* SchoolHub teal design system — matches login page */
             --primary: #0c6e6b;
             --primary-dark: #0a5a54;
             --secondary: #14958c;
@@ -31,13 +33,11 @@
             --danger: #c4453b;
             --info: #14958c;
 
-            /* Neutral Colors */
             --dark: #1a2b29;
             --light: #fbfaf7;
             --gray: #5c6b69;
             --border: #e6e8e5;
 
-            /* Backgrounds */
             --bg-primary: #ffffff;
             --bg-secondary: #fbfaf7;
         }
@@ -56,18 +56,13 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* ==================== LAYOUT ==================== */
         .app-container {
             display: flex;
             height: 100vh;
-            height: 100dvh; /* mobile browsers miscalculate 100vh (address bar hide/show,
-                                especially right after rotating) — dvh reflects the actual
-                                visible viewport. vh above is a fallback for older browsers
-                                that don't support dvh. */
+            height: 100dvh;
             overflow: hidden;
         }
 
-        /* ==================== SIDEBAR ==================== */
         .sidebar {
             width: 280px;
             background: linear-gradient(165deg, var(--primary-dark) 0%, var(--primary) 70%);
@@ -146,7 +141,6 @@
             width: 20px;
         }
 
-        /* ==================== MAIN CONTENT ==================== */
         .main-content {
             margin-left: 280px;
             flex: 1;
@@ -155,7 +149,6 @@
             overflow-y: auto;
         }
 
-        /* ==================== HEADER ==================== */
         .top-header {
             background: var(--bg-primary);
             padding: 20px 30px;
@@ -207,14 +200,12 @@
             color: var(--gray);
         }
 
-        /* ==================== CONTENT AREA ==================== */
         .content {
             padding: 30px;
             flex: 1;
             overflow-y: auto;
         }
 
-        /* ==================== DASHBOARD VIEW ==================== */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -236,17 +227,9 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         }
 
-        .metric-card.secondary {
-            border-left-color: var(--secondary);
-        }
-
-        .metric-card.success {
-            border-left-color: var(--success);
-        }
-
-        .metric-card.warning {
-            border-left-color: var(--warning);
-        }
+        .metric-card.secondary { border-left-color: var(--secondary); }
+        .metric-card.success { border-left-color: var(--success); }
+        .metric-card.warning { border-left-color: var(--warning); }
 
         .metric-label {
             font-size: 14px;
@@ -265,7 +248,6 @@
             background-clip: text;
         }
 
-        /* ==================== CARDS ==================== */
         .card {
             background: var(--bg-primary);
             border-radius: 14px;
@@ -294,7 +276,6 @@
             padding: 20px;
         }
 
-        /* ==================== FORMS ==================== */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -332,7 +313,6 @@
             color: #a3aeac;
         }
 
-        /* ==================== TOGGLE SWITCH ==================== */
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -340,11 +320,7 @@
             height: 24px;
             flex-shrink: 0;
         }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .toggle-slider {
             position: absolute;
             cursor: pointer;
@@ -364,12 +340,8 @@
             border-radius: 50%;
             transition: transform 0.2s ease;
         }
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--primary);
-        }
-        .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(18px);
-        }
+        .toggle-switch input:checked + .toggle-slider { background-color: var(--primary); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
         .form-group input:focus,
         .form-group select:focus,
@@ -379,7 +351,6 @@
             box-shadow: 0 0 0 3px rgba(20, 149, 140, 0.14);
         }
 
-        /* ==================== BUTTONS ==================== */
         .btn {
             padding: 12px 24px;
             border: none;
@@ -393,95 +364,35 @@
             gap: 8px;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
 
         .btn-secondary {
             background: var(--bg-secondary);
             color: var(--dark);
             border: 2px solid var(--border);
         }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
 
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
 
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-whatsapp:hover { background: #1ebe5a; }
 
-        .btn-danger:hover {
-            background: #dc2626;
-        }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
 
-        .btn-whatsapp {
-            background: #25D366;
-            color: white;
-        }
+        .btn-sm { padding: 8px 12px; font-size: 12px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
 
-        .btn-whatsapp:hover {
-            background: #1ebe5a;
-        }
+        .table-responsive { overflow-x: auto; }
 
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-sm {
-            padding: 8px 12px;
-            font-size: 12px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* ==================== TABLES ==================== */
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table thead {
-            background: var(--bg-secondary);
-            border-bottom: 2px solid var(--border);
-        }
-
-        table th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 14px;
-        }
-
-        table td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        table tbody tr:hover {
-            background: var(--bg-secondary);
-        }
+        table { width: 100%; border-collapse: collapse; }
+        table thead { background: var(--bg-secondary); border-bottom: 2px solid var(--border); }
+        table th { padding: 15px; text-align: left; font-weight: 700; color: var(--dark); font-size: 14px; }
+        table td { padding: 15px; border-bottom: 1px solid var(--border); }
+        table tbody tr:hover { background: var(--bg-secondary); }
 
         .badge {
             display: inline-block;
@@ -491,89 +402,29 @@
             font-weight: 600;
         }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #cffafe; color: #164e63; }
 
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-info {
-            background: #cffafe;
-            color: #164e63;
-        }
-
-        .fee-filter-btn {
-            background: var(--light);
-            color: var(--gray);
-            border: 2px solid var(--border);
-            font-weight: 600;
-        }
-
-        .fee-filter-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .fee-filter-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .staff-tab-btn {
-            background: var(--light);
-            color: var(--gray);
-            border: 2px solid var(--border);
-            font-weight: 600;
-        }
-
-        .staff-tab-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .staff-tab-btn.active {
-            background: var(--secondary);
-            color: white;
-            border-color: var(--secondary);
-        }
-
-        .staff-subtab {
-            display: none;
-        }
-
-        .staff-subtab.active {
-            display: block;
-        }
-
+        .fee-filter-btn,
+        .staff-tab-btn,
         .salary-filter-btn {
             background: var(--light);
             color: var(--gray);
             border: 2px solid var(--border);
             font-weight: 600;
         }
+        .fee-filter-btn:hover,
+        .staff-tab-btn:hover,
+        .salary-filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .fee-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .staff-tab-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+        .salary-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .salary-filter-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
+        .staff-subtab { display: none; }
+        .staff-subtab.active { display: block; }
 
-        .salary-filter-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* ==================== MODALS ==================== */
         .modal {
             display: none;
             position: fixed;
@@ -586,11 +437,7 @@
             animation: fadeIn 0.2s;
         }
 
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
 
         .modal-content {
             background: var(--bg-primary);
@@ -606,9 +453,7 @@
             position: relative;
         }
 
-        .modal-content.modal-wide {
-            max-width: 640px;
-        }
+        .modal-content.modal-wide { max-width: 640px; }
 
         .modal-header {
             font-family: 'Poppins', sans-serif;
@@ -637,37 +482,17 @@
             transition: background 0.15s, color 0.15s;
         }
 
-        .modal-close:hover {
-            color: var(--dark);
-            background: var(--border);
-        }
+        .modal-close:hover { color: var(--dark); background: var(--border); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        /* ==================== VIEWS ==================== */
-        .view {
-            display: none;
-        }
+        .view { display: none; }
+        .view.active { display: block; }
 
-        .view.active {
-            display: block;
-        }
-
-        /* ==================== ALERTS ==================== */
         .alert {
             padding: 15px 20px;
             border-radius: 8px;
@@ -675,35 +500,15 @@
             display: none;
         }
 
-        .alert.show {
-            display: block;
-            animation: slideDown 0.3s;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid var(--success);
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid var(--danger);
-        }
+        .alert.show { display: block; animation: slideDown 0.3s; }
+        .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid var(--success); }
+        .alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--danger); }
 
         @keyframes slideDown {
-            from {
-                transform: translateY(-10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        /* ==================== RESPONSIVE ==================== */
         .hamburger-btn {
             display: none;
             background: none;
@@ -723,15 +528,10 @@
             z-index: 998;
         }
 
-        .sidebar-overlay.show {
-            display: block;
-        }
+        .sidebar-overlay.show { display: block; }
 
         @media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
-            .hamburger-btn {
-                display: inline-block;
-            }
-
+            .hamburger-btn { display: inline-block; }
             .sidebar {
                 width: 280px;
                 height: 100vh;
@@ -743,22 +543,9 @@
                 z-index: 999;
                 overflow-y: auto;
             }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            /* Tables become horizontally scrollable with the first column
-               pinned, so identifying info (name) stays visible while
-               swiping through the rest of the row on a small screen. */
-            .table-responsive {
-                -webkit-overflow-scrolling: touch;
-            }
-
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .table-responsive { -webkit-overflow-scrolling: touch; }
             .table-responsive table th:first-child,
             .table-responsive table td:first-child {
                 position: sticky;
@@ -767,43 +554,16 @@
                 z-index: 1;
                 box-shadow: 2px 0 4px rgba(0, 0, 0, 0.06);
             }
-
             .table-responsive table th,
-            .table-responsive table td {
-                font-size: 13px;
-                padding: 8px 10px;
-                white-space: nowrap;
-            }
-
-            /* Bigger tap targets for action buttons on touch screens */
-            .btn-sm {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header-title {
-                font-size: 20px;
-            }
-
-            .top-header {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
+            .table-responsive table td { font-size: 13px; padding: 8px 10px; white-space: nowrap; }
+            .btn-sm { padding: 8px 12px; font-size: 13px; }
+            .metrics-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .header-title { font-size: 20px; }
+            .top-header { flex-direction: row; flex-wrap: wrap; gap: 15px; }
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
+        .action-buttons { display: flex; gap: 8px; }
 
         .logout-btn {
             background: rgba(255, 255, 255, 0.2);
@@ -811,15 +571,12 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
+        .logout-btn:hover { background: rgba(255, 255, 255, 0.3); }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-        <!-- ==================== SIDEBAR ==================== -->
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <div class="logo">
@@ -846,9 +603,7 @@
             </div>
         </aside>
 
-        <!-- ==================== MAIN CONTENT ==================== -->
         <div class="main-content">
-            <!-- ==================== HEADER ==================== -->
             <div class="top-header">
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
@@ -868,11 +623,9 @@
                 </div>
             </div>
 
-            <!-- ==================== ALERT ==================== -->
             <div class="alert alert-success" id="successAlert"></div>
             <div class="alert alert-error" id="errorAlert"></div>
 
-            <!-- ==================== CONTENT ==================== -->
             <div class="content">
                 <!-- DASHBOARD VIEW -->
                 <div class="view active" id="dashboardView">
@@ -977,18 +730,8 @@
                         </div>
                         <div class="card-body">
                             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                                <input
-                                    type="text"
-                                    id="studentSearchInput"
-                                    placeholder="🔍 Search by name..."
-                                    style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;"
-                                    oninput="debounceFilterStudents()"
-                                >
-                                <select
-                                    id="studentClassFilter"
-                                    style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;"
-                                    onchange="filterStudents()"
-                                >
+                                <input type="text" id="studentSearchInput" placeholder="🔍 Search by name..." style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" oninput="debounceFilterStudents()">
+                                <select id="studentClassFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterStudents()">
                                     <option value="">All Classes</option>
                                 </select>
                                 <button class="btn btn-secondary" onclick="clearStudentFilters()">Clear</button>
@@ -1010,8 +753,7 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="studentsTable">
-                                    </tbody>
+                                    <tbody id="studentsTable"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -1052,8 +794,7 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="feesTable">
-                                    </tbody>
+                                    <tbody id="feesTable"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -1070,12 +811,7 @@
                         <div class="card-body">
                             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                                 <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Filter by date:</label>
-                                <input
-                                    type="date"
-                                    id="attendanceDateFilter"
-                                    style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;"
-                                    onchange="filterAttendance()"
-                                >
+                                <input type="date" id="attendanceDateFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" onchange="filterAttendance()">
                                 <button class="btn btn-sm btn-secondary" onclick="setAttendanceToday()">Today</button>
                                 <button class="btn btn-sm btn-secondary" onclick="clearAttendanceFilter()">Show All</button>
                                 <button class="btn btn-whatsapp" onclick="openWhatsappBulkForAbsentees()">📱 Send Absence Alerts</button>
@@ -1092,8 +828,7 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="attendanceTable">
-                                    </tbody>
+                                    <tbody id="attendanceTable"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -1110,11 +845,7 @@
                         <div class="card-body">
                             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                                 <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Filter by subject:</label>
-                                <select
-                                    id="gradeSubjectFilter"
-                                    style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;"
-                                    onchange="filterGrades()"
-                                >
+                                <select id="gradeSubjectFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterGrades()">
                                     <option value="">All Subjects</option>
                                 </select>
                                 <button class="btn btn-sm btn-secondary" onclick="clearGradeFilter()">Clear</button>
@@ -1132,8 +863,7 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="gradesTable">
-                                    </tbody>
+                                    <tbody id="gradesTable"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -1152,7 +882,6 @@
                         </div>
                     </div>
 
-                    <!-- STAFF LIST SUB-TAB -->
                     <div class="staff-subtab active" id="staffListSubtab">
                         <div class="card">
                             <div class="card-header">
@@ -1161,13 +890,7 @@
                             </div>
                             <div class="card-body">
                                 <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                                    <input
-                                        type="text"
-                                        id="staffSearchInput"
-                                        placeholder="🔍 Search by name..."
-                                        style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;"
-                                        oninput="debounceFilterStaff()"
-                                    >
+                                    <input type="text" id="staffSearchInput" placeholder="🔍 Search by name..." style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" oninput="debounceFilterStaff()">
                                     <select id="staffDesignationFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterStaff()">
                                         <option value="">All Designations</option>
                                     </select>
@@ -1197,15 +920,13 @@
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="staffTable">
-                                        </tbody>
+                                        <tbody id="staffTable"></tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- STAFF ATTENDANCE SUB-TAB -->
                     <div class="staff-subtab" id="staffAttendanceSubtab">
                         <div class="card">
                             <div class="card-header">
@@ -1231,15 +952,13 @@
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="staffAttendanceTable">
-                                        </tbody>
+                                        <tbody id="staffAttendanceTable"></tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- STAFF SALARY SUB-TAB -->
                     <div class="staff-subtab" id="staffSalarySubtab">
                         <div class="card">
                             <div class="card-header">
@@ -1273,8 +992,7 @@
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="staffSalaryTable">
-                                        </tbody>
+                                        <tbody id="staffSalaryTable"></tbody>
                                     </table>
                                 </div>
                             </div>
@@ -1320,15 +1038,10 @@
                             <button class="btn btn-primary" onclick="openAddAnnouncementModal()">➕ Add Announcement</button>
                         </div>
                         <div class="card-body">
-                            <div style="display: grid; gap: 20px;" id="announcementsList">
-                            </div>
+                            <div style="display: grid; gap: 20px;" id="announcementsList"></div>
                         </div>
                     </div>
                 </div>
-
-                <!-- AI INSIGHTS VIEW -->
-                <!-- AI Insights now lives in the floating widget (bottom-right), not a sidebar view. -->
-
 
                 <!-- SETTINGS VIEW -->
                 <div class="view" id="settingsView">
@@ -1393,7 +1106,6 @@
                         </div>
                     </div>
 
-                    <!-- Class-wise Fee Settings -->
                     <div class="card" style="margin-top:20px;">
                         <div class="card-header">
                             <h3 class="card-title">💰 Class-wise Monthly Fee</h3>
@@ -1422,7 +1134,6 @@
                         </div>
                     </div>
 
-                    <!-- Parent Portal Settings -->
                     <div class="card" style="margin-top:20px;">
                         <div class="card-header">
                             <h3 class="card-title">👨‍👩‍👧 Parent Portal</h3>
@@ -1441,7 +1152,7 @@
                                 <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppAttendance" style="width:auto;"> Attendance</label>
                                 <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppGrades" style="width:auto;"> Grades / Test Records</label>
                                 <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppFees" style="width:auto;"> Fees</label>
-                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppDocuments" style="width:auto;"> Documents (ID card, B-form, test papers)</label>
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppDocuments" style="width:auto;"> Documents</label>
                                 <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="ppMessages" style="width:auto;"> Messaging with school</label>
                             </div>
                             <div class="form-group" style="margin-bottom:14px;">
@@ -1516,7 +1227,7 @@
         </div>
     </div>
 
-    <!-- Send WhatsApp Announcement Modal -->
+    <!-- WhatsApp Bulk Modal -->
     <div class="modal" id="whatsappBulkModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('whatsappBulkModal')">✕</span>
@@ -1534,7 +1245,7 @@
         </div>
     </div>
 
-    <!-- Bulk Fee Generation Modal -->
+    <!-- Bulk Fee Modal -->
     <div class="modal" id="bulkFeeModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('bulkFeeModal')">✕</span>
@@ -1583,7 +1294,7 @@
         </div>
     </div>
 
-    <!-- Class-wise Dues Modal (self-contained, read-only) -->
+    <!-- Class Dues Modal -->
     <div class="modal" id="classDuesModal">
         <div class="modal-content modal-wide">
             <span class="modal-close" onclick="closeModal('classDuesModal')">✕</span>
@@ -1595,8 +1306,7 @@
         </div>
     </div>
 
-    <!-- AI Summary/Report Modal (isolated, read-only AI output) -->
-    <!-- Attendance Register Modal (class + month picker for printable register) -->
+    <!-- Attendance Register Modal -->
     <div class="modal" id="attendanceRegisterModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('attendanceRegisterModal')">✕</span>
@@ -1618,6 +1328,7 @@
         </div>
     </div>
 
+    <!-- AI Result Modal -->
     <div class="modal" id="aiResultModal">
         <div class="modal-content modal-wide">
             <span class="modal-close" onclick="closeModal('aiResultModal')">✕</span>
@@ -1639,8 +1350,6 @@
     </div>
 
     <!-- Add Fee Modal -->
-
-
     <div class="modal" id="addFeeModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('addFeeModal')">✕</span>
@@ -1816,7 +1525,7 @@
         </div>
     </div>
 
-    <!-- Pay Staff Salary Modal -->
+    <!-- Pay Salary Modal -->
     <div class="modal" id="paySalaryModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('paySalaryModal')">✕</span>
@@ -1850,7 +1559,7 @@
         </div>
     </div>
 
-    <!-- Salary Payment History Modal -->
+    <!-- Salary History Modal -->
     <div class="modal" id="salaryHistoryModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('salaryHistoryModal')">✕</span>
@@ -1862,8 +1571,7 @@
         </div>
     </div>
 
-
-    <!-- Add Attendance Modal -->
+    <!-- Mark Attendance Modal -->
     <div class="modal" id="markAttendanceModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('markAttendanceModal')">✕</span>
@@ -1977,25 +1685,16 @@
                     return `${field}: ${d.msg}`;
                 }).join(", ");
             }
-            try {
-                return JSON.stringify(detail);
-            } catch (e) {
-                return "Request failed";
-            }
+            try { return JSON.stringify(detail); } catch (e) { return "Request failed"; }
         }
 
         async function apiRequest(path, options = {}) {
             const headers = { ...options.headers || {} };
             const token = getToken();
             if (token) headers.Authorization = `Bearer ${token}`;
-            // Don't force JSON content-type for FormData uploads — the browser
-            // must set its own multipart/form-data boundary header, or the
-            // server can't parse the file (this was silently breaking every
-            // file upload that went through apiRequest, e.g. background image).
             if (!headers['Content-Type'] && options.body && !(options.body instanceof FormData)) {
                 headers['Content-Type'] = 'application/json';
             }
-
             const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
@@ -2014,20 +1713,14 @@
             setTimeout(() => alert.classList.remove("show"), 3000);
         }
 
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add("show");
-        }
+        function openModal(modalId) { document.getElementById(modalId).classList.add("show"); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove("show"); }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove("show");
-        }
-
-        // ==================== MOBILE SIDEBAR (hamburger drawer) ====================
+        // ==================== MOBILE SIDEBAR ====================
         function toggleSidebar() {
             document.querySelector(".sidebar").classList.toggle("open");
             document.getElementById("sidebarOverlay").classList.toggle("show");
         }
-
         function closeSidebar() {
             document.querySelector(".sidebar").classList.remove("open");
             document.getElementById("sidebarOverlay").classList.remove("show");
@@ -2036,11 +1729,11 @@
         function switchView(viewName) {
             document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
             document.getElementById(viewName + "View").classList.add("active");
-            
+
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             document.querySelector(`[data-view="${viewName}"]`).classList.add("active");
             closeSidebar();
-            
+
             const titles = {
                 dashboard: "Dashboard",
                 students: "Student Management",
@@ -2052,40 +1745,21 @@
                 settings: "Settings"
             };
             document.getElementById("pageTitle").textContent = titles[viewName] || "Dashboard";
-            
             loadViewData(viewName);
         }
 
         async function loadViewData(viewName) {
             try {
                 switch(viewName) {
-                    case "dashboard":
-                        await loadDashboard();
-                        break;
-                    case "students":
-                        await loadStudents();
-                        break;
-                    case "fees":
-                        await loadFees();
-                        break;
-                    case "attendance":
-                        await loadAttendance();
-                        break;
-                    case "grades":
-                        await loadGrades();
-                        break;
-                    case "staff":
-                        await loadStaffTab();
-                        break;
-                    case "messages":
-                        await loadAdminMessageThreads();
-                        break;
-                    case "announcements":
-                        await loadAnnouncements();
-                        break;
-                    case "settings":
-                        await loadSettings();
-                        break;
+                    case "dashboard": await loadDashboard(); break;
+                    case "students": await loadStudents(); break;
+                    case "fees": await loadFees(); break;
+                    case "attendance": await loadAttendance(); break;
+                    case "grades": await loadGrades(); break;
+                    case "staff": await loadStaffTab(); break;
+                    case "messages": await loadAdminMessageThreads(); break;
+                    case "announcements": await loadAnnouncements(); break;
+                    case "settings": await loadSettings(); break;
                 }
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -2116,10 +1790,7 @@
         let dashboardCharts = {};
 
         async function loadDashboardCharts() {
-            if (typeof Chart === "undefined") {
-                console.warn("Chart.js failed to load — skipping dashboard charts.");
-                return;
-            }
+            if (typeof Chart === "undefined") return;
             try {
                 const classFilter = document.getElementById("attendanceChartClassFilter");
                 if (classFilter && classFilter.options.length <= 1) {
@@ -2127,12 +1798,10 @@
                     const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
                     classes.forEach(c => classFilter.add(new Option(c, c)));
                 }
-
                 const selectedClass = classFilter ? classFilter.value : "";
                 const selectedDays = document.getElementById("attendanceChartDaysFilter")?.value || "30";
                 const params = new URLSearchParams({ days: selectedDays });
                 if (selectedClass) params.set("class_name", selectedClass);
-
                 const data = await apiRequest(`/dashboard/charts?${params.toString()}`);
                 renderAttendanceTrendChart(data.attendance_trend);
                 renderFeeTrendChart(data.fee_trend);
@@ -2143,10 +1812,7 @@
         }
 
         function destroyChart(key) {
-            if (dashboardCharts[key]) {
-                dashboardCharts[key].destroy();
-                dashboardCharts[key] = null;
-            }
+            if (dashboardCharts[key]) { dashboardCharts[key].destroy(); dashboardCharts[key] = null; }
         }
 
         function renderAttendanceTrendChart(trend) {
@@ -2157,25 +1823,12 @@
                 type: "line",
                 data: {
                     labels: trend.map(t => t.date.slice(5)),
-                    datasets: [{
-                        label: "Attendance %",
-                        data: trend.map(t => t.attendance_rate),
-                        borderColor: "#0c6e6b",
-                        backgroundColor: "rgba(12,110,107,0.12)",
-                        fill: true,
-                        tension: 0.3,
-                        spanGaps: true,
-                        pointRadius: 0,
-                    }],
+                    datasets: [{ label: "Attendance %", data: trend.map(t => t.attendance_rate),
+                        borderColor: "#0c6e6b", backgroundColor: "rgba(12,110,107,0.12)",
+                        fill: true, tension: 0.3, spanGaps: true, pointRadius: 0 }],
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { min: 0, max: 100, ticks: { callback: v => v + "%" } },
-                        x: { ticks: { maxTicksLimit: 8 } },
-                    },
-                },
+                options: { responsive: true, plugins: { legend: { display: false } },
+                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } }, x: { ticks: { maxTicksLimit: 8 } } } },
             });
         }
 
@@ -2196,11 +1849,7 @@
                         { label: "Collected", data: trend.map(t => t.collected), backgroundColor: "#0c6e6b" },
                     ],
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: "bottom" } },
-                    scales: { y: { beginAtZero: true } },
-                },
+                options: { responsive: true, plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true } } },
             });
         }
 
@@ -2216,18 +1865,9 @@
                 type: "bar",
                 data: {
                     labels: classAverages.map(c => "Class " + c.class_name),
-                    datasets: [{
-                        label: "Average %",
-                        data: classAverages.map(c => c.average_percentage),
-                        backgroundColor: "#14958c",
-                        borderRadius: 6,
-                    }],
+                    datasets: [{ label: "Average %", data: classAverages.map(c => c.average_percentage), backgroundColor: "#14958c", borderRadius: 6 }],
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } },
-                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } } },
             });
         }
 
@@ -2256,14 +1896,12 @@
                 const data = await apiRequest("/dashboard/teacher-activity?limit=15");
                 const activities = data.activities || [];
                 if (activities.length === 0) {
-                    container.innerHTML = `<div style="color:#94a3b8; padding:10px 0;">Abhi tak teachers ki koi activity nahi (attendance, grades, test records, ya uploads).</div>`;
+                    container.innerHTML = `<div style="color:#94a3b8; padding:10px 0;">Abhi tak teachers ki koi activity nahi.</div>`;
                     return;
                 }
                 container.innerHTML = activities.map(a => {
                     const editView = ACTIVITY_EDIT_VIEW[a.type];
-                    const editBtn = editView
-                        ? `<button class="btn btn-sm btn-secondary" onclick="switchView('${editView}')" style="margin-right:6px;">Edit</button>`
-                        : "";
+                    const editBtn = editView ? `<button class="btn btn-sm btn-secondary" onclick="switchView('${editView}')" style="margin-right:6px;">Edit</button>` : "";
                     return `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9;">
                         <div>
@@ -2301,7 +1939,6 @@
                 const digest = await apiRequest("/dashboard/daily-digest");
                 const a = digest.attendance;
                 const f = digest.fees;
-
                 const message =
                     `📋 *Daily Summary — ${school.name || "School"}*\n` +
                     `${digest.date}\n\n` +
@@ -2311,8 +1948,7 @@
                         : `⚠️ Attendance not marked yet today\n`) +
                     `\n💰 Collected Today: Rs. ${f.collected_today}\n` +
                     `⏳ Total Outstanding Dues: Rs. ${f.total_outstanding}\n` +
-                    `🔴 Fees Overdue (unpaid records): ${f.overdue_count}`;
-
+                    `🔴 Fees Overdue: ${f.overdue_count}`;
                 const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
                 window.open(url, "_blank");
             } catch (error) {
@@ -2335,10 +1971,19 @@
                 selectedStudentIds.clear();
                 updateSelectedStudentCount();
                 const table = document.getElementById("studentsTable");
+                const tableEl = table.closest('table');
 
                 if (data.length === 0) {
-                    table.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--gray); padding: 20px;">No students found</td></tr>`;
+                    // ✅ FIXED: consistent empty state
+                    showEmptyState('studentsTable', 'graduation-cap',
+                        'No students yet',
+                        'Add your first student to get started with managing records.',
+                        'Add Student', 'openAddStudentModal()');
                 } else {
+                    // ✅ FIXED: restore table display
+                    if (typeof clearEmptyState === 'function') clearEmptyState('studentsTable');
+                    if (tableEl) tableEl.style.display = '';
+
                     table.innerHTML = data.map(s => `
                         <tr>
                             <td><input type="checkbox" class="student-select-checkbox" value="${s.id}" onchange="toggleStudentSelection(${s.id}, this.checked)"></td>
@@ -2359,8 +2004,6 @@
                     `).join("");
                 }
 
-                // Refresh class dropdown options only on the unfiltered load,
-                // so the full list of classes stays available while filtering.
                 if (!filters.class_name && !filters.search) {
                     populateStudentClassFilter(data);
                 }
@@ -2369,29 +2012,20 @@
             }
         }
 
-        // ==================== STUDENT MULTI-SELECT (WHATSAPP) ====================
         let selectedStudentIds = new Set();
 
         function toggleStudentSelection(id, checked) {
-            if (checked) {
-                selectedStudentIds.add(id);
-            } else {
-                selectedStudentIds.delete(id);
-                document.getElementById("selectAllStudents").checked = false;
-            }
+            if (checked) selectedStudentIds.add(id);
+            else { selectedStudentIds.delete(id); document.getElementById("selectAllStudents").checked = false; }
             updateSelectedStudentCount();
         }
 
         function toggleSelectAllStudents(checkbox) {
-            const boxes = document.querySelectorAll(".student-select-checkbox");
-            boxes.forEach(b => {
+            document.querySelectorAll(".student-select-checkbox").forEach(b => {
                 b.checked = checkbox.checked;
                 const id = parseInt(b.value);
-                if (checkbox.checked) {
-                    selectedStudentIds.add(id);
-                } else {
-                    selectedStudentIds.delete(id);
-                }
+                if (checkbox.checked) selectedStudentIds.add(id);
+                else selectedStudentIds.delete(id);
             });
             updateSelectedStudentCount();
         }
@@ -2403,14 +2037,10 @@
 
         function openWhatsappBulkForSelectedStudents() {
             const selected = students.filter(s => selectedStudentIds.has(s.id));
-            if (selected.length === 0) {
-                showAlert("Select at least one student first", "error");
-                return;
-            }
+            if (selected.length === 0) { showAlert("Select at least one student first", "error"); return; }
             document.getElementById("whatsappBulkCount").textContent = `${selected.length} contact(s) selected`;
             document.getElementById("whatsappBulkMessage").value = "";
             document.getElementById("whatsappBulkMessage").disabled = false;
-
             const listEl = document.getElementById("whatsappBulkContactList");
             listEl.innerHTML = selected.map(s => {
                 const hasPhone = !!s.phone;
@@ -2418,27 +2048,18 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;">
                         <span>${s.name} ${s.father_name ? `(Father: ${s.father_name})` : ""} — ${s.phone || "No phone on file"}</span>
                         <button class="btn btn-sm btn-whatsapp" ${hasPhone ? "" : "disabled"} onclick="sendWhatsappToStudent(${s.id})">📱 Send</button>
-                    </div>
-                `;
+                    </div>`;
             }).join("");
-
             openModal("whatsappBulkModal");
         }
 
         function sendWhatsappToStudent(studentId) {
             const student = students.find(s => s.id === studentId);
-            if (!student || !student.phone) {
-                showAlert("No phone number on file for this student", "error");
-                return;
-            }
+            if (!student || !student.phone) { showAlert("No phone number on file", "error"); return; }
             const message = document.getElementById("whatsappBulkMessage").value.trim();
-            if (!message) {
-                showAlert("Type a message first", "error");
-                return;
-            }
+            if (!message) { showAlert("Type a message first", "error"); return; }
             const whatsappNumber = formatPhoneForWhatsApp(student.phone);
-            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, "_blank");
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
         }
 
         function populateStudentClassFilter(data) {
@@ -2484,31 +2105,21 @@
                     gender: document.getElementById("studentGender").value || null,
                     address: document.getElementById("studentAddress").value || null
                 };
-
                 if (!payload.name || !payload.roll_number || !payload.class_name) {
                     showAlert("Name, roll number and class are required", "error");
                     return;
                 }
-
                 let result;
                 if (editingId) {
-                    result = await apiRequest(`/students/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify(payload)
-                    });
+                    result = await apiRequest(`/students/${editingId}`, { method: "PUT", body: JSON.stringify(payload) });
                     showAlert("Student updated successfully");
                 } else {
-                    result = await apiRequest("/students", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
-                    showAlert("Student added successfully");
+                    result = await apiRequest("/students", { method: "POST", body: JSON.stringify(payload) });
+                    showSuccess("Student saved!");
                 }
-
                 if (result && result.parent_temp_password) {
                     showCredentialModal("Parent Portal Login Created", payload.parent_email, result.parent_temp_password);
                 }
-
                 closeModal("addStudentModal");
                 await loadStudents();
             } catch (error) {
@@ -2522,9 +2133,7 @@
                 await apiRequest(`/students/${id}`, { method: "DELETE" });
                 showAlert("Student deleted successfully");
                 await loadStudents();
-            } catch (error) {
-                console.error("Error deleting student:", error);
-            }
+            } catch (error) { console.error("Error deleting student:", error); }
         }
 
         function openAddStudentModal() {
@@ -2547,7 +2156,6 @@
         function editStudent(id) {
             const student = students.find(s => s.id === id);
             if (!student) return;
-
             document.getElementById("addStudentModal").dataset.editingId = id;
             document.getElementById("studentModalTitle").textContent = "Edit Student";
             document.getElementById("studentSaveBtn").textContent = "Update Student";
@@ -2592,10 +2200,17 @@
                 cachedStudentsForFees = studentsData;
 
                 const table = document.getElementById("feesTable");
+                const tableEl = table.closest('table');
 
                 if (data.length === 0) {
-                    table.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--gray); padding: 20px;">No fees found</td></tr>`;
+                    showEmptyState('feesTable', 'wallet',
+                        'No fee records yet',
+                        'Generate fees for a class or add a fee manually to get started.',
+                        'Add Fee', 'openAddFeeModal()');
                 } else {
+                    if (typeof clearEmptyState === 'function') clearEmptyState('feesTable');
+                    if (tableEl) tableEl.style.display = '';
+
                     table.innerHTML = data.map(f => {
                         const student = studentsData.find(s => s.id === f.student_id);
                         const isPaid = f.status === "paid";
@@ -2617,146 +2232,79 @@
                                         <button class="btn btn-sm btn-danger" onclick="deleteFee(${f.id})">Delete</button>
                                     </div>
                                 </td>
-                            </tr>
-                        `;
+                            </tr>`;
                     }).join("");
                 }
 
-                // Populate student dropdown
                 const studentSelect = document.getElementById("feeStudent");
-                studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s => 
-                    `<option value="${s.id}">${s.name}</option>`
-                ).join("");
+                if (studentSelect) {
+                    studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s =>
+                        `<option value="${s.id}">${s.name}</option>`).join("");
+                }
             } catch (error) {
                 console.error("Error loading fees:", error);
             }
         }
 
         function formatPhoneForWhatsApp(rawPhone) {
-            // Strips spaces/dashes, converts Pakistani local format (03XXXXXXXXX)
-            // to international format (923XXXXXXXXX) required by wa.me links.
             if (!rawPhone) return null;
             let digits = rawPhone.replace(/[^0-9]/g, "");
-            if (digits.startsWith("0")) {
-                digits = "92" + digits.substring(1);
-            } else if (!digits.startsWith("92")) {
-                digits = "92" + digits;
-            }
+            if (digits.startsWith("0")) digits = "92" + digits.substring(1);
+            else if (!digits.startsWith("92")) digits = "92" + digits;
             return digits;
         }
 
         function sendWhatsAppReminder(feeId) {
             const fee = cachedFeesForPayment.find(f => f.id === feeId);
             if (!fee) return;
-
             const student = cachedStudentsForFees.find(s => s.id === fee.student_id);
-            if (!student || !student.phone) {
-                showAlert("No phone number on file for this student", "error");
-                return;
-            }
-
+            if (!student || !student.phone) { showAlert("No phone number on file", "error"); return; }
             const whatsappNumber = formatPhoneForWhatsApp(student.phone);
             const dueAmount = fee.due_amount ?? (fee.amount - fee.paid_amount);
             const isPartial = fee.status === "partial" && fee.paid_amount > 0;
-
             const message =
                 `Dear Parent/Guardian,\n\n` +
                 (isPartial
-                    ? `This is a friendly reminder regarding the *${fee.fee_name}* fee for *${student.name}* ` +
-                      `(Class ${student.class_name || "-"}).\n\n` +
-                      `Total Fee: Rs. ${fee.amount}\n` +
-                      `Paid So Far: Rs. ${fee.paid_amount}\n` +
-                      `Remaining Balance: Rs. ${dueAmount}\n`
-                    : `This is a friendly reminder that the *${fee.fee_name}* fee for *${student.name}* ` +
-                      `(Class ${student.class_name || "-"}) is currently due.\n\n` +
-                      `Amount Due: Rs. ${dueAmount}\n`) +
+                    ? `This is a friendly reminder regarding the *${fee.fee_name}* fee for *${student.name}* (Class ${student.class_name || "-"}).\n\nTotal Fee: Rs. ${fee.amount}\nPaid So Far: Rs. ${fee.paid_amount}\nRemaining Balance: Rs. ${dueAmount}\n`
+                    : `This is a friendly reminder that the *${fee.fee_name}* fee for *${student.name}* (Class ${student.class_name || "-"}) is currently due.\n\nAmount Due: Rs. ${dueAmount}\n`) +
                 (fee.due_date ? `Due Date: ${fee.due_date}\n\n` : `\n`) +
                 (isPartial
                     ? `Kindly arrange payment of the remaining balance at your earliest convenience. Thank you.`
                     : `Kindly arrange payment at your earliest convenience. Thank you.`);
-
-            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, "_blank");
-        }
-
-        function buildFeeReminderMessage(fee, student) {
-            const dueAmount = fee.due_amount ?? (fee.amount - fee.paid_amount);
-            const isPartial = fee.status === "partial" && fee.paid_amount > 0;
-
-            return (
-                `Dear Parent/Guardian,\n\n` +
-                (isPartial
-                    ? `This is a friendly reminder regarding the *${fee.fee_name}* fee for *${student.name}* ` +
-                      `(Class ${student.class_name || "-"}).\n\n` +
-                      `Total Fee: Rs. ${fee.amount}\n` +
-                      `Paid So Far: Rs. ${fee.paid_amount}\n` +
-                      `Remaining Balance: Rs. ${dueAmount}\n`
-                    : `This is a friendly reminder that the *${fee.fee_name}* fee for *${student.name}* ` +
-                      `(Class ${student.class_name || "-"}) is currently due.\n\n` +
-                      `Amount Due: Rs. ${dueAmount}\n`) +
-                (fee.due_date ? `Due Date: ${fee.due_date}\n\n` : `\n`) +
-                (isPartial
-                    ? `Kindly arrange payment of the remaining balance at your earliest convenience. Thank you.`
-                    : `Kindly arrange payment at your earliest convenience. Thank you.`)
-            );
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
         }
 
         async function openWhatsappBulkForUnpaidFees() {
             try {
-                if (!cachedFeesForPayment || cachedFeesForPayment.length === 0) {
-                    await loadFees();
-                }
-            } catch (error) {
-                console.error("Error refreshing fees before reminder broadcast:", error);
-            }
-
+                if (!cachedFeesForPayment || cachedFeesForPayment.length === 0) await loadFees();
+            } catch (error) { console.error("Error refreshing fees:", error); }
             const unpaidFees = cachedFeesForPayment.filter(f => f.status !== "paid" && f.due_amount > 0);
-            if (unpaidFees.length === 0) {
-                showAlert("No fees with outstanding dues", "success");
-                return;
-            }
-
+            if (unpaidFees.length === 0) { showAlert("No fees with outstanding dues", "success"); return; }
             document.getElementById("whatsappBulkCount").textContent = `${unpaidFees.length} unpaid fee(s)`;
             document.getElementById("whatsappBulkMessage").value = "Each contact below has its own reminder pre-filled with its due amount — tap Send for each.";
             document.getElementById("whatsappBulkMessage").disabled = true;
-
             const listEl = document.getElementById("whatsappBulkContactList");
             listEl.innerHTML = unpaidFees.map(f => {
                 const student = cachedStudentsForFees.find(s => s.id === f.student_id);
                 const hasPhone = student && student.phone;
-                const label = student
-                    ? `${student.name} (${student.class_name || "-"}) — ${f.fee_name || "Fee"}: Rs. ${f.due_amount} due`
-                    : `Unknown student — ${f.fee_name || "Fee"}: Rs. ${f.due_amount} due`;
+                const label = student ? `${student.name} (${student.class_name || "-"}) — ${f.fee_name || "Fee"}: Rs. ${f.due_amount} due` : `Unknown student`;
                 return `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;">
                         <span>${label}${hasPhone ? "" : " (no phone on file)"}</span>
                         <button class="btn btn-sm btn-whatsapp" ${hasPhone ? "" : "disabled"} onclick="sendWhatsAppReminder(${f.id})">📱 Send</button>
-                    </div>
-                `;
+                    </div>`;
             }).join("");
-
             openModal("whatsappBulkModal");
         }
 
-        // ==================== FAMILY (SIBLING) FEE ROLLUP ====================
         async function openWhatsappBulkForFamilies() {
             let families = [];
-            try {
-                families = await apiRequest("/fees/family-summary");
-            } catch (error) {
-                console.error("Error loading family fee summary:", error);
-                return;
-            }
-
-            if (families.length === 0) {
-                showAlert("No outstanding dues with a phone number on file", "success");
-                return;
-            }
-
+            try { families = await apiRequest("/fees/family-summary"); }
+            catch (error) { console.error("Error loading family fee summary:", error); return; }
+            if (families.length === 0) { showAlert("No outstanding dues with a phone number on file", "success"); return; }
             document.getElementById("whatsappBulkCount").textContent = `${families.length} famil${families.length === 1 ? "y" : "ies"} with dues`;
             document.getElementById("whatsappBulkMessage").value = "Each family below gets ONE combined message for all their children — tap Send for each.";
             document.getElementById("whatsappBulkMessage").disabled = true;
-
             const listEl = document.getElementById("whatsappBulkContactList");
             listEl.innerHTML = families.map((family, idx) => {
                 const childrenList = family.students.map(s => `${s.name} (${s.class_name || "-"}): Rs. ${s.due_amount}`).join(", ");
@@ -2764,10 +2312,8 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;">
                         <span>${family.phone} — ${childrenList} — <strong>Total Rs. ${family.total_due}</strong></span>
                         <button class="btn btn-sm btn-whatsapp" onclick="sendFamilyWhatsappReminder(${idx})">📱 Send</button>
-                    </div>
-                `;
+                    </div>`;
             }).join("");
-
             window._cachedFamilyReminders = families;
             openModal("whatsappBulkModal");
         }
@@ -2775,27 +2321,20 @@
         function sendFamilyWhatsappReminder(familyIndex) {
             const family = (window._cachedFamilyReminders || [])[familyIndex];
             if (!family) return;
-
             const whatsappNumber = formatPhoneForWhatsApp(family.phone);
-            const childLines = family.students
-                .map(s => `- ${s.name} (Class ${s.class_name || "-"}): Rs. ${s.due_amount}`)
-                .join("\n");
-
+            const childLines = family.students.map(s => `- ${s.name} (Class ${s.class_name || "-"}): Rs. ${s.due_amount}`).join("\n");
             const message =
                 `Dear Parent/Guardian,\n\n` +
                 `This is a reminder of outstanding school fees for your ${family.students.length > 1 ? "children" : "child"}:\n\n` +
                 `${childLines}\n\n` +
                 `Total Amount Due: Rs. ${family.total_due}\n\n` +
                 `Kindly arrange payment at your earliest convenience. Thank you.`;
-
-            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, "_blank");
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
         }
 
         function openPaymentModal(feeId) {
             const fee = cachedFeesForPayment.find(f => f.id === feeId);
             if (!fee) return;
-
             const student = cachedStudentsForFees.find(s => s.id === fee.student_id);
             document.getElementById("paymentStudentName").value = student?.name || "Unknown";
             document.getElementById("paymentDueAmount").value = `Rs. ${fee.due_amount}`;
@@ -2812,35 +2351,24 @@
                 const amountPaid = parseFloat(document.getElementById("paymentAmount").value);
                 const paymentMethod = document.getElementById("paymentMethod").value;
                 const receiptNumber = document.getElementById("paymentReceipt").value || null;
-
                 if (!feeId || isNaN(amountPaid) || amountPaid <= 0) {
                     showAlert("Please enter a valid payment amount", "error");
                     return;
                 }
-
                 await apiRequest(`/fees/${feeId}/payment`, {
                     method: "POST",
-                    body: JSON.stringify({
-                        fee_id: feeId,
-                        amount_paid: amountPaid,
-                        payment_method: paymentMethod,
-                        receipt_number: receiptNumber
-                    })
+                    body: JSON.stringify({ fee_id: feeId, amount_paid: amountPaid, payment_method: paymentMethod, receipt_number: receiptNumber })
                 });
-
                 closeModal("recordPaymentModal");
                 showAlert("Payment recorded successfully!", "success");
                 await loadFees();
-            } catch (error) {
-                console.error("Error recording payment:", error);
-            }
+            } catch (error) { console.error("Error recording payment:", error); }
         }
 
         async function saveFee() {
             try {
                 const editingId = document.getElementById("addFeeModal").dataset.editingId;
-                const monthNames = ["January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"];
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                 const payload = {
                     student_id: parseInt(document.getElementById("feeStudent").value),
                     fee_name: document.getElementById("feeType").value,
@@ -2848,39 +2376,20 @@
                     due_date: document.getElementById("feeDueDate").value || null,
                     month: monthNames[new Date().getMonth()]
                 };
-
                 if (!payload.student_id || !payload.fee_name || !payload.amount) {
                     showAlert("Please fill all required fields", "error");
                     return;
                 }
-
                 if (editingId) {
-                    await apiRequest(`/fees/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify({
-                            fee_name: payload.fee_name,
-                            amount: payload.amount,
-                            due_date: payload.due_date
-                        })
-                    });
+                    await apiRequest(`/fees/${editingId}`, { method: "PUT", body: JSON.stringify({ fee_name: payload.fee_name, amount: payload.amount, due_date: payload.due_date }) });
                     showAlert("Fee updated successfully");
                 } else {
-                    await apiRequest("/fees", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest("/fees", { method: "POST", body: JSON.stringify(payload) });
                     showAlert("Fee added successfully");
                 }
-
                 closeModal("addFeeModal");
-                document.getElementById("feeStudent").value = "Select Student";
-                document.getElementById("feeType").value = "";
-                document.getElementById("feeAmount").value = "";
-                document.getElementById("feeDueDate").value = "";
                 await loadFees();
-            } catch (error) {
-                console.error("Error saving fee:", error);
-            }
+            } catch (error) { console.error("Error saving fee:", error); }
         }
 
         async function deleteFee(id) {
@@ -2889,9 +2398,7 @@
                 await apiRequest(`/fees/${id}`, { method: "DELETE" });
                 showAlert("Fee deleted successfully");
                 await loadFees();
-            } catch (error) {
-                console.error("Error deleting fee:", error);
-            }
+            } catch (error) { console.error("Error deleting fee:", error); }
         }
 
         function openAddFeeModal() {
@@ -2908,7 +2415,6 @@
         function editFee(id) {
             const fee = cachedFeesForPayment.find(f => f.id === id);
             if (!fee) return;
-
             document.getElementById("addFeeModal").dataset.editingId = id;
             document.getElementById("feeModalTitle").textContent = "Edit Fee";
             document.getElementById("feeSaveBtn").textContent = "Update Fee";
@@ -2929,13 +2435,10 @@
                 const studentsData = await apiRequest("/students");
                 cachedStudentsForAttendance = studentsData;
 
-                // Populate student dropdown
                 const studentSelect = document.getElementById("attendanceStudent");
-                studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s => 
-                    `<option value="${s.id}">${s.name}</option>`
-                ).join("");
+                studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s =>
+                    `<option value="${s.id}">${s.name}</option>`).join("");
 
-                // Load attendance records
                 const params = new URLSearchParams();
                 if (filters.date) params.set("date", filters.date);
                 const query = params.toString() ? `?${params.toString()}` : "";
@@ -2944,9 +2447,18 @@
                 cachedAttendanceRecords = records;
 
                 const table = document.getElementById("attendanceTable");
+                const tableEl = table.closest('table');
+
                 if (records.length === 0) {
-                    table.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--gray); padding: 20px;">No attendance records found</td></tr>`;
+                    // ✅ FIXED: consistent empty state
+                    showEmptyState('attendanceTable', 'calendar-x',
+                        'No attendance records yet',
+                        'Mark attendance for students to see records here.',
+                        'Mark Attendance', 'openMarkAttendanceModal()');
                 } else {
+                    if (typeof clearEmptyState === 'function') clearEmptyState('attendanceTable');
+                    if (tableEl) tableEl.style.display = '';
+
                     table.innerHTML = records.map(r => {
                         const student = studentsData.find(s => s.id === r.student_id);
                         return `
@@ -2961,13 +2473,10 @@
                                         <button class="btn btn-sm btn-danger" onclick="deleteAttendance(${r.id})">Delete</button>
                                     </div>
                                 </td>
-                            </tr>
-                        `;
+                            </tr>`;
                     }).join("");
                 }
-            } catch (error) {
-                console.error("Error loading attendance:", error);
-            }
+            } catch (error) { console.error("Error loading attendance:", error); }
         }
 
         function filterAttendance() {
@@ -2987,61 +2496,37 @@
             loadAttendance();
         }
 
-        // ==================== SAME-DAY ABSENCE ALERTS ====================
         async function openWhatsappBulkForAbsentees() {
             const targetDate = currentAttendanceDateFilter || new Date().toISOString().split("T")[0];
-
             let records = [];
-            try {
-                records = await apiRequest(`/attendance/date/${targetDate}`);
-            } catch (error) {
-                console.error("Error loading attendance for absence alerts:", error);
-                return;
-            }
-
+            try { records = await apiRequest(`/attendance/date/${targetDate}`); }
+            catch (error) { console.error("Error loading attendance for absence alerts:", error); return; }
             const absentRecords = records.filter(r => !r.is_present);
-            if (absentRecords.length === 0) {
-                showAlert(`No absences recorded for ${targetDate}`, "success");
-                return;
-            }
-
+            if (absentRecords.length === 0) { showAlert(`No absences recorded for ${targetDate}`, "success"); return; }
             if (!cachedStudentsForAttendance || cachedStudentsForAttendance.length === 0) {
-                try {
-                    cachedStudentsForAttendance = await apiRequest("/students");
-                } catch (error) {
-                    console.error("Error loading students for absence alerts:", error);
-                }
+                try { cachedStudentsForAttendance = await apiRequest("/students"); }
+                catch (error) { console.error("Error loading students:", error); }
             }
-
             document.getElementById("whatsappBulkCount").textContent = `${absentRecords.length} absent on ${targetDate}`;
             document.getElementById("whatsappBulkMessage").value = "Each absent student below gets a same-day alert — tap Send for each.";
             document.getElementById("whatsappBulkMessage").disabled = true;
-
             const listEl = document.getElementById("whatsappBulkContactList");
             listEl.innerHTML = absentRecords.map(r => {
                 const student = cachedStudentsForAttendance.find(s => s.id === r.student_id);
                 const hasPhone = student && student.phone;
-                const label = student
-                    ? `${student.name} (${student.class_name || "-"})${r.remarks ? " — " + r.remarks : ""}`
-                    : `Unknown student`;
+                const label = student ? `${student.name} (${student.class_name || "-"})${r.remarks ? " — " + r.remarks : ""}` : `Unknown student`;
                 return `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;">
                         <span>${label}${hasPhone ? "" : " (no phone on file)"}</span>
                         <button class="btn btn-sm btn-whatsapp" ${hasPhone ? "" : "disabled"} onclick="sendAbsenceAlert(${r.student_id}, '${targetDate}', '${(r.remarks || "").replace(/'/g, "\\'")}')">📱 Send</button>
-                    </div>
-                `;
+                    </div>`;
             }).join("");
-
             openModal("whatsappBulkModal");
         }
 
         function sendAbsenceAlert(studentId, dateStr, remarks) {
             const student = cachedStudentsForAttendance.find(s => s.id === studentId);
-            if (!student || !student.phone) {
-                showAlert("No phone number on file for this student", "error");
-                return;
-            }
-
+            if (!student || !student.phone) { showAlert("No phone number on file", "error"); return; }
             const whatsappNumber = formatPhoneForWhatsApp(student.phone);
             const message =
                 `Dear Parent/Guardian,\n\n` +
@@ -3049,9 +2534,7 @@
                 `was marked *absent* today, ${dateStr}.\n\n` +
                 (remarks ? `Remarks: ${remarks}\n\n` : "") +
                 `If this is unexpected or you'd like to discuss, please contact the school. Thank you.`;
-
-            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, "_blank");
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
         }
 
         async function saveAttendance() {
@@ -3064,31 +2547,17 @@
                     is_present: statusValue !== "absent",
                     remarks: document.getElementById("attendanceRemarks").value || null
                 };
-
-                if (!payload.student_id || !payload.date) {
-                    showAlert("Please select student and date", "error");
-                    return;
-                }
-
+                if (!payload.student_id || !payload.date) { showAlert("Please select student and date", "error"); return; }
                 if (editingId) {
-                    await apiRequest(`/attendance/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify({ is_present: payload.is_present, remarks: payload.remarks })
-                    });
+                    await apiRequest(`/attendance/${editingId}`, { method: "PUT", body: JSON.stringify({ is_present: payload.is_present, remarks: payload.remarks }) });
                     showAlert("Attendance updated successfully");
                 } else {
-                    await apiRequest("/attendance", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest("/attendance", { method: "POST", body: JSON.stringify(payload) });
                     showAlert("Attendance marked successfully");
                 }
-
                 closeModal("markAttendanceModal");
                 await loadAttendance({ date: currentAttendanceDateFilter || undefined });
-            } catch (error) {
-                console.error("Error saving attendance:", error);
-            }
+            } catch (error) { console.error("Error saving attendance:", error); }
         }
 
         function openMarkAttendanceModal() {
@@ -3105,7 +2574,6 @@
         function editAttendance(id) {
             const record = cachedAttendanceRecords.find(r => r.id === id);
             if (!record) return;
-
             document.getElementById("markAttendanceModal").dataset.editingId = id;
             document.getElementById("attendanceModalTitle").textContent = "Edit Attendance";
             document.getElementById("attendanceSaveBtn").textContent = "Update Attendance";
@@ -3122,9 +2590,7 @@
                 await apiRequest(`/attendance/${id}`, { method: "DELETE" });
                 showAlert("Attendance record deleted successfully");
                 await loadAttendance({ date: currentAttendanceDateFilter || undefined });
-            } catch (error) {
-                console.error("Error deleting attendance:", error);
-            }
+            } catch (error) { console.error("Error deleting attendance:", error); }
         }
 
         // ==================== GRADES ====================
@@ -3144,11 +2610,9 @@
                 const studentsData = await apiRequest("/students");
                 cachedStudentsForGrades = studentsData;
 
-                // Populate student dropdown
                 const studentSelect = document.getElementById("gradeStudent");
-                studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s => 
-                    `<option value="${s.id}">${s.name}</option>`
-                ).join("");
+                studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s =>
+                    `<option value="${s.id}">${s.name}</option>`).join("");
 
                 const params = new URLSearchParams();
                 if (filters.subject) params.set("subject", filters.subject);
@@ -3158,9 +2622,17 @@
                 cachedGradeRecords = records;
 
                 const table = document.getElementById("gradesTable");
+                const tableEl = table.closest('table');
+
                 if (records.length === 0) {
-                    table.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--gray); padding: 20px;">No grade records found</td></tr>`;
+                    showEmptyState('gradesTable', 'trending-up',
+                        'No grade records yet',
+                        'Add grades for students to see performance here.',
+                        'Add Grade', 'openAddGradeModal()');
                 } else {
+                    if (typeof clearEmptyState === 'function') clearEmptyState('gradesTable');
+                    if (tableEl) tableEl.style.display = '';
+
                     table.innerHTML = records.map(g => {
                         const student = studentsData.find(s => s.id === g.student_id);
                         return `
@@ -3177,19 +2649,12 @@
                                         <button class="btn btn-sm btn-danger" onclick="deleteGrade(${g.id})">Delete</button>
                                     </div>
                                 </td>
-                            </tr>
-                        `;
+                            </tr>`;
                     }).join("");
                 }
 
-                // Only refresh subject dropdown options on the unfiltered load,
-                // so the full list of subjects stays available while filtering.
-                if (!filters.subject) {
-                    populateGradeSubjectFilter(records);
-                }
-            } catch (error) {
-                console.error("Error loading grades:", error);
-            }
+                if (!filters.subject) populateGradeSubjectFilter(records);
+            } catch (error) { console.error("Error loading grades:", error); }
         }
 
         function populateGradeSubjectFilter(records) {
@@ -3222,40 +2687,24 @@
                     marks_obtained: parseFloat(document.getElementById("gradeMarks").value),
                     total_marks: parseFloat(document.getElementById("gradeTotalMarks").value) || 100
                 };
-
                 if (!payload.student_id || !payload.subject || isNaN(payload.marks_obtained)) {
                     showAlert("Please fill all required fields", "error");
                     return;
                 }
-
                 if (payload.marks_obtained > payload.total_marks) {
                     showAlert("Marks obtained cannot exceed total marks", "error");
                     return;
                 }
-
                 if (editingId) {
-                    await apiRequest(`/grades/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify({
-                            subject: payload.subject,
-                            marks_obtained: payload.marks_obtained,
-                            total_marks: payload.total_marks
-                        })
-                    });
+                    await apiRequest(`/grades/${editingId}`, { method: "PUT", body: JSON.stringify({ subject: payload.subject, marks_obtained: payload.marks_obtained, total_marks: payload.total_marks }) });
                     showAlert("Grade updated successfully");
                 } else {
-                    await apiRequest("/grades", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest("/grades", { method: "POST", body: JSON.stringify(payload) });
                     showAlert("Grade added successfully");
                 }
-
                 closeModal("addGradeModal");
                 await loadGrades({ subject: currentGradeSubjectFilter || undefined });
-            } catch (error) {
-                console.error("Error saving grade:", error);
-            }
+            } catch (error) { console.error("Error saving grade:", error); }
         }
 
         function openAddGradeModal() {
@@ -3272,7 +2721,6 @@
         function editGrade(id) {
             const record = cachedGradeRecords.find(g => g.id === id);
             if (!record) return;
-
             document.getElementById("addGradeModal").dataset.editingId = id;
             document.getElementById("gradeModalTitle").textContent = "Edit Grade";
             document.getElementById("gradeSaveBtn").textContent = "Update Grade";
@@ -3289,9 +2737,7 @@
                 await apiRequest(`/grades/${id}`, { method: "DELETE" });
                 showAlert("Grade record deleted successfully");
                 await loadGrades({ subject: currentGradeSubjectFilter || undefined });
-            } catch (error) {
-                console.error("Error deleting grade:", error);
-            }
+            } catch (error) { console.error("Error deleting grade:", error); }
         }
 
         // ==================== STAFF ====================
@@ -3307,28 +2753,21 @@
         }
 
         async function loadStaffTab() {
-            if (currentStaffSubtab === "list") {
-                await loadStaff();
-            } else if (currentStaffSubtab === "attendance") {
-                await loadStaffAttendance();
-            } else if (currentStaffSubtab === "salary") {
-                await loadStaffSalaryTab();
-            }
+            if (currentStaffSubtab === "list") await loadStaff();
+            else if (currentStaffSubtab === "attendance") await loadStaffAttendance();
+            else if (currentStaffSubtab === "salary") await loadStaffSalaryTab();
         }
 
         function switchStaffTab(tabName) {
             currentStaffSubtab = tabName;
             document.querySelectorAll(".staff-subtab").forEach(el => el.classList.remove("active"));
             document.getElementById(tabName === "list" ? "staffListSubtab" : tabName === "attendance" ? "staffAttendanceSubtab" : "staffSalarySubtab").classList.add("active");
-
             document.querySelectorAll(".staff-tab-btn").forEach(btn => {
                 btn.classList.toggle("active", btn.dataset.tab === tabName);
             });
-
             loadStaffTab();
         }
 
-        // -------- STAFF LIST --------
         function roleBadgeClass(roleValue) {
             if (roleValue === "admin") return "badge-danger";
             if (roleValue === "teacher") return "badge-info";
@@ -3348,9 +2787,19 @@
                 cachedStaffList = data;
 
                 const table = document.getElementById("staffTable");
+                const tableEl = table.closest('table');
+
                 if (data.length === 0) {
-                    table.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--gray); padding: 20px;">No staff members found</td></tr>`;
+                    // ✅ FIXED: correct staffTable, icon, message, button
+                    showEmptyState('staffTable', 'users-round',
+                        'No staff members yet',
+                        'Add your first staff member to get started with managing teachers and employees.',
+                        'Add Staff', 'openAddStaffModal()');
                 } else {
+                    // ✅ FIXED: restore staffTable, not studentsTable
+                    if (typeof clearEmptyState === 'function') clearEmptyState('staffTable');
+                    if (tableEl) tableEl.style.display = '';
+
                     table.innerHTML = data.map(s => `
                         <tr>
                             <td>${s.name}</td>
@@ -3374,9 +2823,7 @@
                 if (!filters.designation && !filters.class_assigned && !filters.search) {
                     populateStaffFilterOptions(data);
                 }
-            } catch (error) {
-                console.error("Error loading staff:", error);
-            }
+            } catch (error) { console.error("Error loading staff:", error); }
         }
 
         function populateStaffFilterOptions(data) {
@@ -3440,7 +2887,6 @@
         function editStaff(id) {
             const staff = cachedStaffList.find(s => s.id === id);
             if (!staff) return;
-
             document.getElementById("addStaffModal").dataset.editingId = id;
             document.getElementById("staffModalTitle").textContent = "Edit Staff";
             document.getElementById("staffSaveBtn").textContent = "Update Staff";
@@ -3472,50 +2918,31 @@
                     salary: parseFloat(document.getElementById("staffSalary").value) || 0,
                     joining_date: document.getElementById("staffJoiningDate").value || null
                 };
-
-                if (!payload.name || !payload.designation) {
-                    showAlert("Please fill all required fields", "error");
-                    return;
-                }
-
+                if (!payload.name || !payload.designation) { showAlert("Please fill all required fields", "error"); return; }
                 if (editingId) {
                     payload.status = document.getElementById("staffStatus").value;
-                    await apiRequest(`/staff/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest(`/staff/${editingId}`, { method: "PUT", body: JSON.stringify(payload) });
                     showAlert("Staff member updated successfully");
                 } else {
-                    await apiRequest("/staff", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest("/staff", { method: "POST", body: JSON.stringify(payload) });
                     showAlert("Staff member added successfully");
                 }
-
                 closeModal("addStaffModal");
                 await loadStaff();
-            } catch (error) {
-                console.error("Error saving staff:", error);
-            }
+            } catch (error) { console.error("Error saving staff:", error); }
         }
 
         async function deleteStaff(id) {
-            if (!confirm("Are you sure you want to delete this staff member? This will also remove their attendance and salary records.")) return;
+            if (!confirm("Are you sure you want to delete this staff member?")) return;
             try {
                 await apiRequest(`/staff/${id}`, { method: "DELETE" });
                 showAlert("Staff member deleted successfully");
                 await loadStaff();
-            } catch (error) {
-                console.error("Error deleting staff:", error);
-            }
+            } catch (error) { console.error("Error deleting staff:", error); }
         }
 
-        // -------- STAFF ATTENDANCE --------
         async function ensureStaffListLoaded() {
-            if (cachedStaffList.length === 0) {
-                cachedStaffList = await apiRequest("/staff");
-            }
+            if (cachedStaffList.length === 0) cachedStaffList = await apiRequest("/staff");
             return cachedStaffList;
         }
 
@@ -3525,8 +2952,7 @@
 
                 const staffSelect = document.getElementById("staffAttendanceStaff");
                 staffSelect.innerHTML = '<option>Select Staff</option>' + staffData.map(s =>
-                    `<option value="${s.id}">${s.name} (${s.designation})</option>`
-                ).join("");
+                    `<option value="${s.id}">${s.name} (${s.designation})</option>`).join("");
 
                 const params = new URLSearchParams();
                 if (filters.date) params.set("date", filters.date);
@@ -3536,9 +2962,19 @@
                 cachedStaffAttendance = records;
 
                 const table = document.getElementById("staffAttendanceTable");
+                const tableEl = table.closest('table');
+
                 if (records.length === 0) {
-                    table.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--gray); padding: 20px;">No attendance records found</td></tr>`;
+                    // ✅ FIXED: correct staffAttendanceTable, correct message, correct button
+                    showEmptyState('staffAttendanceTable', 'calendar-check',
+                        'No staff attendance records yet',
+                        'Mark attendance for staff members to see records here.',
+                        'Mark Staff Attendance', 'openMarkStaffAttendanceModal()');
                 } else {
+                    // ✅ FIXED: restore staffAttendanceTable, not attendanceTable
+                    if (typeof clearEmptyState === 'function') clearEmptyState('staffAttendanceTable');
+                    if (tableEl) tableEl.style.display = '';
+
                     table.innerHTML = records.map(r => {
                         const staff = staffData.find(s => s.id === r.staff_id);
                         return `
@@ -3554,13 +2990,10 @@
                                         <button class="btn btn-sm btn-danger" onclick="deleteStaffAttendance(${r.id})">Delete</button>
                                     </div>
                                 </td>
-                            </tr>
-                        `;
+                            </tr>`;
                     }).join("");
                 }
-            } catch (error) {
-                console.error("Error loading staff attendance:", error);
-            }
+            } catch (error) { console.error("Error loading staff attendance:", error); }
         }
 
         function filterStaffAttendance() {
@@ -3594,7 +3027,6 @@
         function editStaffAttendance(id) {
             const record = cachedStaffAttendance.find(r => r.id === id);
             if (!record) return;
-
             document.getElementById("markStaffAttendanceModal").dataset.editingId = id;
             document.getElementById("staffAttendanceModalTitle").textContent = "Edit Staff Attendance";
             document.getElementById("staffAttendanceSaveBtn").textContent = "Update Attendance";
@@ -3615,31 +3047,17 @@
                     is_present: statusValue !== "absent",
                     remarks: document.getElementById("staffAttendanceRemarks").value || null
                 };
-
-                if (!payload.staff_id || !payload.date) {
-                    showAlert("Please select staff and date", "error");
-                    return;
-                }
-
+                if (!payload.staff_id || !payload.date) { showAlert("Please select staff and date", "error"); return; }
                 if (editingId) {
-                    await apiRequest(`/staff/attendance/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify({ is_present: payload.is_present, remarks: payload.remarks })
-                    });
+                    await apiRequest(`/staff/attendance/${editingId}`, { method: "PUT", body: JSON.stringify({ is_present: payload.is_present, remarks: payload.remarks }) });
                     showAlert("Attendance updated successfully");
                 } else {
-                    await apiRequest("/staff/attendance", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest("/staff/attendance", { method: "POST", body: JSON.stringify(payload) });
                     showAlert("Attendance marked successfully");
                 }
-
                 closeModal("markStaffAttendanceModal");
                 await loadStaffAttendance({ date: currentStaffAttendanceDateFilter || undefined });
-            } catch (error) {
-                console.error("Error saving staff attendance:", error);
-            }
+            } catch (error) { console.error("Error saving staff attendance:", error); }
         }
 
         async function deleteStaffAttendance(id) {
@@ -3648,9 +3066,7 @@
                 await apiRequest(`/staff/attendance/${id}`, { method: "DELETE" });
                 showAlert("Attendance record deleted successfully");
                 await loadStaffAttendance({ date: currentStaffAttendanceDateFilter || undefined });
-            } catch (error) {
-                console.error("Error deleting staff attendance:", error);
-            }
+            } catch (error) { console.error("Error deleting staff attendance:", error); }
         }
 
         // -------- STAFF SALARY --------
@@ -3659,25 +3075,19 @@
         async function loadStaffSalaryTab() {
             try {
                 await ensureStaffListLoaded();
-
                 const monthInput = document.getElementById("staffSalaryMonthFilter");
                 if (!monthInput.value) {
                     const now = new Date();
                     monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
                 }
-
                 await fetchAndRenderStaffSalary();
-            } catch (error) {
-                console.error("Error loading staff salary tab:", error);
-            }
+            } catch (error) { console.error("Error loading staff salary tab:", error); }
         }
 
         function monthInputToLabel(monthInputValue) {
-            // Converts "2026-06" -> "June 2026" to match how payments are stored
             if (!monthInputValue) return "";
             const [year, month] = monthInputValue.split("-");
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             return `${monthNames[parseInt(month) - 1]} ${year}`;
         }
 
@@ -3695,9 +3105,6 @@
             const monthInputValue = document.getElementById("staffSalaryMonthFilter").value;
             const monthLabel = monthInputToLabel(monthInputValue);
             if (!monthLabel) return;
-
-            // ✅ Server computes total paid + remaining by summing ALL payments
-            // for the month (supports partial payments correctly).
             cachedSalarySummary = await apiRequest(`/staff/salary/summary?month=${encodeURIComponent(monthLabel)}`);
             renderStaffSalaryTable();
         }
@@ -3734,41 +3141,37 @@
             }
 
             table.innerHTML = filteredRows.map(r => `
-                    <tr>
-                        <td>${r.name}</td>
-                        <td>${r.designation}</td>
-                        <td>Rs. ${r.salary}</td>
-                        <td>Rs. ${r.total_paid}</td>
-                        <td><strong>Rs. ${r.remaining}</strong></td>
-                        <td><span class="badge ${salaryStatusBadgeClass(r.status)}">${r.status}</span></td>
-                        <td>${r.last_payment_date || "-"}</td>
-                        <td>
-                            <div class="action-buttons">
-                                ${r.status !== "paid"
-                                    ? `<button class="btn btn-sm btn-primary" onclick="openPaySalaryModal(${r.staff_id})">💵 ${r.status === "partial" ? "Pay Remaining" : "Pay"}</button>`
-                                    : `<span style="color: var(--gray); font-size: 12px;">Fully Paid</span>`}
-                                ${r.total_paid > 0
-                                    ? `<button class="btn btn-sm btn-secondary" onclick="openSalaryHistoryModal(${r.staff_id}, '${r.name.replace(/'/g, "\\'")}')">🧾 History</button>`
-                                    : ""}
-                            </div>
-                        </td>
-                    </tr>
-                `).join("");
+                <tr>
+                    <td>${r.name}</td>
+                    <td>${r.designation}</td>
+                    <td>Rs. ${r.salary}</td>
+                    <td>Rs. ${r.total_paid}</td>
+                    <td><strong>Rs. ${r.remaining}</strong></td>
+                    <td><span class="badge ${salaryStatusBadgeClass(r.status)}">${r.status}</span></td>
+                    <td>${r.last_payment_date || "-"}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${r.status !== "paid"
+                                ? `<button class="btn btn-sm btn-primary" onclick="openPaySalaryModal(${r.staff_id})">💵 ${r.status === "partial" ? "Pay Remaining" : "Pay"}</button>`
+                                : `<span style="color: var(--gray); font-size: 12px;">Fully Paid</span>`}
+                            ${r.total_paid > 0
+                                ? `<button class="btn btn-sm btn-secondary" onclick="openSalaryHistoryModal(${r.staff_id}, '${r.name.replace(/'/g, "\\'")}')">🧾 History</button>`
+                                : ""}
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
         }
 
         function openPaySalaryModal(staffId) {
             const row = cachedSalarySummary.find(r => r.staff_id === staffId);
             if (!row) return;
-
             const monthInputValue = document.getElementById("staffSalaryMonthFilter").value;
             const monthLabel = monthInputToLabel(monthInputValue);
-
             document.getElementById("paySalaryModal").dataset.staffId = staffId;
             document.getElementById("paySalaryModal").dataset.month = monthLabel;
             document.getElementById("salaryStaffName").value = row.name;
             document.getElementById("salaryMonth").value = monthLabel;
-            // ✅ Pre-fill with the REMAINING amount, not the full salary,
-            // so a partial payment doesn't default back to the full figure.
             document.getElementById("salaryAmount").value = row.remaining;
             document.getElementById("salaryPaymentMethod").value = "cash";
             openModal("paySalaryModal");
@@ -3780,28 +3183,18 @@
                 const month = document.getElementById("paySalaryModal").dataset.month;
                 const amountPaid = parseFloat(document.getElementById("salaryAmount").value);
                 const paymentMethod = document.getElementById("salaryPaymentMethod").value;
-
                 if (!staffId || !month || isNaN(amountPaid) || amountPaid <= 0) {
                     showAlert("Please enter a valid amount", "error");
                     return;
                 }
-
                 await apiRequest("/staff/salary/pay", {
                     method: "POST",
-                    body: JSON.stringify({
-                        staff_id: staffId,
-                        month: month,
-                        amount_paid: amountPaid,
-                        payment_method: paymentMethod
-                    })
+                    body: JSON.stringify({ staff_id: staffId, month: month, amount_paid: amountPaid, payment_method: paymentMethod })
                 });
-
                 closeModal("paySalaryModal");
                 showAlert("Salary payment recorded successfully!");
                 await fetchAndRenderStaffSalary();
-            } catch (error) {
-                console.error("Error paying salary:", error);
-            }
+            } catch (error) { console.error("Error paying salary:", error); }
         }
 
         async function openSalaryHistoryModal(staffId, staffName) {
@@ -3810,22 +3203,18 @@
                 document.getElementById("salaryHistoryTitle").textContent = `Payment History — ${staffName}`;
                 await renderSalaryHistoryList(staffId);
                 openModal("salaryHistoryModal");
-            } catch (error) {
-                console.error("Error loading salary history:", error);
-            }
+            } catch (error) { console.error("Error loading salary history:", error); }
         }
 
         async function renderSalaryHistoryList(staffId) {
             const monthInputValue = document.getElementById("staffSalaryMonthFilter").value;
             const monthLabel = monthInputToLabel(monthInputValue);
             const payments = await apiRequest(`/staff/salary/list?staff_id=${staffId}&month=${encodeURIComponent(monthLabel)}`);
-
             const listEl = document.getElementById("salaryHistoryList");
             if (payments.length === 0) {
                 listEl.innerHTML = `<p style="color: var(--gray);">No payments recorded for ${monthLabel}.</p>`;
                 return;
             }
-
             listEl.innerHTML = `
                 <p style="font-size: 13px; color: var(--gray); margin-bottom: 10px;">${monthLabel}</p>
                 ${payments.map(p => `
@@ -3836,8 +3225,7 @@
                         </div>
                         <button class="btn btn-sm btn-danger" onclick="deleteSalaryPayment(${p.id}, ${staffId})">Undo</button>
                     </div>
-                `).join("")}
-            `;
+                `).join("")}`;
         }
 
         async function deleteSalaryPayment(id, staffId) {
@@ -3846,12 +3234,8 @@
                 await apiRequest(`/staff/salary/${id}`, { method: "DELETE" });
                 showAlert("Salary payment removed");
                 await fetchAndRenderStaffSalary();
-                if (staffId) {
-                    await renderSalaryHistoryList(staffId);
-                }
-            } catch (error) {
-                console.error("Error removing salary payment:", error);
-            }
+                if (staffId) await renderSalaryHistoryList(staffId);
+            } catch (error) { console.error("Error removing salary payment:", error); }
         }
 
         // ==================== ANNOUNCEMENTS ====================
@@ -3862,6 +3246,14 @@
                 const data = await apiRequest("/announcements");
                 cachedAnnouncements = data;
                 const list = document.getElementById("announcementsList");
+                if (data.length === 0) {
+                    showEmptyState('announcementsList', 'megaphone',
+                        'No announcements yet',
+                        'Post an announcement to share news with parents and staff.',
+                        'Add Announcement', 'openAddAnnouncementModal()');
+                    return;
+                }
+                if (typeof clearEmptyState === 'function') clearEmptyState('announcementsList');
                 list.innerHTML = data.map(a => `
                     <div style="border: 1px solid var(--border); padding: 20px; border-radius: 8px; background: var(--bg-secondary);">
                         <h4 style="margin-bottom: 10px; color: var(--primary);">${a.title}</h4>
@@ -3876,9 +3268,7 @@
                         </div>
                     </div>
                 `).join("");
-            } catch (error) {
-                console.error("Error loading announcements:", error);
-            }
+            } catch (error) { console.error("Error loading announcements:", error); }
         }
 
         async function saveAnnouncement() {
@@ -3888,33 +3278,19 @@
                     title: document.getElementById("announcementTitle").value,
                     content: document.getElementById("announcementMessage").value
                 };
-
-                if (!payload.title || !payload.content) {
-                    showAlert("Please fill all fields", "error");
-                    return;
-                }
-
+                if (!payload.title || !payload.content) { showAlert("Please fill all fields", "error"); return; }
                 if (editingId) {
-                    await apiRequest(`/announcements/${editingId}`, {
-                        method: "PUT",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest(`/announcements/${editingId}`, { method: "PUT", body: JSON.stringify(payload) });
                     showAlert("Announcement updated successfully");
                 } else {
-                    await apiRequest("/announcements", {
-                        method: "POST",
-                        body: JSON.stringify(payload)
-                    });
+                    await apiRequest("/announcements", { method: "POST", body: JSON.stringify(payload) });
                     showAlert("Announcement posted successfully");
                 }
-
                 closeModal("addAnnouncementModal");
                 document.getElementById("announcementTitle").value = "";
                 document.getElementById("announcementMessage").value = "";
                 await loadAnnouncements();
-            } catch (error) {
-                console.error("Error saving announcement:", error);
-            }
+            } catch (error) { console.error("Error saving announcement:", error); }
         }
 
         async function deleteAnnouncement(id) {
@@ -3923,9 +3299,7 @@
                 await apiRequest(`/announcements/${id}`, { method: "DELETE" });
                 showAlert("Announcement deleted");
                 await loadAnnouncements();
-            } catch (error) {
-                console.error("Error:", error);
-            }
+            } catch (error) { console.error("Error:", error); }
         }
 
         function openAddAnnouncementModal() {
@@ -3940,7 +3314,6 @@
         function editAnnouncement(id) {
             const announcement = cachedAnnouncements.find(a => a.id === id);
             if (!announcement) return;
-
             document.getElementById("addAnnouncementModal").dataset.editingId = id;
             document.getElementById("announcementModalTitle").textContent = "Edit Announcement";
             document.getElementById("announcementSaveBtn").textContent = "Update Announcement";
@@ -3952,20 +3325,12 @@
         async function openWhatsappBulkForAnnouncement(id) {
             const announcement = cachedAnnouncements.find(a => a.id === id);
             if (!announcement) return;
-
-            try {
-                if (!students || students.length === 0) {
-                    students = await apiRequest("/students");
-                }
-            } catch (error) {
-                console.error("Error loading students for announcement broadcast:", error);
-            }
-
+            try { if (!students || students.length === 0) students = await apiRequest("/students"); }
+            catch (error) { console.error("Error loading students:", error); }
             const withPhones = students.filter(s => s.phone);
             document.getElementById("whatsappBulkCount").textContent = `${withPhones.length} contact(s) with phone numbers`;
             document.getElementById("whatsappBulkMessage").value = `${announcement.title}\n\n${announcement.content}`;
             document.getElementById("whatsappBulkMessage").disabled = false;
-
             const listEl = document.getElementById("whatsappBulkContactList");
             if (withPhones.length === 0) {
                 listEl.innerHTML = `<p style="color: var(--gray);">No students have a phone number on file.</p>`;
@@ -3977,7 +3342,6 @@
                     </div>
                 `).join("");
             }
-
             openModal("whatsappBulkModal");
         }
 
@@ -3992,23 +3356,18 @@
                 if (addr) addr.value = s.address || "";
             } catch (e) { /* ignore */ }
 
-            // Load class-wise fees
             try {
                 const f = await apiRequest("/settings/fees");
                 document.getElementById("settingsFeeDueDay").value = f.fee_due_day || "";
                 const rows = (f.fee_structure || []);
                 document.getElementById("feeStructureRows").innerHTML = "";
-                if (rows.length === 0) {
-                    addFeeRow();
-                } else {
-                    rows.forEach(r => addFeeRow(r.class, r.amount));
-                }
+                if (rows.length === 0) addFeeRow();
+                else rows.forEach(r => addFeeRow(r.class, r.amount));
             } catch (e) {
                 document.getElementById("feeStructureRows").innerHTML = "";
                 addFeeRow();
             }
 
-            // Load parent portal settings
             try {
                 const pp = await apiRequest("/settings/parent-portal");
                 document.getElementById("ppEnabled").checked = !!pp.parent_portal_enabled;
@@ -4018,7 +3377,7 @@
                 document.getElementById("ppDocuments").checked = !!pp.parent_show_documents;
                 document.getElementById("ppMessages").checked = !!pp.parent_allow_messages;
                 document.getElementById("ppPaymentInfo").value = pp.payment_info || "";
-            } catch (e) { /* ignore — defaults stay unchecked until loaded */ }
+            } catch (e) { /* ignore */ }
         }
 
         async function saveParentPortalSettings() {
@@ -4034,9 +3393,7 @@
                 };
                 await apiRequest("/settings/parent-portal", { method: "PUT", body: JSON.stringify(payload) });
                 showAlert("Parent Portal settings saved.");
-            } catch (e) {
-                showAlert("Could not save: " + e.message, "error");
-            }
+            } catch (e) { showAlert("Could not save: " + e.message, "error"); }
         }
 
         function addFeeRow(className = "", amount = "") {
@@ -4055,48 +3412,30 @@
             tbody.appendChild(tr);
         }
 
-        // ==================== PORTAL BACKGROUND IMAGE ====================
         async function applyPortalBackground() {
             try {
                 const result = await apiRequest("/settings/background-image");
                 if (result.url) {
-                    document.body.style.backgroundImage =
-                        `linear-gradient(rgba(251,250,247,0.55), rgba(251,250,247,0.72)), url('${result.url}')`;
+                    document.body.style.backgroundImage = `linear-gradient(rgba(251,250,247,0.55), rgba(251,250,247,0.72)), url('${result.url}')`;
                     document.body.style.backgroundSize = "cover";
                     document.body.style.backgroundAttachment = "fixed";
                     document.body.style.backgroundPosition = "center";
                 } else {
                     document.body.style.backgroundImage = "";
                 }
-
-                // Settings UI reflection — only present on the Settings page.
                 const preview = document.getElementById("backgroundImagePreview");
-                if (preview) preview.innerHTML = result.url
-                    ? `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">`
-                    : "";
+                if (preview) preview.innerHTML = result.url ? `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">` : "";
                 const toggle = document.getElementById("backgroundImageToggle");
                 const label = document.getElementById("backgroundToggleLabel");
-                if (toggle) {
-                    toggle.checked = !!result.enabled;
-                    toggle.disabled = !result.has_image;
-                }
-                if (label) {
-                    label.textContent = !result.has_image
-                        ? "Background image: no image uploaded yet"
-                        : `Background image: ${result.enabled ? "On" : "Off"}`;
-                }
-            } catch (error) {
-                console.error("Could not load background image:", error);
-            }
+                if (toggle) { toggle.checked = !!result.enabled; toggle.disabled = !result.has_image; }
+                if (label) label.textContent = !result.has_image ? "Background image: no image uploaded yet" : `Background image: ${result.enabled ? "On" : "Off"}`;
+            } catch (error) { console.error("Could not load background image:", error); }
         }
 
         async function uploadBackgroundImage() {
             const input = document.getElementById("backgroundImageInput");
             const file = input.files[0];
-            if (!file) {
-                showAlert("Pehle ek image choose karein", "error");
-                return;
-            }
+            if (!file) { showAlert("Pehle ek image choose karein", "error"); return; }
             const form = new FormData();
             form.append("file", file);
             try {
@@ -4104,9 +3443,7 @@
                 showAlert("Background image updated.");
                 input.value = "";
                 await applyPortalBackground();
-            } catch (error) {
-                showAlert("Upload failed: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Upload failed: " + error.message, "error"); }
         }
 
         async function removeBackgroundImage() {
@@ -4116,9 +3453,7 @@
                 document.body.style.backgroundImage = "";
                 showAlert("Background image removed.");
                 await applyPortalBackground();
-            } catch (error) {
-                showAlert("Could not remove: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Could not remove: " + error.message, "error"); }
         }
 
         async function toggleBackgroundImage() {
@@ -4129,7 +3464,7 @@
                 await applyPortalBackground();
             } catch (error) {
                 showAlert("Could not update: " + error.message, "error");
-                toggle.checked = !enabled; // revert on failure
+                toggle.checked = !enabled;
             }
         }
 
@@ -4143,9 +3478,7 @@
                 if (addr) payload.address = addr.value.trim();
                 await apiRequest("/settings/school", { method: "PUT", body: JSON.stringify(payload) });
                 showAlert("School info saved successfully");
-            } catch (e) {
-                showAlert("Could not save: " + e.message, "error");
-            }
+            } catch (e) { showAlert("Could not save: " + e.message, "error"); }
         }
 
         async function saveFeeSettings() {
@@ -4163,9 +3496,7 @@
                 if (dueDay) payload.fee_due_day = dueDay;
                 await apiRequest("/settings/fees", { method: "PUT", body: JSON.stringify(payload) });
                 showAlert("Fee structure saved. Naye students par yeh fee auto-apply hogi.");
-            } catch (e) {
-                showAlert("Could not save fees: " + e.message, "error");
-            }
+            } catch (e) { showAlert("Could not save fees: " + e.message, "error"); }
         }
 
         // ==================== AUTH ====================
@@ -4187,50 +3518,32 @@
         async function init() {
             try {
                 const token = getToken();
-                if (!token) {
-                    window.location.href = "index.html";
-                    return;
-                }
-
-                if ("serviceWorker" in navigator) {
-                    navigator.serviceWorker.register("sw.js").catch(() => {});
-                }
-
-                // Setup menu links
+                if (!token) { window.location.href = "index.html"; return; }
+                if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
                 document.querySelectorAll(".menu-link").forEach(link => {
                     link.addEventListener("click", (e) => {
                         const view = e.target.closest("a").dataset.view;
-                        if (!view) return; // plain link (e.g. Student Documents/Teacher Portal) — let it navigate normally
+                        if (!view) return;
                         switchView(view);
                     });
                 });
-
                 startLiveClock();
                 applyPortalBackground();
-
-                // Load initial dashboard
                 await loadDashboard();
-
-                // Set user info from actual login data (not hardcoded)
                 const displayName = localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || "User";
                 const roleRaw = localStorage.getItem("user_role") || "admin";
                 const roleDisplay = roleRaw.charAt(0).toUpperCase() + roleRaw.slice(1);
-
                 document.getElementById("userName").textContent = displayName;
                 document.getElementById("userRole").textContent = roleDisplay;
                 document.getElementById("userAvatar").textContent = displayName.charAt(0).toUpperCase();
-
                 const schoolName = localStorage.getItem("school_name");
                 if (schoolName) {
                     const logoText = document.querySelector(".sidebar-logo .logo span:last-child");
                     if (logoText) logoText.textContent = schoolName;
                 }
-            } catch (error) {
-                console.error("Error initializing:", error);
-            }
+            } catch (error) { console.error("Error initializing:", error); }
         }
 
-        // Initialize on load
         window.addEventListener("load", init);
 
         // ==================== STUDENT PROFILE ====================
@@ -4244,38 +3557,23 @@
         function renderStudentProgressChart(gradeRecords) {
             const canvas = document.getElementById("studentProgressChart");
             if (!canvas || typeof Chart === "undefined") return;
-
-            // Backend returns newest-first; chart reads left-to-right chronologically.
             const dated = gradeRecords.filter(g => g.exam_date).slice().reverse();
-
-            if (window.studentProgressChartInstance) {
-                window.studentProgressChartInstance.destroy();
-            }
-
+            if (window.studentProgressChartInstance) window.studentProgressChartInstance.destroy();
             if (dated.length === 0) {
                 canvas.parentElement.innerHTML = `<p style="color:var(--gray); font-size:0.9rem;">Not enough dated grades yet to show a progress trend.</p>`;
                 return;
             }
-
             window.studentProgressChartInstance = new Chart(canvas, {
                 type: "line",
                 data: {
                     labels: dated.map(g => g.exam_date),
                     datasets: [{
-                        label: "Score %",
-                        data: dated.map(g => g.percentage),
-                        borderColor: "#0c6e6b",
-                        backgroundColor: "rgba(12,110,107,0.12)",
-                        fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: "#0c6e6b",
+                        label: "Score %", data: dated.map(g => g.percentage),
+                        borderColor: "#0c6e6b", backgroundColor: "rgba(12,110,107,0.12)",
+                        fill: true, tension: 0.3, pointBackgroundColor: "#0c6e6b"
                     }],
                 },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } },
-                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } } },
             });
         }
 
@@ -4302,8 +3600,7 @@
                             </div>
                         `).join("")}
                     </div>
-                    <p style="margin-top:10px;"><a href="student-documents.html" style="color:var(--primary); font-weight:600; font-size:0.88rem;">+ Upload another document →</a></p>
-                `;
+                    <p style="margin-top:10px;"><a href="student-documents.html" style="color:var(--primary); font-weight:600; font-size:0.88rem;">+ Upload another document →</a></p>`;
             } catch (error) {
                 container.innerHTML = `<p style="color:var(--danger); font-size:0.9rem;">Could not load documents.</p>`;
             }
@@ -4313,9 +3610,7 @@
             try {
                 const { url } = await apiRequest(`/students/${studentId}/documents/${documentId}/url`);
                 window.open(url, "_blank");
-            } catch (error) {
-                showAlert("Could not open document: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Could not open document: " + error.message, "error"); }
         }
 
         async function deleteProfileDocument(studentId, documentId) {
@@ -4324,21 +3619,17 @@
                 await apiRequest(`/students/${studentId}/documents/${documentId}`, { method: "DELETE" });
                 showAlert("Document deleted.");
                 await loadStudentProfileDocuments(studentId);
-            } catch (error) {
-                showAlert("Could not delete: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Could not delete: " + error.message, "error"); }
         }
 
         async function openStudentProfile(studentId) {
             document.getElementById("studentProfileTitle").textContent = "Student Profile";
             document.getElementById("studentProfileBody").innerHTML = "Loading...";
             openModal("studentProfileModal");
-
             try {
                 const data = await apiRequest(`/students/${studentId}/profile`);
                 currentProfileData = data;
                 const s = data.student;
-
                 document.getElementById("studentProfileTitle").textContent = `${s.name} — ${s.class_name || "-"} (Roll ${s.roll_number || "-"})`;
 
                 const attendanceRowsHtml = data.attendance.recent_records.length
@@ -4347,8 +3638,7 @@
                             <td>${r.date}</td>
                             <td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td>
                             <td>${r.remarks || "-"}</td>
-                        </tr>
-                    `).join("")
+                        </tr>`).join("")
                     : `<tr><td colspan="3" style="text-align:center; color:var(--gray);">No attendance records</td></tr>`;
 
                 const gradeRowsHtml = data.grades.records.length
@@ -4359,8 +3649,7 @@
                             <td>${g.percentage}%</td>
                             <td>${g.grade || "-"}</td>
                             <td>${g.exam_date || "-"}</td>
-                        </tr>
-                    `).join("")
+                        </tr>`).join("")
                     : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No grade records</td></tr>`;
 
                 const feeRowsHtml = data.fees.records.length
@@ -4371,8 +3660,7 @@
                             <td>Rs. ${f.paid_amount}</td>
                             <td>Rs. ${f.due_amount}</td>
                             <td><span class="badge ${feeBadgeClass(f.status)}">${f.status}</span></td>
-                        </tr>
-                    `).join("")
+                        </tr>`).join("")
                     : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No fee records</td></tr>`;
 
                 document.getElementById("studentProfileBody").innerHTML = `
@@ -4382,7 +3670,6 @@
                         <div><strong>Phone:</strong><br>${s.phone || "-"}</div>
                         <div><strong>Email:</strong><br>${s.email || "-"}</div>
                     </div>
-
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;">
                         <div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;">
                             <div style="font-size:22px; font-weight:700;">${data.attendance.attendance_rate}%</div>
@@ -4397,38 +3684,31 @@
                             <div style="color:var(--gray); font-size:13px;">Fees Due</div>
                         </div>
                     </div>
-
                     <h4 style="margin-bottom:8px;">📅 Recent Attendance</h4>
                     <div class="table-responsive" style="margin-bottom:20px;">
                         <table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead>
                         <tbody>${attendanceRowsHtml}</tbody></table>
                     </div>
-
                     <h4 style="margin-bottom:8px;">📊 Grades</h4>
                     <div class="table-responsive" style="margin-bottom:20px;">
                         <table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead>
                         <tbody>${gradeRowsHtml}</tbody></table>
                     </div>
-
                     <h4 style="margin-bottom:8px;">📈 Progress Over Time</h4>
                     <div style="margin-bottom:20px; max-width:100%;">
                         <canvas id="studentProgressChart" height="160"></canvas>
                     </div>
-
                     <h4 style="margin-bottom:8px;">💰 Fees</h4>
                     <div class="table-responsive" style="margin-bottom:20px;">
                         <table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead>
                         <tbody>${feeRowsHtml}</tbody></table>
                     </div>
-
                     <h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4>
                     <div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>
-
                     ${(localStorage.getItem("user_role") || "") === "admin" ? `
                     <h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4>
                     <div id="studentProfileParentLogin"></div>
-                    ` : ""}
-                `;
+                    ` : ""}`;
 
                 loadStudentProfileDocuments(studentId);
                 if ((localStorage.getItem("user_role") || "") === "admin") renderParentLoginSection(s);
@@ -4441,11 +3721,8 @@
 
         async function getSchoolProfile() {
             if (cachedSchoolProfile) return cachedSchoolProfile;
-            try {
-                cachedSchoolProfile = await apiRequest("/schools/profile");
-            } catch (error) {
-                cachedSchoolProfile = { name: "School", address: "", phone: "", email: "" };
-            }
+            try { cachedSchoolProfile = await apiRequest("/schools/profile"); }
+            catch (error) { cachedSchoolProfile = { name: "School", address: "", phone: "", email: "" }; }
             return cachedSchoolProfile;
         }
 
@@ -4468,13 +3745,9 @@
                     </style>
                 </head>
                 <body>${bodyHtml}</body>
-                </html>
-            `);
+                </html>`);
             printWindow.document.close();
-            printWindow.onload = () => {
-                printWindow.focus();
-                printWindow.print();
-            };
+            printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
         }
 
         async function printReportCard() {
@@ -4483,7 +3756,6 @@
             const s = currentProfileData.student;
             const g = currentProfileData.grades;
             const a = currentProfileData.attendance;
-
             const rows = g.records.length
                 ? g.records.map(r => `
                     <tr>
@@ -4492,10 +3764,8 @@
                         <td>${r.total_marks}</td>
                         <td>${r.percentage}%</td>
                         <td>${r.grade || "-"}</td>
-                    </tr>
-                `).join("")
+                    </tr>`).join("")
                 : `<tr><td colspan="5" style="text-align:center;">No grade records</td></tr>`;
-
             const bodyHtml = `
                 <div class="header">
                     <h1>${school.name || "School"}</h1>
@@ -4512,27 +3782,19 @@
                     <thead><tr><th>Subject</th><th>Marks Obtained</th><th>Total Marks</th><th>Percentage</th><th>Grade</th></tr></thead>
                     <tbody>${rows}</tbody>
                 </table>
-                <div class="footer">${school.name || "School"} — Generated on ${new Date().toLocaleDateString()}</div>
-            `;
+                <div class="footer">${school.name || "School"} — Generated on ${new Date().toLocaleDateString()}</div>`;
             openPrintWindow(`Report Card - ${s.name}`, bodyHtml);
         }
 
-        // ==================== SHARE REPORT ON WHATSAPP (isolated) ====================
         function shareReportCardOnWhatsapp() {
             if (!currentProfileData) return;
             const s = currentProfileData.student;
             const g = currentProfileData.grades;
             const a = currentProfileData.attendance;
-
-            if (!s.phone) {
-                showAlert("No phone number on file for this student", "error");
-                return;
-            }
-
+            if (!s.phone) { showAlert("No phone number on file for this student", "error"); return; }
             const subjectLines = g.records.length
                 ? g.records.map(r => `- ${r.subject}: ${r.marks_obtained}/${r.total_marks} (${r.percentage}%, ${r.grade || "-"})`).join("\n")
                 : "No grade records yet.";
-
             const message =
                 `📋 *Academic Report — ${s.name}*\n` +
                 `Class: ${s.class_name || "-"}  |  Roll No: ${s.roll_number || "-"}\n\n` +
@@ -4540,60 +3802,38 @@
                 `📊 Overall Average: ${g.average_percentage}%\n` +
                 `✅ Attendance Rate: ${a.attendance_rate}%\n\n` +
                 `For details, please contact the school.`;
-
             const whatsappNumber = formatPhoneForWhatsApp(s.phone);
-            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, "_blank");
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
         }
 
-        // ==================== ID CARD / ADMISSION SLIP (isolated, print-only) ====================
         async function printStudentIdCard() {
             if (!currentProfileData) return;
             const school = await getSchoolProfile();
             const s = currentProfileData.student;
-
-            // Fetch a signed link to the uploaded card photo, if one exists.
             let photoHtml = `<div style="width:80px; height:80px; border:1px solid #999; border-radius:50%; margin:10px auto; display:flex; align-items:center; justify-content:center; font-size:11px; color:#999;">Photo</div>`;
-
             async function resolvePhotoUrl() {
-                // Path 1: student record already has a canonical photo_url.
                 if (s.photo_url) {
                     try {
-                        const resp = await fetch(`${API_BASE}/students/${s.id}/photo-url`, {
-                            headers: { Authorization: `Bearer ${getToken()}` },
-                        });
+                        const resp = await fetch(`${API_BASE}/students/${s.id}/photo-url`, { headers: { Authorization: `Bearer ${getToken()}` } });
                         if (resp.ok) return (await resp.json()).url;
-                    } catch (e) { /* fall through to documents */ }
+                    } catch (e) {}
                 }
-                // Path 2: no photo_url set (e.g. photo uploaded before this was
-                // linked) — look for a profile_photo document instead and use
-                // the newest one. Keeps old uploads working on the card.
                 try {
-                    const docsResp = await fetch(`${API_BASE}/students/${s.id}/documents?doc_type=profile_photo`, {
-                        headers: { Authorization: `Bearer ${getToken()}` },
-                    });
+                    const docsResp = await fetch(`${API_BASE}/students/${s.id}/documents?doc_type=profile_photo`, { headers: { Authorization: `Bearer ${getToken()}` } });
                     if (docsResp.ok) {
                         const docs = await docsResp.json();
                         if (Array.isArray(docs) && docs.length > 0) {
-                            const urlResp = await fetch(`${API_BASE}/students/${s.id}/documents/${docs[0].id}/url`, {
-                                headers: { Authorization: `Bearer ${getToken()}` },
-                            });
+                            const urlResp = await fetch(`${API_BASE}/students/${s.id}/documents/${docs[0].id}/url`, { headers: { Authorization: `Bearer ${getToken()}` } });
                             if (urlResp.ok) return (await urlResp.json()).url;
                         }
                     }
-                } catch (e) { /* leave placeholder */ }
+                } catch (e) {}
                 return null;
             }
-
             try {
                 const photoUrl = await resolvePhotoUrl();
-                if (photoUrl) {
-                    photoHtml = `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block; border:1px solid #999;" />`;
-                }
-            } catch (e) {
-                // Any failure -> keep the "Photo" placeholder, card still prints.
-            }
-
+                if (photoUrl) photoHtml = `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block; border:1px solid #999;" />`;
+            } catch (e) {}
             const bodyHtml = `
                 <div style="width:340px; border:2px solid #333; border-radius:10px; padding:16px; margin:0 auto; text-align:center; font-family:Arial, sans-serif;">
                     <div style="font-weight:700; font-size:16px;">${school.name || "School"}</div>
@@ -4610,8 +3850,7 @@
                         ${s.phone ? `<div><strong>Contact:</strong> ${s.phone}</div>` : ""}
                     </div>
                     <div style="margin-top:12px; font-size:10px; color:#777; border-top:1px solid #ddd; padding-top:6px;">${school.name || "School"} — Student ID Card ${new Date().getFullYear()}</div>
-                </div>
-            `;
+                </div>`;
             openPrintWindow(`ID Card - ${s.name}`, bodyHtml);
         }
 
@@ -4619,7 +3858,6 @@
             if (!currentProfileData) return;
             const school = await getSchoolProfile();
             const s = currentProfileData.student;
-
             const bodyHtml = `
                 <div class="header">
                     <h1>${school.name || "School"}</h1>
@@ -4644,8 +3882,7 @@
                     <div>Parent/Guardian Signature: ______________________</div>
                     <div>Date: ${new Date().toLocaleDateString()}</div>
                 </div>
-                <div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>
-            `;
+                <div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>`;
             openPrintWindow(`Admission Slip - ${s.name}`, bodyHtml);
         }
 
@@ -4654,7 +3891,6 @@
             if (!fee) return;
             const student = cachedStudentsForFees.find(s => s.id === fee.student_id);
             const school = await getSchoolProfile();
-
             const bodyHtml = `
                 <div class="header">
                     <h1>${school.name || "School"}</h1>
@@ -4674,22 +3910,19 @@
                         <tr class="total-row"><td>Due Amount</td><td>Rs. ${fee.due_amount}</td></tr>
                     </tbody>
                 </table>
-                <div class="footer">${school.name || "School"} — This is a computer-generated receipt.</div>
-            `;
+                <div class="footer">${school.name || "School"} — This is a computer-generated receipt.</div>`;
             openPrintWindow(`Receipt - ${student?.name || "Student"}`, bodyHtml);
         }
 
-        // ==================== BULK FEE GENERATION ====================
+        // ==================== BULK FEE ====================
         function openBulkFeeModal() {
             const classFilter = document.getElementById("studentClassFilter");
             const uniqueClasses = classFilter
                 ? [...classFilter.options].map(o => o.value).filter(Boolean)
                 : [...new Set(students.map(s => s.class_name).filter(Boolean))];
-
             const classSelect = document.getElementById("bulkFeeClass");
             classSelect.innerHTML = '<option value="">Select Class</option>' +
                 uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join("");
-
             document.getElementById("bulkFeeType").value = "";
             document.getElementById("bulkFeeAmount").value = "";
             document.getElementById("bulkFeeDueDate").value = "";
@@ -4706,50 +3939,31 @@
                     due_date: document.getElementById("bulkFeeDueDate").value || null,
                     skip_if_exists: document.getElementById("bulkFeeSkipExisting").checked
                 };
-
                 if (!payload.class_name || !payload.fee_name || !payload.amount) {
                     showAlert("Please fill all required fields", "error");
                     return;
                 }
-
-                const result = await apiRequest("/fees/bulk-generate", {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-
+                const result = await apiRequest("/fees/bulk-generate", { method: "POST", body: JSON.stringify(payload) });
                 showAlert(`Generated ${result.created_count} fee(s), skipped ${result.skipped_count}`, "success");
                 closeModal("bulkFeeModal");
                 await loadFees();
-            } catch (error) {
-                console.error("Error generating bulk fees:", error);
-            }
+            } catch (error) { console.error("Error generating bulk fees:", error); }
         }
 
-        // ==================== CLASS-WISE DUES (read-only, isolated) ====================
-        // ==================== CSV EXPORT (client-side, isolated) ====================
+        // ==================== CSV EXPORT ====================
         function downloadCSV(rows, filename) {
-            if (!rows || rows.length === 0) {
-                showAlert("No data to export", "error");
-                return;
-            }
-
+            if (!rows || rows.length === 0) { showAlert("No data to export", "error"); return; }
             const escapeCell = (val) => {
                 const str = (val === null || val === undefined) ? "" : String(val);
-                if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-                    return `"${str.replace(/"/g, '""')}"`;
-                }
+                if (str.includes(",") || str.includes('"') || str.includes("\n")) return `"${str.replace(/"/g, '""')}"`;
                 return str;
             };
-
             const csvContent = rows.map(row => row.map(escapeCell).join(",")).join("\n");
-            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" }); // BOM for Excel/Urdu text compatibility
+            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            link.href = url; link.download = filename;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
 
@@ -4757,8 +3971,7 @@
             const header = ["Name", "Father's Name", "Class", "Roll Number", "Phone", "Email", "Gender", "Date of Birth", "Address"];
             const rows = [header, ...students.map(s => [
                 s.name, s.father_name || "", s.class_name || "", s.roll_number || "",
-                s.phone || "", s.email || "", s.gender || "", s.date_of_birth || "", s.address || ""
-            ])];
+                s.phone || "", s.email || "", s.gender || "", s.date_of_birth || "", s.address || ""])];
             downloadCSV(rows, `students_${new Date().toISOString().slice(0, 10)}.csv`);
         }
 
@@ -4766,21 +3979,15 @@
             const header = ["Student Name", "Class", "Fee Type", "Amount", "Paid", "Due", "Status", "Due Date", "Month"];
             const rows = [header, ...cachedFeesForPayment.map(f => {
                 const student = cachedStudentsForFees.find(s => s.id === f.student_id);
-                return [
-                    student ? student.name : "Unknown", student ? student.class_name : "",
-                    f.fee_name || "", f.amount, f.paid_amount, f.due_amount, f.status,
-                    f.due_date || "", f.month || ""
-                ];
+                return [student ? student.name : "Unknown", student ? student.class_name : "",
+                    f.fee_name || "", f.amount, f.paid_amount, f.due_amount, f.status, f.due_date || "", f.month || ""];
             })];
             downloadCSV(rows, `fees_${new Date().toISOString().slice(0, 10)}.csv`);
         }
 
-        // ==================== AI FEATURES (read-only summaries via Groq) ====================
-        let aiMode = null;        // "student" or "class"
-        let aiTargetId = null;    // student id or class name
-
-        // ==================== ADMIN MESSAGES ====================
-        let activeAdminMsgStudentId = null;
+        // ==================== AI ====================
+        let aiMode = null;
+        let aiTargetId = null;
 
         async function loadAdminMessageThreads() {
             try {
@@ -4790,12 +3997,10 @@
                     const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
                     classes.forEach(c => classFilter.add(new Option(c, c)));
                 }
-
                 const selectedClass = classFilter ? classFilter.value : "";
                 const params = selectedClass ? `?class_name=${encodeURIComponent(selectedClass)}` : "";
                 const threads = await apiRequest(`/students/messages/threads${params}`);
                 const container = document.getElementById("adminMsgThreadList");
-
                 if (threads.length === 0) {
                     container.innerHTML = `<div style="color:var(--gray); font-size:0.85rem;">No messages yet.</div>`;
                     return;
@@ -4807,12 +4012,13 @@
                         <div style="font-size:0.78rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                             ${t.last_sender_role === "parent" ? "👨‍👩‍👧 " : "You: "}${t.last_message}
                         </div>
-                    </div>
-                `).join("");
+                    </div>`).join("");
             } catch (error) {
                 document.getElementById("adminMsgThreadList").innerHTML = `<div style="color:var(--danger);">${error.message}</div>`;
             }
         }
+
+        let activeAdminMsgStudentId = null;
 
         async function openAdminMessageThread(studentId, studentName) {
             activeAdminMsgStudentId = studentId;
@@ -4829,12 +4035,9 @@
                                     background:${m.sender_role === "parent" ? "var(--bg-secondary)" : "var(--primary)"};
                                     color:${m.sender_role === "parent" ? "var(--dark)" : "#fff"};">
                             ${m.message}
-                        </div>
-                    `).join("");
+                        </div>`).join("");
                 convo.scrollTop = convo.scrollHeight;
-            } catch (error) {
-                convo.innerHTML = `<div style="color:var(--danger);">${error.message}</div>`;
-            }
+            } catch (error) { convo.innerHTML = `<div style="color:var(--danger);">${error.message}</div>`; }
         }
 
         async function sendAdminMessage() {
@@ -4846,40 +4049,29 @@
                 input.value = "";
                 const s = students.find(x => x.id === activeAdminMsgStudentId);
                 await openAdminMessageThread(activeAdminMsgStudentId, s ? s.name : "");
-            } catch (error) {
-                showAlert("Could not send: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Could not send: " + error.message, "error"); }
         }
 
         async function loadAIInsightsView() {
             try {
-                if (!students || students.length === 0) {
-                    students = await apiRequest("/students");
-                }
+                if (!students || students.length === 0) students = await apiRequest("/students");
                 const studentSelect = document.getElementById("aiStudentSelect");
                 studentSelect.innerHTML = students.map(s =>
                     `<option value="${s.id}" data-name="${s.name}">${s.roll_number} - ${s.name} (${s.class_name || "-"})</option>`
                 ).join("") || `<option value="">No students yet</option>`;
-
                 const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
                 document.getElementById("aiClassSelect").innerHTML = classes.length
                     ? classes.map(c => `<option value="${c}">${c}</option>`).join("")
                     : `<option value="">No classes yet</option>`;
-            } catch (error) {
-                console.error("Error loading AI Insights view:", error);
-            }
+            } catch (error) { console.error("Error loading AI Insights view:", error); }
         }
 
         function generateAIStudentSummaryFromInsights() {
             const select = document.getElementById("aiStudentSelect");
             const studentId = select.value;
-            if (!studentId) {
-                showAlert("Pehle ek student select karein", "error");
-                return;
-            }
+            if (!studentId) { showAlert("Pehle ek student select karein", "error"); return; }
             const studentName = select.options[select.selectedIndex].dataset.name;
-            aiMode = "student";
-            aiTargetId = studentId;
+            aiMode = "student"; aiTargetId = studentId;
             document.getElementById("aiResultTitle").textContent = `✨ AI Summary — ${studentName}`;
             document.getElementById("aiResultBody").textContent = "Click Generate to create the summary.";
             openModal("aiResultModal");
@@ -4887,12 +4079,8 @@
 
         function generateAIClassReportFromInsights() {
             const className = document.getElementById("aiClassSelect").value;
-            if (!className) {
-                showAlert("Pehle ek class select karein", "error");
-                return;
-            }
-            aiMode = "class";
-            aiTargetId = className;
+            if (!className) { showAlert("Pehle ek class select karein", "error"); return; }
+            aiMode = "class"; aiTargetId = className;
             document.getElementById("aiResultTitle").textContent = `✨ AI Class Report — Class ${className}`;
             document.getElementById("aiResultBody").textContent = "Click Generate to create the report.";
             openModal("aiResultModal");
@@ -4901,7 +4089,6 @@
         function renderParentLoginSection(student) {
             const container = document.getElementById("studentProfileParentLogin");
             if (!container) return;
-
             if (!student.parent_email) {
                 container.innerHTML = `<p style="color:var(--gray); font-size:0.9rem;">No parent email set for this student. Edit the student to add one.</p>`;
                 return;
@@ -4910,7 +4097,6 @@
                 container.innerHTML = `<p style="color:var(--gray); font-size:0.9rem;">Parent email is set (${student.parent_email}) but no login exists yet.</p>`;
                 return;
             }
-
             container.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);">
                     <div>
@@ -4921,41 +4107,31 @@
                         <button class="btn btn-secondary btn-sm" onclick="resetParentPassword(${student.id})">🔑 Reset Password</button>
                         <button class="btn btn-sm" style="background:var(--danger); color:#fff; border:none;" onclick="removeParentLogin(${student.id})">Remove Login</button>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         async function resetParentPassword(studentId) {
-            if (!confirm("Reset this parent's password? Their current password will stop working immediately.")) return;
+            if (!confirm("Reset this parent's password?")) return;
             try {
                 const result = await apiRequest(`/students/${studentId}/reset-parent-password`, { method: "POST" });
                 showCredentialModal("Parent Password Reset", result.email, result.temporary_password);
-            } catch (error) {
-                showAlert("Could not reset password: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Could not reset password: " + error.message, "error"); }
         }
 
         async function removeParentLogin(studentId) {
-            if (!confirm("Remove this parent's portal login? They will no longer be able to sign in. This does not delete the student's own records.")) return;
+            if (!confirm("Remove this parent's portal login?")) return;
             try {
                 await apiRequest(`/students/${studentId}/parent-login`, { method: "DELETE" });
                 showAlert("Parent login removed.");
                 if (currentProfileData) renderParentLoginSection({ ...currentProfileData.student, parent_user_id: null });
-            } catch (error) {
-                showAlert("Could not remove login: " + error.message, "error");
-            }
+            } catch (error) { showAlert("Could not remove login: " + error.message, "error"); }
         }
 
-        // Reliable, professional replacement for native alert() when showing
-        // a one-time credential — browsers can silently suppress alert()
-        // calls fired from setTimeout/async code, which was dropping the
-        // parent temp-password popup. This modal can't be blocked.
         function showCredentialModal(title, email, password) {
             let modal = document.getElementById("credentialModal");
             if (!modal) {
                 modal = document.createElement("div");
-                modal.id = "credentialModal";
-                modal.className = "modal";
+                modal.id = "credentialModal"; modal.className = "modal";
                 modal.innerHTML = `
                     <div class="modal-content" style="max-width:420px;">
                         <span class="modal-close" onclick="closeModal('credentialModal')">✕</span>
@@ -4968,8 +4144,7 @@
                         </div>
                         <p style="color:var(--danger); font-size:0.85rem; margin-bottom:16px;">⚠️ Save or share this now — it will not be shown again.</p>
                         <button class="btn btn-primary" style="width:100%;" onclick="copyCredentialAndClose()">📋 Copy Password &amp; Close</button>
-                    </div>
-                `;
+                    </div>`;
                 document.body.appendChild(modal);
             }
             document.getElementById("credentialModalTitle").textContent = title;
@@ -4980,30 +4155,14 @@
 
         function copyCredentialAndClose() {
             const password = document.getElementById("credentialModalPassword").textContent;
-            navigator.clipboard.writeText(password).then(
-                () => showAlert("Password copied to clipboard"),
-                () => {}
-            );
+            navigator.clipboard.writeText(password).then(() => showAlert("Password copied to clipboard"), () => {});
             closeModal("credentialModal");
-        }
-
-        function generateAISummary() {
-            if (!currentProfileData) return;
-            aiMode = "student";
-            aiTargetId = currentProfileData.student.id;
-            document.getElementById("aiResultTitle").textContent = `✨ AI Summary — ${currentProfileData.student.name}`;
-            document.getElementById("aiResultBody").textContent = "Click Generate to create the summary.";
-            openModal("aiResultModal");
         }
 
         function generateAIClassReport() {
             const className = document.getElementById("studentClassFilter").value;
-            if (!className) {
-                showAlert("Pehle class filter se koi class select karein, phir AI report banayein", "error");
-                return;
-            }
-            aiMode = "class";
-            aiTargetId = className;
+            if (!className) { showAlert("Pehle class filter se koi class select karein", "error"); return; }
+            aiMode = "class"; aiTargetId = className;
             document.getElementById("aiResultTitle").textContent = `✨ AI Class Report — Class ${className}`;
             document.getElementById("aiResultBody").textContent = "Click Generate to create the report.";
             openModal("aiResultModal");
@@ -5013,31 +4172,19 @@
             const language = document.getElementById("aiLanguageSelect").value;
             const btn = document.getElementById("aiGenerateBtn");
             const body = document.getElementById("aiResultBody");
-
-            btn.disabled = true;
-            btn.textContent = "Generating...";
+            btn.disabled = true; btn.textContent = "Generating...";
             body.textContent = "⏳ AI soch raha hai... (10-20 seconds lag sakte hain)";
-
             try {
                 const endpoint = aiMode === "student"
                     ? `/ai/student-summary/${aiTargetId}`
                     : `/ai/class-report/${encodeURIComponent(aiTargetId)}`;
-
-                const result = await apiRequest(endpoint, {
-                    method: "POST",
-                    body: JSON.stringify({ language })
-                });
-
+                const result = await apiRequest(endpoint, { method: "POST", body: JSON.stringify({ language }) });
                 body.textContent = result.summary || result.report || "No content returned.";
             } catch (error) {
                 console.error("AI generation error:", error);
-                body.textContent = "❌ AI summary generate nahi ho saki. " +
-                    (error.message && error.message.includes("not configured")
-                        ? "Is server par AI features abhi configure nahi hain (GROQ_API_KEY set karni hogi)."
-                        : "Thori dair baad dobara try karein.");
+                body.textContent = "❌ AI summary generate nahi ho saki.";
             } finally {
-                btn.disabled = false;
-                btn.textContent = "Generate";
+                btn.disabled = false; btn.textContent = "Generate";
             }
         }
 
@@ -5045,56 +4192,31 @@
             const text = document.getElementById("aiResultBody").textContent;
             navigator.clipboard.writeText(text).then(
                 () => showAlert("Copied to clipboard", "success"),
-                () => showAlert("Copy failed", "error")
-            );
+                () => showAlert("Copy failed", "error"));
         }
 
-        // ==================== ATTENDANCE REGISTER (class-wise, printable) ====================
         async function openAttendanceRegisterModal() {
-            // Populate class dropdown from loaded students (load if needed)
-            try {
-                if (!students || students.length === 0) {
-                    students = await apiRequest("/students");
-                }
-            } catch (error) {
-                console.error("Error loading students for register:", error);
-            }
-
+            try { if (!students || students.length === 0) students = await apiRequest("/students"); }
+            catch (error) { console.error("Error loading students:", error); }
             const uniqueClasses = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
             const select = document.getElementById("registerClassSelect");
             select.innerHTML = '<option value="">Select Class</option>' +
                 uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join("");
-
-            // Default month = current month
             const now = new Date();
-            document.getElementById("registerMonthInput").value =
-                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
+            document.getElementById("registerMonthInput").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
             openModal("attendanceRegisterModal");
         }
 
         async function printAttendanceRegister() {
             const className = document.getElementById("registerClassSelect").value;
             const month = document.getElementById("registerMonthInput").value;
-
-            if (!className || !month) {
-                showAlert("Class aur month dono select karein", "error");
-                return;
-            }
-
+            if (!className || !month) { showAlert("Class aur month dono select karein", "error"); return; }
             let data;
-            try {
-                data = await apiRequest(`/attendance/register/${encodeURIComponent(className)}?month=${month}`);
-            } catch (error) {
-                console.error("Error loading register:", error);
-                return;
-            }
-
+            try { data = await apiRequest(`/attendance/register/${encodeURIComponent(className)}?month=${month}`); }
+            catch (error) { console.error("Error loading register:", error); return; }
             const school = await getSchoolProfile();
             const days = data.days_in_month;
-
             const dayHeaders = Array.from({ length: days }, (_, i) => `<th style="min-width:18px; padding:3px 2px; font-size:9px;">${i + 1}</th>`).join("");
-
             const studentRows = data.students.map((s, idx) => {
                 const dayCells = Array.from({ length: days }, (_, i) => {
                     const v = s.days[String(i + 1)];
@@ -5109,12 +4231,9 @@
                         ${dayCells}
                         <td style="font-size:10px; text-align:center; font-weight:700;">${s.present_count}</td>
                         <td style="font-size:10px; text-align:center; font-weight:700; color:#c00;">${s.absent_count}</td>
-                    </tr>
-                `;
+                    </tr>`;
             }).join("");
-
             const monthLabel = new Date(month + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" });
-
             const bodyHtml = `
                 <div class="header">
                     <h1>${school.name || "School"}</h1>
@@ -5140,9 +4259,7 @@
                     <div>Teacher's Signature: ______________</div>
                     <div>Principal's Signature: ______________</div>
                 </div>
-                <div class="footer">${school.name || "School"} — Attendance Register (${monthLabel})</div>
-            `;
-
+                <div class="footer">${school.name || "School"} — Attendance Register (${monthLabel})</div>`;
             closeModal("attendanceRegisterModal");
             openPrintWindow(`Attendance Register - Class ${data.class_name} - ${month}`, bodyHtml);
         }
@@ -5150,15 +4267,12 @@
         async function openClassDuesModal() {
             document.getElementById("classDuesBody").innerHTML = "Loading...";
             openModal("classDuesModal");
-
             try {
                 const data = await apiRequest("/fees/class-summary");
-
                 if (data.length === 0) {
                     document.getElementById("classDuesBody").innerHTML = `<p style="text-align:center; color:var(--gray); padding:20px;">No fee records yet.</p>`;
                     return;
                 }
-
                 const rows = data.map(c => `
                     <tr>
                         <td>${c.class_name}</td>
@@ -5168,35 +4282,24 @@
                         <td>Rs. ${c.total_due}</td>
                         <td>${c.overdue_count}</td>
                         <td>${c.collection_rate}%</td>
-                    </tr>
-                `).join("");
-
+                    </tr>`).join("");
                 document.getElementById("classDuesBody").innerHTML = `
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Class</th>
-                                    <th>Students</th>
-                                    <th>Total Fee</th>
-                                    <th>Collected</th>
-                                    <th>Due</th>
-                                    <th>Overdue Records</th>
-                                    <th>Collection Rate</th>
+                                    <th>Class</th><th>Students</th><th>Total Fee</th><th>Collected</th>
+                                    <th>Due</th><th>Overdue Records</th><th>Collection Rate</th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
                         </table>
-                    </div>
-                `;
+                    </div>`;
             } catch (error) {
                 console.error("Error loading class dues summary:", error);
                 document.getElementById("classDuesBody").innerHTML = `<p style="color:var(--danger);">Failed to load class dues summary.</p>`;
             }
         }
-
-        // Stubs for edit functions
-
     </script>
 
     <!-- ==================== FLOATING AI INSIGHTS WIDGET ==================== -->
@@ -5234,7 +4337,7 @@
             </div>
             <div class="ai-widget-section">
                 <div class="ai-widget-label">📊 Class Report</div>
-                <p class="ai-widget-hint">Ek class choose karein — poori class ka attendance/grades/fee report bane ga.</p>
+                <p class="ai-widget-hint">Ek class choose karein — poori class ka report bane ga.</p>
                 <select id="aiClassSelect" class="ai-widget-select"></select>
                 <button class="ai-widget-btn" onclick="generateAIClassReportFromInsights()">✨ Generate Report</button>
             </div>
@@ -5244,36 +4347,19 @@
 
     <style>
         #aiFabBtn {
-            position: fixed;
-            right: 24px;
-            bottom: 24px;
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: none;
+            position: fixed; right: 24px; bottom: 24px; width: 58px; height: 58px;
+            border-radius: 50%; border: none;
             background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(10, 90, 84, 0.35);
-            z-index: 1200;
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 8px 24px rgba(10, 90, 84, 0.35); z-index: 1200;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             animation: aiFabFloat 3s ease-in-out infinite;
         }
-        #aiFabBtn:hover {
-            transform: scale(1.08);
-            box-shadow: 0 10px 30px rgba(10, 90, 84, 0.45);
-        }
+        #aiFabBtn:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(10, 90, 84, 0.45); }
         #aiFabBtn svg { position: relative; z-index: 1; }
         #aiFabPulse {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background: var(--primary);
-            opacity: 0.55;
-            animation: aiFabPulse 2.2s ease-out infinite;
+            position: absolute; inset: 0; border-radius: 50%; background: var(--primary);
+            opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite;
         }
         @keyframes aiFabPulse {
             0% { transform: scale(1); opacity: 0.5; }
@@ -5284,52 +4370,29 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-4px); }
         }
-
         #aiWidgetPanel {
-            position: fixed;
-            right: 24px;
-            bottom: 96px;
-            width: 340px;
-            max-width: calc(100vw - 32px);
-            max-height: 70vh;
-            max-height: 70dvh;
-            background: var(--bg-primary);
-            border-radius: 18px;
+            position: fixed; right: 24px; bottom: 96px; width: 340px;
+            max-width: calc(100vw - 32px); max-height: 70vh; max-height: 70dvh;
+            background: var(--bg-primary); border-radius: 18px;
             box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25);
-            border: 1px solid var(--border);
-            z-index: 1199;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transform: translateY(16px) scale(0.97);
-            opacity: 0;
-            pointer-events: none;
+            border: 1px solid var(--border); z-index: 1199;
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none;
             transition: transform 0.22s ease, opacity 0.22s ease;
         }
-        #aiWidgetPanel.open {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-            pointer-events: auto;
-        }
+        #aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
         #aiWidgetHeader {
             background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%);
-            color: #fff;
-            padding: 14px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            color: #fff; padding: 14px 16px;
+            display: flex; justify-content: space-between; align-items: center;
         }
         #aiWidgetHeaderIcon {
-            width: 34px; height: 34px;
-            border-radius: 50%;
+            width: 34px; height: 34px; border-radius: 50%;
             background: rgba(255,255,255,0.18);
             display: flex; align-items: center; justify-content: center;
             font-size: 16px;
         }
-        #aiWidgetBody {
-            padding: 16px;
-            overflow-y: auto;
-        }
+        #aiWidgetBody { padding: 16px; overflow-y: auto; }
         .ai-widget-section { margin-bottom: 18px; }
         .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--dark); }
         .ai-widget-hint { font-size: 12px; color: var(--gray); margin: 0 0 8px; line-height: 1.4; }
@@ -5343,7 +4406,6 @@
         }
         .ai-widget-btn:hover { background: var(--primary-dark); }
         .ai-widget-footnote { font-size: 10.5px; color: #94a3b8; line-height: 1.5; margin: 0; }
-
         @media (max-width: 480px) {
             #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); }
             #aiFabBtn { right: 16px; bottom: 16px; }
@@ -5366,5 +4428,10 @@
     </script>
     <script src="js/branding.js"></script>
     <script src="js/animations.js"></script>
+    <script src="js/dark-mode.js"></script>
+    <script src="js/skeleton.js"></script>
+    <script src="js/empty-states.js"></script>
+    <script src="js/success-anim.js"></script>
+    <script src="js/profile-dropdown.js"></script>
 </body>
 </html>

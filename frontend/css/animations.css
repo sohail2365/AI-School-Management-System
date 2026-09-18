@@ -1,6 +1,5 @@
 /* ============================================================
    SCHOOLHUB — PROFESSIONAL ANIMATIONS
-   Har HTML file mein add karein: <link rel="stylesheet" href="css/animations.css">
    ============================================================ */
 
 * { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
@@ -79,12 +78,16 @@ body { animation: pageEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
 .sidebar-menu a:hover::before,
 .sidebar-menu a.active::before { transform: scaleY(1); }
 
+/* ✅ FIXED: Target SVG (after Lucide processes) OR <i> (before) */
+.sidebar-menu a svg,
 .sidebar-menu a i[data-lucide] {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.sidebar-menu a:hover svg,
 .sidebar-menu a:hover i[data-lucide] {
   transform: scale(1.2) rotate(-6deg);
 }
+.sidebar-menu a.active svg,
 .sidebar-menu a.active i[data-lucide] {
   transform: scale(1.15);
   color: var(--accent, #c87757);
@@ -202,8 +205,10 @@ table tbody tr:nth-child(8) { animation-delay: 0.16s; }
 .toast.hide { animation: toastOut 0.3s ease forwards; }
 @keyframes toastOut { to { opacity: 0; transform: translateX(40px) scale(0.9); } }
 
-/* ---------- AUTO-REPLACED ICONS (from emoji) ---------- */
-i.lucide-replaced {
+/* ---------- AUTO-REPLACED ICONS ---------- */
+/* ✅ FIXED: Target both <i> (before Lucide) and <svg> (after Lucide) */
+i.lucide-replaced,
+svg.lucide-replaced {
   display: inline-block;
   width: 1em;
   height: 1em;
@@ -212,23 +217,28 @@ i.lucide-replaced {
   margin-right: 4px;
   flex-shrink: 0;
 }
-.sidebar-menu a i.lucide-replaced {
+.sidebar-menu a i.lucide-replaced,
+.sidebar-menu a svg.lucide-replaced {
   width: 18px;
   height: 18px;
   margin-right: 12px;
 }
-.btn i.lucide-replaced {
+.btn i.lucide-replaced,
+.btn svg.lucide-replaced {
   width: 16px;
   height: 16px;
   margin-right: 6px;
 }
-.modal-close i.lucide-replaced {
+.modal-close i.lucide-replaced,
+.modal-close svg.lucide-replaced {
   width: 18px;
   height: 18px;
   margin: 0;
 }
-h1 i.lucide-replaced, h2 i.lucide-replaced,
-h3 i.lucide-replaced, h4 i.lucide-replaced {
+h1 i.lucide-replaced, h1 svg.lucide-replaced,
+h2 i.lucide-replaced, h2 svg.lucide-replaced,
+h3 i.lucide-replaced, h3 svg.lucide-replaced,
+h4 i.lucide-replaced, h4 svg.lucide-replaced {
   width: 1.1em;
   height: 1.1em;
 }

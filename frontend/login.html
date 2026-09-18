@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/empty-states.css">
+    <link rel="stylesheet" href="css/success-anim.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,6 +55,12 @@
         }
         .bg-orb.one { width: 340px; height: 340px; top: -120px; left: -100px; animation: floatSlow 9s ease-in-out infinite; }
         .bg-orb.two { width: 220px; height: 220px; bottom: -80px; right: -60px; animation: floatSlow 11s ease-in-out infinite reverse; }
+        .bg-orb.three {
+            width: 180px; height: 180px; top: 40%; right: 10%;
+            background: radial-gradient(circle, rgba(200,119,87,0.18), transparent 70%);
+            animation: floatSlow 13s ease-in-out infinite;
+            filter: blur(2px);
+        }
         @keyframes floatSlow {
             0%, 100% { transform: translate(0, 0) scale(1); }
             50% { transform: translate(16px, -20px) scale(1.05); }
@@ -176,6 +185,61 @@
             color: var(--teal-700);
         }
 
+        /* Password field with eye toggle */
+        .field.has-toggle input { padding-right: 44px; }
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink-500);
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s;
+        }
+        .password-toggle-btn:hover { color: var(--teal-700); }
+
+        /* Password strength meter (login form ke andar, optional) */
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--line);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* Remember me */
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .remember-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--teal-700);
+            cursor: pointer;
+        }
+        .remember-row label {
+            font-size: 13px;
+            color: var(--ink-500);
+            cursor: pointer;
+            margin: 0;
+            user-select: none;
+        }
+
         .forgot-link { text-align: right; margin-bottom: 20px; margin-top: -6px; }
         .forgot-link a, .switch-link a {
             font-size: 12.5px;
@@ -220,7 +284,6 @@
         .login-btn.loading .btn-label { opacity: 0; }
         .login-btn.loading .btn-spinner { opacity: 1; }
         .login-btn.success { background: var(--success); }
-        .login-btn.success .btn-label::before { content: "✓ "; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .login-footer {
@@ -240,6 +303,7 @@
 <body>
     <div class="bg-orb one"></div>
     <div class="bg-orb two"></div>
+    <div class="bg-orb three"></div>
 
     <div class="phone-card">
         <div class="card-header">
@@ -247,7 +311,7 @@
                 <div class="notch"></div>
                 <div class="wordmark">SchoolHub</div>
             </div>
-            <h1>Welcome back</h1>
+            <h1>Welcome back <span style="display:inline-block;animation:waveHand 2.5s ease-in-out infinite;">👋</span></h1>
             <p>Sign in to your school's dashboard</p>
         </div>
 
@@ -255,15 +319,29 @@
             <div class="alert alert-error" id="errorAlert"></div>
             <div class="alert alert-success" id="successAlert"></div>
 
+            <!-- LOGIN FORM -->
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="field">
-                    <input type="email" id="email" placeholder=" " required>
+                    <input type="email" id="email" placeholder=" " required autocomplete="email">
                     <label for="email">Email Address</label>
                 </div>
 
-                <div class="field">
-                    <input type="password" id="password" placeholder=" " required>
+                <div class="field has-toggle">
+                    <input type="password" id="password" placeholder=" " required autocomplete="current-password">
                     <label for="password">Password</label>
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('password', this)" aria-label="Show password">
+                        <i data-lucide="eye" style="width:18px;height:18px;"></i>
+                    </button>
+                </div>
+
+                <!-- Password strength meter (login ke liye optional, but useful) -->
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+
+                <div class="remember-row" style="margin-top:14px;">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me for 30 days</label>
                 </div>
 
                 <div class="forgot-link">
@@ -276,6 +354,7 @@
                 </button>
             </form>
 
+            <!-- FORGOT PASSWORD FORM -->
             <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" style="display: none;">
                 <div class="field">
                     <input type="email" id="forgotEmail" placeholder=" " required>
@@ -302,21 +381,55 @@
             ? "http://127.0.0.1:8000"
             : window.location.origin;
 
+        /* ==================== ALERT ==================== */
         function showAlert(message, type = "error", redirect = true) {
+            // Prefer toast (from animations.js) if available
+            if (typeof showToast === "function") {
+                showToast(message, type === "success" ? "success" : "error");
+                if (type === "success" && redirect) {
+                    setTimeout(() => window.location.href = "professional_dashboard.html", 1500);
+                }
+                return;
+            }
             const alertId = type === "success" ? "successAlert" : "errorAlert";
             const alert = document.getElementById(alertId);
             alert.textContent = message;
             alert.classList.add("show");
-
             if (type === "success" && redirect) {
-                setTimeout(() => {
-                    window.location.href = "professional_dashboard.html";
-                }, 1500);
+                setTimeout(() => window.location.href = "professional_dashboard.html", 1500);
             } else {
                 setTimeout(() => alert.classList.remove("show"), 4000);
             }
         }
 
+        /* ==================== PASSWORD TOGGLE ==================== */
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+            const icon = btn.querySelector("[data-lucide]");
+            if (icon) {
+                icon.setAttribute("data-lucide", isPassword ? "eye-off" : "eye");
+                if (window.lucide) window.lucide.createIcons();
+            }
+        }
+
+        /* ==================== PASSWORD STRENGTH ==================== */
+        function updatePasswordStrength(pwd) {
+            const bar = document.getElementById("strengthBar");
+            if (!bar) return;
+            let s = 0;
+            if (pwd.length >= 8) s += 30;
+            if (pwd.length >= 12) s += 20;
+            if (/[A-Z]/.test(pwd)) s += 20;
+            if (/[0-9]/.test(pwd)) s += 15;
+            if (/[^A-Za-z0-9]/.test(pwd)) s += 15;
+            bar.style.width = s + "%";
+            bar.style.background = s < 40 ? "#c4453b" : s < 70 ? "#c78a1e" : "#1a8c5c";
+        }
+
+        /* ==================== FORM SWITCHING ==================== */
         function showForgotPasswordForm(event) {
             event.preventDefault();
             document.getElementById("errorAlert").classList.remove("show");
@@ -333,6 +446,7 @@
             document.getElementById("loginForm").style.display = "block";
         }
 
+        /* ==================== FORGOT PASSWORD ==================== */
         async function handleForgotPassword(event) {
             event.preventDefault();
             const email = document.getElementById("forgotEmail").value;
@@ -361,12 +475,14 @@
             }
         }
 
+        /* ==================== LOGIN ==================== */
         async function handleLogin(event) {
             event.preventDefault();
 
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
             const loginBtn = document.getElementById("loginBtn");
+            const rememberMe = document.getElementById("rememberMe")?.checked;
 
             if (!email || !password) {
                 showAlert("Please enter both email and password", "error");
@@ -379,13 +495,8 @@
 
                 const response = await fetch(`${API_BASE}/auth/login`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
@@ -394,6 +505,7 @@
                     throw new Error(data.detail || "Login failed");
                 }
 
+                // Save auth data
                 localStorage.setItem("access_token", data.access_token);
                 localStorage.setItem("user_role", data.role || "user");
                 localStorage.setItem("user_full_name", data.full_name || "");
@@ -401,9 +513,18 @@
                 localStorage.setItem("school_id", data.school_id);
                 localStorage.setItem("school_name", data.school_name || "");
 
+                // Save remember me
+                if (rememberMe) {
+                    localStorage.setItem("remember_me", "true");
+                    localStorage.setItem("remembered_email", email);
+                } else {
+                    localStorage.removeItem("remember_me");
+                    localStorage.removeItem("remembered_email");
+                }
+
                 loginBtn.classList.remove("loading");
                 loginBtn.classList.add("success");
-                loginBtn.querySelector(".btn-label").textContent = "Signed in";
+                loginBtn.querySelector(".btn-label").textContent = "Signed in ✓";
                 showAlert("Login successful! Redirecting...", "success");
             } catch (error) {
                 showAlert(error.message || "Login failed. Please try again.", "error");
@@ -412,17 +533,45 @@
             }
         }
 
+        /* ==================== INIT ON PAGE LOAD ==================== */
         window.addEventListener("load", () => {
+            // Already logged in? Redirect
             const token = localStorage.getItem("access_token");
             if (token) {
                 window.location.href = "professional_dashboard.html";
+                return;
             }
+
+            // Auto-fill remembered email
+            const rememberedEmail = localStorage.getItem("remembered_email");
+            const rememberFlag = localStorage.getItem("remember_me");
+            if (rememberedEmail && rememberFlag === "true") {
+                document.getElementById("email").value = rememberedEmail;
+                document.getElementById("rememberMe").checked = true;
+            }
+
+            // Register service worker
             if ("serviceWorker" in navigator) {
                 navigator.serviceWorker.register("sw.js").catch(() => {});
             }
+
+            // Attach password strength listener (after DOM ready)
+            const pwdInput = document.getElementById("password");
+            if (pwdInput) {
+                pwdInput.addEventListener("input", (e) => updatePasswordStrength(e.target.value));
+            }
+
+            // Refresh Lucide icons
+            if (window.lucide) window.lucide.createIcons();
         });
     </script>
+
     <script src="js/branding.js"></script>
     <script src="js/animations.js"></script>
+    <script src="js/dark-mode.js"></script>
+    <script src="js/skeleton.js"></script>
+    <script src="js/empty-states.js"></script>
+    <script src="js/success-anim.js"></script>
+    <script src="js/form-validation.js"></script>
 </body>
 </html>
