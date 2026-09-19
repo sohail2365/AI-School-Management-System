@@ -13,6 +13,7 @@ from backend.schemas.settings import (
     ParentPortalSettingsUpdate,
     SchoolSettingsResponse,
     SchoolSettingsUpdate,
+    BackgroundOverlayUpdate, 
 )
 from backend.utils.rbac import require_roles
 from backend.utils.storage import get_signed_url, upload_school_file
@@ -253,7 +254,13 @@ def upload_background_image(
     school.background_image_enabled = True
     db.commit()
 
-    return {"message": "Background image updated.", "url": get_signed_url(path, expires_in=3600)}
+    return {
+        "message": "Background image updated.",
+        "url": get_signed_url(path, expires_in=3600),
+        "enabled": True,
+        "has_image": True,
+        "overlay": school.background_overlay if school.background_overlay else 82,
+    }
 
 
 @router.delete("/background-image")
@@ -294,8 +301,54 @@ def get_background_image(
     is set OR the admin has toggled it off. Callers should cache this for the
     session — it's called once per portal page load, and the signed URL is
     valid for an hour.
+
+    `overlay` (40-95) tells the frontend how strongly to tint the image with
+    the paper color — higher = more readable text, lower = more visible image.
     """
     school = db.query(School).filter(School.id == token["school_id"]).first()
-    if not school or not school.background_image_url or not school.background_image_enabled:
-        return {"url": None, "enabled": school.background_image_enabled if school else True, "has_image": bool(school and school.background_image_url)}
-    return {"url": get_signed_url(school.background_image_url, expires_in=3600), "enabled": True, "has_image": True}
+    if not school:
+        return {"url": None, "enabled": True, "has_image": False, "overlay": 82}
+
+    overlay = school.background_overlay if school.background_overlay else 82
+
+    if not school.background_image_url or not school.background_image_enabled:
+        return {
+            "url": None,
+            "enabled": school.background_image_enabled,
+            "has_image": bool(school.background_image_url),
+            "overlay": overlay,
+        }
+
+    return {
+        "url": get_signed_url(school.background_image_url, expires_in=3600),
+        "enabled": True,
+        "has_image": True,
+        "overlay": overlay,
+    }
+
+
+# ==================== BACKGROUND OVERLAY INTENSITY ====================
+
+@router.post("/background-image/overlay")
+def update_background_overlay(
+    payload: BackgroundOverlayUpdate,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Update overlay intensity for the portal background image.
+    Frontend slider sends values from 40 to 95.
+    Higher value = more readable text, lower = more visible image.
+    """
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+
+    school.background_overlay = payload.overlay
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Background intensity set to {payload.overlay}%.",
+        "overlay": payload.overlay,
+    }

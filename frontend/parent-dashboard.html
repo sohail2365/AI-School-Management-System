@@ -283,15 +283,25 @@ async function sendMessage() {
   }
 }
 
+// ==================== PORTAL BACKGROUND (with overlay intensity) ====================
 async function applyPortalBackground() {
   try {
     const result = await api("/settings/background-image");
     if (result.url) {
+      // Use overlay value from backend (default 82 if not set)
+      const overlayPercent = (result.overlay !== undefined && result.overlay !== null)
+        ? parseInt(result.overlay)
+        : 82;
+      const topOpacity = overlayPercent / 100;
+      const bottomOpacity = Math.min(topOpacity + 0.08, 1);
+
       document.body.style.backgroundImage =
-        `linear-gradient(rgba(251,250,247,0.55), rgba(251,250,247,0.72)), url('${result.url}')`;
+        `linear-gradient(rgba(251,250,247,${topOpacity}), rgba(251,250,247,${bottomOpacity})), url('${result.url}')`;
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundAttachment = "fixed";
       document.body.style.backgroundPosition = "center";
+    } else {
+      document.body.style.backgroundImage = "";
     }
   } catch (e) { /* no background set — fine */ }
 }

@@ -24,6 +24,11 @@ class School(Base):
     background_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     background_image_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
+    # Overlay intensity for portal background (40-95). Higher = more readable
+    # text, lower = more visible image. Admin-adjustable via the slider in
+    # Settings → Portal Background Image.
+    background_overlay: Mapped[int] = mapped_column(Integer, default=82, nullable=False)
+
     # Platform-level control (used by the super admin panel). A deactivated
     # school can't log in at all, but its data is preserved (not deleted) —
     # use this for suspending a demo/spam signup without losing anything,

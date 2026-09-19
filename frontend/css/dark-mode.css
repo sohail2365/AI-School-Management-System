@@ -107,8 +107,8 @@ body, .card, .metric-card, .top-header, table, input, select, textarea {
 /* Dark mode toggle button */
 .dark-mode-toggle {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  bottom: 92px;
+  right: 24px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -120,7 +120,7 @@ body, .card, .metric-card, .top-header, table, input, select, textarea {
   align-items: center;
   justify-content: center;
   box-shadow: 0 6px 20px rgba(10, 90, 84, 0.3);
-  z-index: 9998;
+  z-index: 1198;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .dark-mode-toggle:hover {

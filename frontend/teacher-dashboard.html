@@ -67,7 +67,6 @@
       <button class="tab-btn" data-tab="messages">Parent Messages</button>
     </div>
 
-    <!-- ATTENDANCE -->
     <div class="card" id="tab-attendance">
       <h2>Mark Today's Attendance</h2>
       <div class="row-form">
@@ -87,7 +86,6 @@
       </table>
     </div>
 
-    <!-- GRADES -->
     <div class="card" id="tab-grades" style="display:none">
       <h2>Enter Grade</h2>
       <div class="row-form">
@@ -105,7 +103,6 @@
       </table>
     </div>
 
-    <!-- TEST RECORDS -->
     <div class="card" id="tab-testrecords" style="display:none">
       <h2>Add Monthly/Annual Test Record (with photo of paper)</h2>
       <div class="row-form">
@@ -128,7 +125,6 @@
       </table>
     </div>
 
-    <!-- MESSAGES -->
     <div class="card" id="tab-messages" style="display:none">
       <h2>Parent Messages</h2>
       <div style="display:grid; grid-template-columns: 220px 1fr; gap:16px; min-height:320px;">
@@ -394,15 +390,25 @@ async function sendClassMessage() {
   }
 }
 
+// ==================== PORTAL BACKGROUND (with overlay intensity) ====================
 async function applyPortalBackground() {
   try {
     const result = await authFetch("/settings/background-image");
     if (result.url) {
+      // Use overlay value from backend (default 82 if not set)
+      const overlayPercent = (result.overlay !== undefined && result.overlay !== null)
+        ? parseInt(result.overlay)
+        : 82;
+      const topOpacity = overlayPercent / 100;
+      const bottomOpacity = Math.min(topOpacity + 0.08, 1);
+
       document.body.style.backgroundImage =
-        `linear-gradient(rgba(251,250,247,0.55), rgba(251,250,247,0.72)), url('${result.url}')`;
+        `linear-gradient(rgba(251,250,247,${topOpacity}), rgba(251,250,247,${bottomOpacity})), url('${result.url}')`;
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundAttachment = "fixed";
       document.body.style.backgroundPosition = "center";
+    } else {
+      document.body.style.backgroundImage = "";
     }
   } catch (e) { /* no background set, or not yet configured — fine */ }
 }
@@ -412,7 +418,7 @@ loadMyClass().catch(err => {
   document.getElementById("classInfo").textContent = err.message;
 });
 
-// ==================== FLOATING AI WIDGET (own class only) ====================
+// ==================== FLOATING AI WIDGET ====================
 let aiWidgetOpen = false;
 let aiWidgetLoaded = false;
 
