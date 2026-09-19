@@ -170,6 +170,7 @@ async def startup():
             "payment_info": "payment_info TEXT",
             "background_image_url": "background_image_url VARCHAR(500)",
             "background_image_enabled": "background_image_enabled BOOLEAN NOT NULL DEFAULT TRUE",
+            "background_overlay": "background_overlay INTEGER NOT NULL DEFAULT 82",
         })
         _ensure_columns(inspector, existing_tables, "staff", {
             "role": "role VARCHAR(20) NOT NULL DEFAULT 'teacher'",
