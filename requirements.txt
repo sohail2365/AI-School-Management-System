@@ -1,37 +1,15 @@
-# ============================================================
-# SchoolHub — Backend Requirements
-# Install: .\venv\Scripts\python.exe -m pip install -r requirements.txt
-# ============================================================
-
-# ---------- Web Framework ----------
 fastapi
 uvicorn[standard]
-
-# ---------- Data Validation & Settings ----------
 pydantic
 pydantic-settings
-
-# ---------- Database ----------
 sqlalchemy
-
-# ---------- Authentication & Security ----------
+psycopg2-binary
 pyjwt
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt
 python-multipart
-
-# ---------- Environment Variables ----------
 python-dotenv
-
-# ---------- File Storage (Supabase) ----------
 supabase
-
-# ---------- Email (password reset) ----------
-# Uncomment if you use email for password reset:
-# aiosmtplib
-# email-validator
-
-# ---------- HTTP Client (for external APIs like Groq AI) ----------
 httpx
 requests
