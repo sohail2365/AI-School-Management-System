@@ -185,7 +185,6 @@
             color: var(--teal-700);
         }
 
-        /* Password field with eye toggle */
         .field.has-toggle input { padding-right: 44px; }
         .password-toggle-btn {
             position: absolute;
@@ -204,7 +203,6 @@
         }
         .password-toggle-btn:hover { color: var(--teal-700); }
 
-        /* Password strength meter (login form ke andar, optional) */
         .password-strength {
             height: 4px;
             border-radius: 2px;
@@ -219,7 +217,6 @@
             border-radius: 2px;
         }
 
-        /* Remember me */
         .remember-row {
             display: flex;
             align-items: center;
@@ -334,7 +331,6 @@
                     </button>
                 </div>
 
-                <!-- Password strength meter (login ke liye optional, but useful) -->
                 <div class="password-strength">
                     <div class="password-strength-bar" id="strengthBar"></div>
                 </div>
@@ -383,7 +379,6 @@
 
         /* ==================== ALERT ==================== */
         function showAlert(message, type = "error", redirect = true) {
-            // Prefer toast (from animations.js) if available
             if (typeof showToast === "function") {
                 showToast(message, type === "success" ? "success" : "error");
                 if (type === "success" && redirect) {
@@ -505,15 +500,47 @@
                     throw new Error(data.detail || "Login failed");
                 }
 
-                // Save auth data
+                /* =====================================================
+                   ✅ SECURITY FIX: Role check — sirf admin allowed
+                   =====================================================
+                   Teacher/parent/staff credentials yahan se log ho sakte
+                   hain, lekin unhe admin dashboard par nahi jaane dena.
+                   Unhe apne apne portal par bhejna hai.
+                */
+                const role = data.role || "staff";
+
+                if (role !== "admin") {
+                    // Clear any partial auth data that may have been stored
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("user_role");
+
+                    // Friendly message + redirect to appropriate portal
+                    if (role === "teacher") {
+                        throw new Error(
+                            "This is the school ADMIN login page. Teachers should use the Teacher Portal. " +
+                            "Redirecting you to teacher-login.html…"
+                        );
+                    } else if (role === "parent") {
+                        throw new Error(
+                            "This is the school ADMIN login page. Parents should use the Parent Portal. " +
+                            "Redirecting you to parent-login.html…"
+                        );
+                    } else {
+                        throw new Error(
+                            "This account does not have admin access. Please contact your school administrator."
+                        );
+                    }
+                }
+
+                /* ---- Only reached if role === "admin" ---- */
+
                 localStorage.setItem("access_token", data.access_token);
-                localStorage.setItem("user_role", data.role || "user");
+                localStorage.setItem("user_role", data.role);
                 localStorage.setItem("user_full_name", data.full_name || "");
                 localStorage.setItem("user_email", data.email || "");
                 localStorage.setItem("school_id", data.school_id);
                 localStorage.setItem("school_name", data.school_name || "");
 
-                // Save remember me
                 if (rememberMe) {
                     localStorage.setItem("remember_me", "true");
                     localStorage.setItem("remembered_email", email);
@@ -530,19 +557,39 @@
                 showAlert(error.message || "Login failed. Please try again.", "error");
                 loginBtn.classList.remove("loading");
                 loginBtn.disabled = false;
+
+                // If error message contains "Redirecting", wait a moment then redirect
+                if (error.message && error.message.includes("Redirecting")) {
+                    const target =
+                        error.message.includes("teacher-login") ? "teacher-login.html" :
+                        error.message.includes("parent-login") ? "parent-login.html" :
+                        null;
+                    if (target) {
+                        setTimeout(() => { window.location.href = target; }, 2500);
+                    }
+                }
             }
         }
 
         /* ==================== INIT ON PAGE LOAD ==================== */
         window.addEventListener("load", () => {
-            // Already logged in? Redirect
             const token = localStorage.getItem("access_token");
-            if (token) {
+            const role = localStorage.getItem("user_role");
+
+            /* ✅ FIX: only auto-redirect if the stored token belongs to an admin.
+               A stale teacher/parent token sitting in localStorage must not
+               silently let them back into the admin dashboard on page refresh. */
+            if (token && role === "admin") {
                 window.location.href = "professional_dashboard.html";
                 return;
             }
 
-            // Auto-fill remembered email
+            // Stale non-admin token — clear it so the login page renders cleanly.
+            if (token && role !== "admin") {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("user_role");
+            }
+
             const rememberedEmail = localStorage.getItem("remembered_email");
             const rememberFlag = localStorage.getItem("remember_me");
             if (rememberedEmail && rememberFlag === "true") {
@@ -550,18 +597,15 @@
                 document.getElementById("rememberMe").checked = true;
             }
 
-            // Register service worker
             if ("serviceWorker" in navigator) {
                 navigator.serviceWorker.register("sw.js").catch(() => {});
             }
 
-            // Attach password strength listener (after DOM ready)
             const pwdInput = document.getElementById("password");
             if (pwdInput) {
                 pwdInput.addEventListener("input", (e) => updatePasswordStrength(e.target.value));
             }
 
-            // Refresh Lucide icons
             if (window.lucide) window.lucide.createIcons();
         });
     </script>
