@@ -1,15 +1,39 @@
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-sqlalchemy==2.0.35
-pydantic==2.9.2
-pydantic-settings==2.5.2
-python-dotenv==1.0.1
-PyJWT==2.9.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.9
-pytest==8.3.3
-email-validator==2.2.0
-bcrypt==4.0.1
-psycopg2-binary==2.9.10
-requests==2.32.3
-sentry-sdk[fastapi]==2.19.2
+# ============================================================
+# SchoolHub — Backend Requirements
+# Install: .\venv\Scripts\python.exe -m pip install -r requirements.txt
+# ============================================================
+
+# ---------- Web Framework ----------
+fastapi
+uvicorn[standard]
+
+# ---------- Data Validation & Settings ----------
+pydantic
+pydantic-settings
+email-validator
+
+# ---------- Database ----------
+sqlalchemy
+psycopg2-binary
+
+# ---------- Authentication & Security ----------
+pyjwt
+python-jose[cryptography]
+bcrypt>=4.0.0
+python-multipart
+
+# ---------- Environment Variables ----------
+python-dotenv
+
+# ---------- File Storage (Supabase) ----------
+supabase
+
+# ---------- HTTP Client ----------
+httpx
+requests
+
+# ---------- AI (optional) ----------
+groq
+
+# ---------- Error Monitoring (optional) ----------
+sentry-sdk

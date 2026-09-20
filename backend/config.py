@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     # if not set, AI endpoints return a clear "not configured" message and
     # everything else keeps working normally.
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
 
     # Supabase Storage (for student photos, ID cards, B-forms, test paper
     # scans). Vercel's filesystem is ephemeral/read-only at runtime, so

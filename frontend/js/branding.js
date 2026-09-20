@@ -14,7 +14,7 @@
 const BRANDING = {
   SHOW_CREDIT: true,
   DEVELOPER_NAME: "Sohail Sandhu",
-  PHONE: "+92 3039642246",          // <-- yahan apna number daalein
+  PHONE: "+92 303 9642246",          // <-- yahan apna number daalein
   TAGLINE: "System designed & developed by NexERA AI Solutions",
 };
 

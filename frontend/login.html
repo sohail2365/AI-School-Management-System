@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SchoolHub — Login</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0c6e6b">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/empty-states.css">
+    <link rel="stylesheet" href="css/success-anim.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -22,249 +31,343 @@
             --line: #e6e8e5;
             --success: #1a8c5c;
             --danger: #c4453b;
-            --radius-lg: 20px;
-            --radius-md: 12px;
         }
 
         html, body { height: 100%; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--paper);
+            background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 65%);
             min-height: 100vh;
             min-height: 100dvh;
-            display: grid;
-            grid-template-columns: 1fr;
-            color: var(--ink-900);
-        }
-
-        .shell {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            min-height: 100dvh;
-        }
-        @media (min-width: 880px) {
-            .shell { grid-template-columns: 1fr 1fr; }
-        }
-
-        .brand-panel {
-            background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%);
-            color: #fff;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            padding: 48px 40px;
+            color: var(--ink-900);
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            pointer-events: none;
+        }
+        .bg-orb.one { width: 340px; height: 340px; top: -120px; left: -100px; animation: floatSlow 9s ease-in-out infinite; }
+        .bg-orb.two { width: 220px; height: 220px; bottom: -80px; right: -60px; animation: floatSlow 11s ease-in-out infinite reverse; }
+        .bg-orb.three {
+            width: 180px; height: 180px; top: 40%; right: 10%;
+            background: radial-gradient(circle, rgba(200,119,87,0.18), transparent 70%);
+            animation: floatSlow 13s ease-in-out infinite;
+            filter: blur(2px);
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(16px, -20px) scale(1.05); }
+        }
+
+        .phone-card {
             position: relative;
+            width: 100%;
+            max-width: 380px;
+            background: var(--card);
+            border-radius: 32px;
+            box-shadow: 0 30px 70px rgba(5, 40, 37, 0.35);
+            overflow: hidden;
+            animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .card-header {
+            position: relative;
+            background: linear-gradient(150deg, var(--teal-700), var(--teal-900) 80%);
+            padding: 40px 32px 64px;
+            color: #fff;
             overflow: hidden;
         }
-        .brand-panel::after {
+        .card-header::after {
             content: "";
             position: absolute;
-            width: 480px; height: 480px;
+            left: -10%;
+            right: -10%;
+            bottom: -1px;
+            height: 60px;
+            background: var(--card);
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+        .card-header::before {
+            content: "";
+            position: absolute;
+            width: 220px; height: 220px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
-            top: -120px; right: -120px;
+            top: -80px; right: -60px;
         }
-        @media (max-width: 879px) {
-            .brand-panel {
-                padding: 32px 24px 28px;
-                min-height: 0;
-            }
-        }
-
         .brand-mark {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             position: relative;
             z-index: 1;
         }
-        .brand-mark .notch {
-            width: 10px; height: 34px;
-            border-radius: 4px;
-            background: var(--clay-500);
-            flex-shrink: 0;
-        }
-        .brand-mark .wordmark {
+        .brand-mark .notch { width: 8px; height: 26px; border-radius: 4px; background: var(--clay-500); }
+        .brand-mark .wordmark { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
+        .card-header h1 {
             font-family: 'Poppins', sans-serif;
-            font-weight: 800;
-            font-size: 26px;
-            letter-spacing: -0.02em;
-        }
-
-        .brand-copy {
-            margin-top: 28px;
-            max-width: 380px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 22px;
             position: relative;
             z-index: 1;
         }
-        .brand-copy h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 30px;
-            font-weight: 700;
-            line-height: 1.25;
-            margin-bottom: 12px;
-        }
-        .brand-copy p {
-            font-size: 14.5px;
-            line-height: 1.6;
-            color: rgba(255,255,255,0.82);
-        }
-        @media (max-width: 879px) {
-            .brand-copy { display: none; }
-        }
-
-        .form-panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 20px 48px;
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .login-card h2 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .login-card .sub {
+        .card-header p {
             font-size: 13.5px;
-            color: var(--ink-500);
-            margin-bottom: 28px;
+            color: rgba(255,255,255,0.78);
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
         }
 
-        .form-group { margin-bottom: 18px; }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--ink-900);
-            margin-bottom: 7px;
+        .card-body {
+            padding: 8px 32px 32px;
         }
-        .form-group input {
+
+        .alert {
+            padding: 11px 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            display: none;
+        }
+        .alert.show { display: block; animation: cardIn 0.3s ease; }
+        .alert-error { background: #fbeae8; color: var(--danger); border-left: 3px solid var(--danger); }
+        .alert-success { background: #e7f5ee; color: var(--success); border-left: 3px solid var(--success); }
+
+        .field {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .field label {
+            position: absolute;
+            left: 16px;
+            top: 14px;
+            font-size: 14.5px;
+            color: var(--ink-500);
+            pointer-events: none;
+            transition: all 0.18s ease;
+            background: var(--card);
+            padding: 0 4px;
+        }
+        .field input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 14px 16px;
             border: 1.5px solid var(--line);
-            border-radius: var(--radius-md);
+            border-radius: 14px;
             font-family: inherit;
             font-size: 14.5px;
             background: var(--card);
             transition: border-color 0.15s, box-shadow 0.15s;
         }
-        .form-group input:focus {
+        .field input:focus {
             outline: none;
             border-color: var(--teal-500);
-            box-shadow: 0 0 0 3px var(--teal-100);
+            box-shadow: 0 0 0 4px var(--teal-100);
         }
-        .form-group input::placeholder { color: #a3aeac; }
+        .field input:focus + label,
+        .field input:not(:placeholder-shown) + label {
+            top: -9px;
+            left: 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--teal-700);
+        }
+
+        .field.has-toggle input { padding-right: 44px; }
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink-500);
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s;
+        }
+        .password-toggle-btn:hover { color: var(--teal-700); }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--line);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .remember-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--teal-700);
+            cursor: pointer;
+        }
+        .remember-row label {
+            font-size: 13px;
+            color: var(--ink-500);
+            cursor: pointer;
+            margin: 0;
+            user-select: none;
+        }
+
+        .forgot-link { text-align: right; margin-bottom: 20px; margin-top: -6px; }
+        .forgot-link a, .switch-link a {
+            font-size: 12.5px;
+            color: var(--teal-700);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .forgot-link a:hover, .switch-link a:hover { text-decoration: underline; }
 
         .login-btn {
+            position: relative;
             width: 100%;
-            padding: 13px;
+            padding: 15px;
             background: var(--teal-700);
             color: #fff;
             border: none;
-            border-radius: var(--radius-md);
+            border-radius: 999px;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
             font-size: 15px;
             cursor: pointer;
-            transition: background 0.15s, transform 0.1s;
-            margin-top: 6px;
+            overflow: hidden;
+            transition: background 0.2s ease, transform 0.15s ease;
         }
         .login-btn:hover { background: var(--teal-900); }
-        .login-btn:active { transform: scale(0.99); }
-        .login-btn.loading { opacity: 0.65; cursor: not-allowed; }
+        .login-btn:active { transform: scale(0.98); }
         .login-btn:focus-visible { outline: 3px solid var(--teal-100); outline-offset: 2px; }
-
-        .alert {
-            padding: 11px 14px;
-            border-radius: var(--radius-md);
-            margin-bottom: 18px;
-            font-size: 13.5px;
-            display: none;
+        .login-btn .btn-label { position: relative; z-index: 1; transition: opacity 0.2s ease; }
+        .login-btn .btn-spinner {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 20px; height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            animation: spin 0.7s linear infinite;
         }
-        .alert.show { display: block; }
-        .alert-error { background: #fbeae8; color: var(--danger); border-left: 3px solid var(--danger); }
-        .alert-success { background: #e7f5ee; color: var(--success); border-left: 3px solid var(--success); }
-
-        .forgot-link { text-align: right; margin-bottom: 18px; }
-        .forgot-link a, .switch-link a {
-            font-size: 13px;
-            color: var(--teal-700);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .forgot-link a:hover, .switch-link a:hover { text-decoration: underline; }
+        .login-btn.loading .btn-label { opacity: 0; }
+        .login-btn.loading .btn-spinner { opacity: 1; }
+        .login-btn.success { background: var(--success); }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .login-footer {
             text-align: center;
-            margin-top: 26px;
-            font-size: 13px;
+            margin-top: 22px;
+            font-size: 12.5px;
             color: var(--ink-500);
         }
-        .login-footer p:first-child { margin-bottom: 10px; }
+        .login-footer p:first-child { margin-bottom: 8px; }
+
+        @media (max-width: 420px) {
+            .card-header { padding: 32px 24px 56px; }
+            .card-body { padding: 8px 24px 28px; }
+        }
     </style>
 </head>
 <body>
-    <div class="shell">
-        <div class="brand-panel">
+    <div class="bg-orb one"></div>
+    <div class="bg-orb two"></div>
+    <div class="bg-orb three"></div>
+
+    <div class="phone-card">
+        <div class="card-header">
             <div class="brand-mark">
                 <div class="notch"></div>
                 <div class="wordmark">SchoolHub</div>
             </div>
-            <div class="brand-copy">
-                <h1>Everything your school runs on, in one place.</h1>
-                <p>Students, fees, attendance, and staff — managed from a single dashboard, built for the way your school actually works.</p>
-            </div>
+            <h1>Welcome back <span style="display:inline-block;animation:waveHand 2.5s ease-in-out infinite;">👋</span></h1>
+            <p>Sign in to your school's dashboard</p>
         </div>
 
-        <div class="form-panel">
-            <div class="login-card">
-                <h2>Welcome back</h2>
-                <div class="sub">Sign in to your school's dashboard</div>
+        <div class="card-body">
+            <div class="alert alert-error" id="errorAlert"></div>
+            <div class="alert alert-success" id="successAlert"></div>
 
-                <div class="alert alert-error" id="errorAlert"></div>
-                <div class="alert alert-success" id="successAlert"></div>
-
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" id="email" placeholder="your@email.com" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="password" placeholder="Enter your password" required>
-                    </div>
-
-                    <div class="forgot-link">
-                        <a href="#" onclick="showForgotPasswordForm(event)">Forgot Password?</a>
-                    </div>
-
-                    <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
-                </form>
-
-                <!-- Forgot Password form (hidden by default, toggled by the link above) -->
-                <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" style="display: none;">
-                    <div class="form-group">
-                        <label>Enter your account email</label>
-                        <input type="email" id="forgotEmail" placeholder="your@email.com" required>
-                    </div>
-                    <button type="submit" class="login-btn" id="forgotPasswordBtn">Send Reset Link</button>
-                    <div class="switch-link" style="text-align: center; margin-top: 14px;">
-                        <a href="#" onclick="showLoginForm(event)">Back to login</a>
-                    </div>
-                </form>
-
-                <div class="login-footer">
-                    <p>Don't have an account? <a href="register.html" style="color: var(--teal-700); font-weight: 700; text-decoration: none;">Sign up</a></p>
-                    <p>© 2026 SchoolHub. All rights reserved.</p>
+            <!-- LOGIN FORM -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="field">
+                    <input type="email" id="email" placeholder=" " required autocomplete="email">
+                    <label for="email">Email Address</label>
                 </div>
+
+                <div class="field has-toggle">
+                    <input type="password" id="password" placeholder=" " required autocomplete="current-password">
+                    <label for="password">Password</label>
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('password', this)" aria-label="Show password">
+                        <i data-lucide="eye" style="width:18px;height:18px;"></i>
+                    </button>
+                </div>
+
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+
+                <div class="remember-row" style="margin-top:14px;">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me for 30 days</label>
+                </div>
+
+                <div class="forgot-link">
+                    <a onclick="showForgotPasswordForm(event)">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span class="btn-label">Sign In</span>
+                    <span class="btn-spinner"></span>
+                </button>
+            </form>
+
+            <!-- FORGOT PASSWORD FORM -->
+            <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" style="display: none;">
+                <div class="field">
+                    <input type="email" id="forgotEmail" placeholder=" " required>
+                    <label for="forgotEmail">Enter your account email</label>
+                </div>
+                <button type="submit" class="login-btn" id="forgotPasswordBtn">
+                    <span class="btn-label">Send Reset Link</span>
+                    <span class="btn-spinner"></span>
+                </button>
+                <div class="switch-link" style="text-align: center; margin-top: 16px;">
+                    <a onclick="showLoginForm(event)">Back to login</a>
+                </div>
+            </form>
+
+            <div class="login-footer">
+                <p>Don't have an account? <a href="register.html" style="color: var(--teal-700); font-weight: 700; text-decoration: none;">Sign up</a></p>
+                <p>© 2026 SchoolHub. All rights reserved.</p>
             </div>
         </div>
     </div>
@@ -274,39 +377,77 @@
             ? "http://127.0.0.1:8000"
             : window.location.origin;
 
+        /* ==================== ALERT ==================== */
         function showAlert(message, type = "error", redirect = true) {
+            if (typeof showToast === "function") {
+                showToast(message, type === "success" ? "success" : "error");
+                if (type === "success" && redirect) {
+                    setTimeout(() => window.location.href = "professional_dashboard.html", 1500);
+                }
+                return;
+            }
             const alertId = type === "success" ? "successAlert" : "errorAlert";
             const alert = document.getElementById(alertId);
             alert.textContent = message;
             alert.classList.add("show");
-
             if (type === "success" && redirect) {
-                setTimeout(() => {
-                    window.location.href = "professional_dashboard.html";
-                }, 1500);
+                setTimeout(() => window.location.href = "professional_dashboard.html", 1500);
             } else {
                 setTimeout(() => alert.classList.remove("show"), 4000);
             }
         }
 
+        /* ==================== PASSWORD TOGGLE ==================== */
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+            const icon = btn.querySelector("[data-lucide]");
+            if (icon) {
+                icon.setAttribute("data-lucide", isPassword ? "eye-off" : "eye");
+                if (window.lucide) window.lucide.createIcons();
+            }
+        }
+
+        /* ==================== PASSWORD STRENGTH ==================== */
+        function updatePasswordStrength(pwd) {
+            const bar = document.getElementById("strengthBar");
+            if (!bar) return;
+            let s = 0;
+            if (pwd.length >= 8) s += 30;
+            if (pwd.length >= 12) s += 20;
+            if (/[A-Z]/.test(pwd)) s += 20;
+            if (/[0-9]/.test(pwd)) s += 15;
+            if (/[^A-Za-z0-9]/.test(pwd)) s += 15;
+            bar.style.width = s + "%";
+            bar.style.background = s < 40 ? "#c4453b" : s < 70 ? "#c78a1e" : "#1a8c5c";
+        }
+
+        /* ==================== FORM SWITCHING ==================== */
         function showForgotPasswordForm(event) {
             event.preventDefault();
+            document.getElementById("errorAlert").classList.remove("show");
+            document.getElementById("successAlert").classList.remove("show");
             document.getElementById("loginForm").style.display = "none";
             document.getElementById("forgotPasswordForm").style.display = "block";
         }
 
         function showLoginForm(event) {
             event.preventDefault();
+            document.getElementById("errorAlert").classList.remove("show");
+            document.getElementById("successAlert").classList.remove("show");
             document.getElementById("forgotPasswordForm").style.display = "none";
             document.getElementById("loginForm").style.display = "block";
         }
 
+        /* ==================== FORGOT PASSWORD ==================== */
         async function handleForgotPassword(event) {
             event.preventDefault();
             const email = document.getElementById("forgotEmail").value;
             const btn = document.getElementById("forgotPasswordBtn");
+            btn.classList.add("loading");
             btn.disabled = true;
-            btn.textContent = "Sending...";
 
             try {
                 const response = await fetch(API_BASE + "/auth/forgot-password", {
@@ -314,7 +455,7 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email })
                 });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
 
                 if (response.ok) {
                     showAlert(data.message || "If that email is registered, a reset link has been sent.", "success", false);
@@ -324,17 +465,19 @@
             } catch (error) {
                 showAlert("Network error. Please try again.", "error");
             } finally {
+                btn.classList.remove("loading");
                 btn.disabled = false;
-                btn.textContent = "Send Reset Link";
             }
         }
 
+        /* ==================== LOGIN ==================== */
         async function handleLogin(event) {
             event.preventDefault();
 
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
             const loginBtn = document.getElementById("loginBtn");
+            const rememberMe = document.getElementById("rememberMe")?.checked;
 
             if (!email || !password) {
                 showAlert("Please enter both email and password", "error");
@@ -343,17 +486,12 @@
 
             try {
                 loginBtn.classList.add("loading");
-                loginBtn.textContent = "Signing in...";
+                loginBtn.disabled = true;
 
                 const response = await fetch(`${API_BASE}/auth/login`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
@@ -362,28 +500,122 @@
                     throw new Error(data.detail || "Login failed");
                 }
 
+                /* =====================================================
+                   ✅ SECURITY FIX: Role check — sirf admin allowed
+                   =====================================================
+                   Teacher/parent/staff credentials yahan se log ho sakte
+                   hain, lekin unhe admin dashboard par nahi jaane dena.
+                   Unhe apne apne portal par bhejna hai.
+                */
+                const role = data.role || "staff";
+
+                if (role !== "admin") {
+                    // Clear any partial auth data that may have been stored
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("user_role");
+
+                    // Friendly message + redirect to appropriate portal
+                    if (role === "teacher") {
+                        throw new Error(
+                            "This is the school ADMIN login page. Teachers should use the Teacher Portal. " +
+                            "Redirecting you to teacher-login.html…"
+                        );
+                    } else if (role === "parent") {
+                        throw new Error(
+                            "This is the school ADMIN login page. Parents should use the Parent Portal. " +
+                            "Redirecting you to parent-login.html…"
+                        );
+                    } else {
+                        throw new Error(
+                            "This account does not have admin access. Please contact your school administrator."
+                        );
+                    }
+                }
+
+                /* ---- Only reached if role === "admin" ---- */
+
                 localStorage.setItem("access_token", data.access_token);
-                localStorage.setItem("user_role", data.role || "user");
+                localStorage.setItem("user_role", data.role);
                 localStorage.setItem("user_full_name", data.full_name || "");
                 localStorage.setItem("user_email", data.email || "");
                 localStorage.setItem("school_id", data.school_id);
                 localStorage.setItem("school_name", data.school_name || "");
 
+                if (rememberMe) {
+                    localStorage.setItem("remember_me", "true");
+                    localStorage.setItem("remembered_email", email);
+                } else {
+                    localStorage.removeItem("remember_me");
+                    localStorage.removeItem("remembered_email");
+                }
+
+                loginBtn.classList.remove("loading");
+                loginBtn.classList.add("success");
+                loginBtn.querySelector(".btn-label").textContent = "Signed in ✓";
                 showAlert("Login successful! Redirecting...", "success");
             } catch (error) {
                 showAlert(error.message || "Login failed. Please try again.", "error");
                 loginBtn.classList.remove("loading");
-                loginBtn.textContent = "Sign In";
+                loginBtn.disabled = false;
+
+                // If error message contains "Redirecting", wait a moment then redirect
+                if (error.message && error.message.includes("Redirecting")) {
+                    const target =
+                        error.message.includes("teacher-login") ? "teacher-login.html" :
+                        error.message.includes("parent-login") ? "parent-login.html" :
+                        null;
+                    if (target) {
+                        setTimeout(() => { window.location.href = target; }, 2500);
+                    }
+                }
             }
         }
 
+        /* ==================== INIT ON PAGE LOAD ==================== */
         window.addEventListener("load", () => {
             const token = localStorage.getItem("access_token");
-            if (token) {
+            const role = localStorage.getItem("user_role");
+
+            /* ✅ FIX: only auto-redirect if the stored token belongs to an admin.
+               A stale teacher/parent token sitting in localStorage must not
+               silently let them back into the admin dashboard on page refresh. */
+            if (token && role === "admin") {
                 window.location.href = "professional_dashboard.html";
+                return;
             }
+
+            // Stale non-admin token — clear it so the login page renders cleanly.
+            if (token && role !== "admin") {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("user_role");
+            }
+
+            const rememberedEmail = localStorage.getItem("remembered_email");
+            const rememberFlag = localStorage.getItem("remember_me");
+            if (rememberedEmail && rememberFlag === "true") {
+                document.getElementById("email").value = rememberedEmail;
+                document.getElementById("rememberMe").checked = true;
+            }
+
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.register("sw.js").catch(() => {});
+            }
+
+            const pwdInput = document.getElementById("password");
+            if (pwdInput) {
+                pwdInput.addEventListener("input", (e) => updatePasswordStrength(e.target.value));
+            }
+
+            if (window.lucide) window.lucide.createIcons();
         });
     </script>
+
     <script src="js/branding.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/dark-mode.js"></script>
+    <script src="js/skeleton.js"></script>
+    <script src="js/empty-states.js"></script>
+    <script src="js/success-anim.js"></script>
+    <script src="js/form-validation.js"></script>
 </body>
 </html>

@@ -68,3 +68,10 @@ class ParentPortalSettingsResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+# ==================== BACKGROUND OVERLAY ====================
+
+class BackgroundOverlayUpdate(BaseModel):
+    """Payload for POST /settings/background-image/overlay"""
+    overlay: int = Field(..., ge=40, le=95, description="Overlay intensity, 40-95")        
+        

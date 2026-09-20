@@ -1,0 +1,260 @@
+/* ============================================================
+   SCHOOLHUB — PROFESSIONAL ANIMATIONS
+   ============================================================ */
+
+* { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+html { scroll-behavior: smooth; }
+
+/* ---------- PAGE ENTRANCE ---------- */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body { animation: pageEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* ---------- STAGGERED CARD ENTRANCE ---------- */
+@keyframes cardStagger {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.metric-card, .card, .stat-card {
+  animation: cardStagger 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.metric-card:nth-child(1), .card:nth-child(1) { animation-delay: 0.05s; }
+.metric-card:nth-child(2), .card:nth-child(2) { animation-delay: 0.10s; }
+.metric-card:nth-child(3), .card:nth-child(3) { animation-delay: 0.15s; }
+.metric-card:nth-child(4), .card:nth-child(4) { animation-delay: 0.20s; }
+.metric-card:nth-child(5), .card:nth-child(5) { animation-delay: 0.25s; }
+.metric-card:nth-child(6), .card:nth-child(6) { animation-delay: 0.30s; }
+
+/* ---------- CARD HOVER LIFT ---------- */
+.metric-card, .card, .stat-card {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+  will-change: transform;
+}
+.metric-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 16px 40px rgba(10, 90, 84, 0.14);
+}
+
+/* ---------- BUTTON RIPPLE + GLOW ---------- */
+.btn, button {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.25s ease, background 0.2s ease;
+}
+.btn:active, button:active { transform: scale(0.97); }
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%),
+              rgba(255,255,255,0.4), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.btn:hover::after { opacity: 1; }
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(12, 110, 107, 0.35);
+}
+
+/* ---------- SIDEBAR MENU ---------- */
+.sidebar-menu a {
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-menu a::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent, #c87757);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sidebar-menu a:hover::before,
+.sidebar-menu a.active::before { transform: scaleY(1); }
+
+/* ✅ FIXED: Target SVG (after Lucide processes) OR <i> (before) */
+.sidebar-menu a svg,
+.sidebar-menu a i[data-lucide] {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sidebar-menu a:hover svg,
+.sidebar-menu a:hover i[data-lucide] {
+  transform: scale(1.2) rotate(-6deg);
+}
+.sidebar-menu a.active svg,
+.sidebar-menu a.active i[data-lucide] {
+  transform: scale(1.15);
+  color: var(--accent, #c87757);
+}
+
+/* ---------- SKELETON SHIMMER ---------- */
+@keyframes shimmer {
+  0%   { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f2f1 25%, #e6e8e5 37%, #f0f2f1 63%);
+  background-size: 936px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 6px;
+  color: transparent !important;
+}
+
+/* ---------- TABLE ROW STAGGER ---------- */
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+table tbody tr { animation: rowIn 0.35s ease backwards; }
+table tbody tr:nth-child(1) { animation-delay: 0.02s; }
+table tbody tr:nth-child(2) { animation-delay: 0.04s; }
+table tbody tr:nth-child(3) { animation-delay: 0.06s; }
+table tbody tr:nth-child(4) { animation-delay: 0.08s; }
+table tbody tr:nth-child(5) { animation-delay: 0.10s; }
+table tbody tr:nth-child(6) { animation-delay: 0.12s; }
+table tbody tr:nth-child(7) { animation-delay: 0.14s; }
+table tbody tr:nth-child(8) { animation-delay: 0.16s; }
+
+/* ---------- MODAL POP ---------- */
+.modal-content { animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---------- FORM FOCUS GLOW ---------- */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(20, 149, 140, 0.14), 0 4px 12px rgba(20, 149, 140, 0.08);
+}
+
+/* ---------- METRIC PULSE ---------- */
+@keyframes metricPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.metric-value.updated { animation: metricPulse 0.6s ease; }
+
+/* ---------- LIVE CLOCK DOT ---------- */
+#liveClock span:first-child {
+  display: inline-block;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; transform: scale(1.1); }
+}
+
+/* ---------- BADGE PULSE ---------- */
+.badge-warning, .badge-danger {
+  animation: badgePulse 2.5s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(199, 138, 30, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(199, 138, 30, 0.15); }
+}
+
+/* ---------- VIEW FADE ---------- */
+.view.active { animation: viewFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes viewFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- TOAST ---------- */
+.toast-container {
+  position: fixed;
+  top: 24px; right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toast {
+  min-width: 260px;
+  padding: 14px 18px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(10, 90, 84, 0.18);
+  border-left: 4px solid var(--primary, #0c6e6b);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--dark, #1a2b29);
+  animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toast.success { border-left-color: #1a8c5c; }
+.toast.error   { border-left-color: #c4453b; }
+.toast.info    { border-left-color: #14958c; }
+.toast svg { flex-shrink: 0; width: 20px; height: 20px; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+.toast.hide { animation: toastOut 0.3s ease forwards; }
+@keyframes toastOut { to { opacity: 0; transform: translateX(40px) scale(0.9); } }
+
+/* ---------- AUTO-REPLACED ICONS ---------- */
+/* ✅ FIXED: Target both <i> (before Lucide) and <svg> (after Lucide) */
+i.lucide-replaced,
+svg.lucide-replaced {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  stroke-width: 2;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+.sidebar-menu a i.lucide-replaced,
+.sidebar-menu a svg.lucide-replaced {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+}
+.btn i.lucide-replaced,
+.btn svg.lucide-replaced {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+.modal-close i.lucide-replaced,
+.modal-close svg.lucide-replaced {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+h1 i.lucide-replaced, h1 svg.lucide-replaced,
+h2 i.lucide-replaced, h2 svg.lucide-replaced,
+h3 i.lucide-replaced, h3 svg.lucide-replaced,
+h4 i.lucide-replaced, h4 svg.lucide-replaced {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* ---------- WAVE HAND ---------- */
+@keyframes waveHand {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10%, 30%      { transform: rotate(14deg); }
+  20%           { transform: rotate(-8deg); }
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
