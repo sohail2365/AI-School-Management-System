@@ -141,54 +141,13 @@
         .logout-btn { background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); }
         .logout-btn:hover { background: rgba(255, 255, 255, 0.3); }
 
-        /* ==================== BACKGROUND INTENSITY SLIDER ==================== */
-        #overlaySliderContainer {
-            margin: 14px 0;
-            padding: 14px 16px;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
-        #overlaySliderContainer .slider-label-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        #overlaySliderContainer .slider-label-row span:first-child {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-        #overlaySliderContainer .slider-label-row span:last-child {
-            font-size: 0.85rem;
-            color: var(--primary);
-            font-weight: 700;
-            background: var(--bg-primary);
-            padding: 3px 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-        #backgroundOverlaySlider {
-            width: 100%;
-            cursor: pointer;
-            accent-color: var(--primary);
-            height: 6px;
-        }
-        #overlaySliderContainer .slider-hints {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.72rem;
-            color: var(--gray);
-            margin-top: 6px;
-        }
-        #overlaySliderContainer .slider-tip {
-            font-size: 0.78rem;
-            color: var(--gray);
-            margin-top: 10px;
-            margin-bottom: 0;
-            line-height: 1.5;
-        }
+        #overlaySliderContainer { margin: 14px 0; padding: 14px 16px; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); }
+        #overlaySliderContainer .slider-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        #overlaySliderContainer .slider-label-row span:first-child { font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+        #overlaySliderContainer .slider-label-row span:last-child { font-size: 0.85rem; color: var(--primary); font-weight: 700; background: var(--bg-primary); padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); }
+        #backgroundOverlaySlider { width: 100%; cursor: pointer; accent-color: var(--primary); height: 6px; }
+        #overlaySliderContainer .slider-hints { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--gray); margin-top: 6px; }
+        #overlaySliderContainer .slider-tip { font-size: 0.78rem; color: var(--gray); margin-top: 10px; margin-bottom: 0; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -239,7 +198,6 @@
             <div class="alert alert-error" id="errorAlert"></div>
 
             <div class="content">
-                <!-- DASHBOARD VIEW -->
                 <div class="view active" id="dashboardView">
                     <div class="metrics-grid" id="metricsGrid">
                         <div class="metric-card"><div class="metric-label">Total Students</div><div class="metric-value" id="metricStudents">0</div></div>
@@ -282,7 +240,6 @@
                     </div>
                 </div>
 
-                <!-- STUDENTS VIEW -->
                 <div class="view" id="studentsView">
                     <div class="card">
                         <div class="card-header">
@@ -308,7 +265,6 @@
                     </div>
                 </div>
 
-                <!-- FEES VIEW -->
                 <div class="view" id="feesView">
                     <div class="card">
                         <div class="card-header">
@@ -339,7 +295,6 @@
                     </div>
                 </div>
 
-                <!-- ATTENDANCE VIEW -->
                 <div class="view" id="attendanceView">
                     <div class="card">
                         <div class="card-header">
@@ -365,7 +320,6 @@
                     </div>
                 </div>
 
-                <!-- GRADES VIEW -->
                 <div class="view" id="gradesView">
                     <div class="card">
                         <div class="card-header">
@@ -388,7 +342,6 @@
                     </div>
                 </div>
 
-                <!-- STAFF VIEW -->
                 <div class="view" id="staffView">
                     <div class="card">
                         <div class="card-body" style="padding-bottom: 0;">
@@ -472,7 +425,6 @@
                     </div>
                 </div>
 
-                <!-- MESSAGES VIEW -->
                 <div class="view" id="messagesView">
                     <div class="card">
                         <div class="card-header"><h3 class="card-title">💬 Parent Messages</h3></div>
@@ -494,7 +446,6 @@
                     </div>
                 </div>
 
-                <!-- ANNOUNCEMENTS VIEW -->
                 <div class="view" id="announcementsView">
                     <div class="card">
                         <div class="card-header">
@@ -505,7 +456,6 @@
                     </div>
                 </div>
 
-                <!-- SETTINGS VIEW -->
                 <div class="view" id="settingsView">
                     <div class="card">
                         <div class="card-header"><h3 class="card-title">⚙️ Settings</h3></div>
@@ -518,7 +468,6 @@
                         </div>
                     </div>
 
-                    <!-- ==================== PORTAL BACKGROUND IMAGE (UPDATED WITH SLIDER) ==================== -->
                     <div class="card" style="margin-top:20px;">
                         <div class="card-header"><h3 class="card-title">🖼️ Portal Background Image</h3></div>
                         <div class="card-body">
@@ -533,7 +482,6 @@
                                 <span style="font-weight:600; font-size:0.9rem;" id="backgroundToggleLabel">Background image: Off</span>
                             </label>
 
-                            <!-- ✅ NEW: Overlay Intensity Slider -->
                             <div id="overlaySliderContainer">
                                 <div class="slider-label-row">
                                     <span>Background Intensity</span>
@@ -604,7 +552,6 @@
         </div>
     </div>
 
-    <!-- ==================== MODALS ==================== -->
     <div class="modal" id="addStudentModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('addStudentModal')">✕</span>
@@ -947,7 +894,6 @@
             } catch (error) { console.error("Error loading data:", error); }
         }
 
-        // ==================== DASHBOARD ====================
         async function loadDashboard() {
             try {
                 const metrics = await apiRequest("/dashboard/metrics");
@@ -1072,7 +1018,6 @@
             } catch (error) { console.error("Error building daily digest:", error); }
         }
 
-        // ==================== STUDENTS ====================
         let studentFilterTimeout = null;
 
         async function loadStudents(filters = {}) {
@@ -1202,7 +1147,6 @@
             openModal("addStudentModal");
         }
 
-        // ==================== FEES ====================
         let currentFeeStatusFilter = "";
         let cachedFeesForPayment = [];
         let cachedStudentsForFees = [];
@@ -1359,7 +1303,6 @@
             openModal("addFeeModal");
         }
 
-        // ==================== ATTENDANCE ====================
         let cachedAttendanceRecords = [];
         let cachedStudentsForAttendance = [];
         let currentAttendanceDateFilter = "";
@@ -1457,7 +1400,6 @@
             catch (error) { console.error("Error deleting attendance:", error); }
         }
 
-        // ==================== GRADES ====================
         let cachedGradeRecords = [];
         let cachedStudentsForGrades = [];
         let currentGradeSubjectFilter = "";
@@ -1537,7 +1479,6 @@
             catch (error) { console.error("Error deleting grade:", error); }
         }
 
-        // ==================== STAFF ====================
         let cachedStaffList = [];
         let cachedStaffAttendance = [];
         let cachedSalaryPayments = [];
@@ -1727,7 +1668,6 @@
             catch (error) { console.error("Error deleting staff attendance:", error); }
         }
 
-        // -------- STAFF SALARY --------
         let cachedSalarySummary = [];
         async function loadStaffSalaryTab() {
             try {
@@ -1824,7 +1764,6 @@
             } catch (error) { console.error("Error removing salary payment:", error); }
         }
 
-        // ==================== ANNOUNCEMENTS ====================
         let cachedAnnouncements = [];
         async function loadAnnouncements() {
             try {
@@ -1889,7 +1828,6 @@
             openModal("whatsappBulkModal");
         }
 
-        // ==================== SETTINGS ====================
         async function loadSettings() {
             try {
                 const s = await apiRequest("/settings/school");
@@ -1917,7 +1855,6 @@
                 document.getElementById("ppMessages").checked = !!pp.parent_allow_messages;
                 document.getElementById("ppPaymentInfo").value = pp.payment_info || "";
             } catch (e) { /* ignore */ }
-            // Refresh background image + slider when Settings loads
             await applyPortalBackground();
         }
 
@@ -1944,7 +1881,6 @@
             tbody.appendChild(tr);
         }
 
-        // ==================== PORTAL BACKGROUND IMAGE (UPDATED WITH OVERLAY SLIDER) ====================
         function getLocalOverlay() {
             const stored = localStorage.getItem("schoolhub_bg_overlay");
             return stored !== null ? parseInt(stored) : 82;
@@ -1953,15 +1889,12 @@
         async function applyPortalBackground() {
             try {
                 const result = await apiRequest("/settings/background-image");
-
-                // Overlay: prefer backend, fallback localStorage, then default 82
                 let overlayPercent = 82;
                 if (result.overlay !== undefined && result.overlay !== null) {
                     overlayPercent = parseInt(result.overlay);
                 } else {
                     overlayPercent = getLocalOverlay();
                 }
-
                 if (result.url) {
                     const topOpacity = overlayPercent / 100;
                     const bottomOpacity = Math.min(topOpacity + 0.08, 1);
@@ -1972,16 +1905,12 @@
                 } else {
                     document.body.style.backgroundImage = "";
                 }
-
-                // Preview + toggle label
                 const preview = document.getElementById("backgroundImagePreview");
                 if (preview) preview.innerHTML = result.url ? `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">` : "";
                 const toggle = document.getElementById("backgroundImageToggle");
                 const label = document.getElementById("backgroundToggleLabel");
                 if (toggle) { toggle.checked = !!result.enabled; toggle.disabled = !result.has_image; }
                 if (label) label.textContent = !result.has_image ? "Background image: no image uploaded yet" : `Background image: ${result.enabled ? "On" : "Off"}`;
-
-                // Slider + label + visibility
                 const slider = document.getElementById("backgroundOverlaySlider");
                 const sliderLabel = document.getElementById("overlayValueLabel");
                 const sliderContainer = document.getElementById("overlaySliderContainer");
@@ -1991,12 +1920,9 @@
             } catch (error) { console.error("Could not load background image:", error); }
         }
 
-        // Live preview as slider moves (before releasing)
         function onOverlaySliderChange(value) {
             const label = document.getElementById("overlayValueLabel");
             if (label) label.textContent = `${value}%`;
-
-            // Find current background URL and re-apply with new opacity
             const urlMatch = document.body.style.backgroundImage.match(/url\(['"]?([^'"]+)['"]?\)/);
             if (urlMatch && urlMatch[1]) {
                 const topOpacity = value / 100;
@@ -2005,13 +1931,9 @@
             }
         }
 
-        // Save when slider released
         async function saveOverlayValue(value) {
             const intVal = parseInt(value);
-            // Always save to localStorage first (instant, works without backend)
             localStorage.setItem("schoolhub_bg_overlay", intVal);
-
-            // Best-effort backend sync (endpoint may not exist yet)
             try {
                 await apiRequest("/settings/background-image/overlay", {
                     method: "POST",
@@ -2089,7 +2011,16 @@
         }
 
         // ==================== AUTH ====================
-        function logout() { localStorage.removeItem("access_token"); window.location.href = "index.html"; }
+        function logout() {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_role");
+            localStorage.removeItem("user_full_name");
+            localStorage.removeItem("user_email");
+            localStorage.removeItem("school_id");
+            localStorage.removeItem("school_name");
+            window.location.href = "index.html";
+        }
+
         function startLiveClock() {
             const el = document.getElementById("liveClockTime");
             if (!el) return;
@@ -2097,11 +2028,36 @@
             tick();
             setInterval(tick, 1000);
         }
+
         async function init() {
             try {
                 const token = getToken();
                 if (!token) { window.location.href = "index.html"; return; }
+
+                /* ✅ SECURITY FIX: Role check — sirf admin allowed.
+                   Defense in depth: even if someone manually navigates to this page
+                   with a teacher/parent token, they get bounced to the right portal. */
+                const roleRaw = (localStorage.getItem("user_role") || "").toLowerCase();
+                if (roleRaw !== "admin") {
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("user_role");
+                    localStorage.removeItem("user_full_name");
+                    localStorage.removeItem("user_email");
+                    localStorage.removeItem("school_id");
+                    localStorage.removeItem("school_name");
+
+                    if (roleRaw === "teacher") {
+                        window.location.href = "teacher-login.html";
+                    } else if (roleRaw === "parent") {
+                        window.location.href = "parent-login.html";
+                    } else {
+                        window.location.href = "login.html";
+                    }
+                    return;
+                }
+
                 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
                 document.querySelectorAll(".menu-link").forEach(link => {
                     link.addEventListener("click", (e) => {
                         const view = e.target.closest("a").dataset.view;
@@ -2109,15 +2065,17 @@
                         switchView(view);
                     });
                 });
+
                 startLiveClock();
                 applyPortalBackground();
                 await loadDashboard();
+
                 const displayName = localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || "User";
-                const roleRaw = localStorage.getItem("user_role") || "admin";
                 const roleDisplay = roleRaw.charAt(0).toUpperCase() + roleRaw.slice(1);
                 document.getElementById("userName").textContent = displayName;
                 document.getElementById("userRole").textContent = roleDisplay;
                 document.getElementById("userAvatar").textContent = displayName.charAt(0).toUpperCase();
+
                 const schoolName = localStorage.getItem("school_name");
                 if (schoolName) {
                     const logoText = document.querySelector(".sidebar-logo .logo span:last-child");
@@ -2244,7 +2202,6 @@
             openPrintWindow(`Receipt - ${student?.name || "Student"}`, bodyHtml);
         }
 
-        // ==================== BULK FEE ====================
         function openBulkFeeModal() {
             const classFilter = document.getElementById("studentClassFilter");
             const uniqueClasses = classFilter ? [...classFilter.options].map(o => o.value).filter(Boolean) : [...new Set(students.map(s => s.class_name).filter(Boolean))];
@@ -2266,7 +2223,6 @@
             } catch (error) { console.error("Error generating bulk fees:", error); }
         }
 
-        // ==================== CSV EXPORT ====================
         function downloadCSV(rows, filename) {
             if (!rows || rows.length === 0) { showAlert("No data to export", "error"); return; }
             const escapeCell = (val) => { const str = (val === null || val === undefined) ? "" : String(val); if (str.includes(",") || str.includes('"') || str.includes("\n")) return `"${str.replace(/"/g, '""')}"`; return str; };
@@ -2289,7 +2245,6 @@
             downloadCSV(rows, `fees_${new Date().toISOString().slice(0, 10)}.csv`);
         }
 
-        // ==================== AI + MESSAGES ====================
         let aiMode = null;
         let aiTargetId = null;
         let activeAdminMsgStudentId = null;
@@ -2459,7 +2414,6 @@
         }
     </script>
 
-    <!-- ==================== FLOATING AI INSIGHTS WIDGET ==================== -->
     <button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
