@@ -8,3 +8,7 @@ logs/*.log
 .venv/
 *.egg-info/
 .vercel/
+
+.env
+.env.local
+.env.*.local

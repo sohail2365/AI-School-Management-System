@@ -19,8 +19,7 @@ psycopg2-binary
 # ---------- Authentication & Security ----------
 pyjwt
 python-jose[cryptography]
-passlib[bcrypt]
-bcrypt
+bcrypt>=4.0.0
 python-multipart
 
 # ---------- Environment Variables ----------
@@ -33,8 +32,8 @@ supabase
 httpx
 requests
 
-# ---------- AI (optional — only if you use /ai endpoints) ----------
+# ---------- AI (optional) ----------
 groq
 
-# ---------- Error Monitoring (optional — only if SENTRY_DSN is set) ----------
+# ---------- Error Monitoring (optional) ----------
 sentry-sdk

@@ -1,39 +1,37 @@
 import re
-from passlib.context import CryptContext
+import bcrypt
 
-# Bcrypt has a HARD 72-byte limit on passwords. Newer passlib/backend versions
-# RAISE an error instead of silently truncating (old behavior) — this was
-# breaking login for users whose browser/password-manager sent a long string.
-# We truncate defensively in both hash and verify paths so a single overly-long
-# input can never 500 the login endpoint.
+# Bcrypt has a HARD 72-byte limit. We truncate defensively (never splitting
+# a multi-byte UTF-8 char) so a long input can never crash the endpoint.
+#
+# NOTE: we use bcrypt DIRECTLY here instead of passlib. Passlib 1.7.4 (its
+# latest release, unmaintained since 2020) is incompatible with bcrypt 4.x:
+# passlib's internal backend-initialization probe hashes a >72-byte test
+# string, and bcrypt 4.x now raises on that instead of silently truncating —
+# so the FIRST call to hash_password() crashes for ANY input, even a short
+# password. Using bcrypt directly sidesteps this entirely.
 _BCRYPT_MAX_BYTES = 72
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
-
-def _safe_password(password: str) -> str:
-    """
-    Truncate a password to bcrypt's 72-byte limit without splitting a
-    multi-byte UTF-8 character in half (which would corrupt the string).
-    """
+def _safe_password(password: str) -> bytes:
+    """Encode to bytes, truncating to 72 bytes without splitting a UTF-8 char."""
     encoded = password.encode("utf-8")
     if len(encoded) <= _BCRYPT_MAX_BYTES:
-        return password
-    # Slice on bytes, then decode ignoring any partial multi-byte character.
-    return encoded[:_BCRYPT_MAX_BYTES].decode("utf-8", errors="ignore")
+        return encoded
+    # Slice on bytes, then re-encode ignoring any partial multi-byte character.
+    return encoded[:_BCRYPT_MAX_BYTES].decode("utf-8", errors="ignore").encode("utf-8")
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(_safe_password(password))
+    hashed = bcrypt.hashpw(_safe_password(password), bcrypt.gensalt(rounds=12))
+    return hashed.decode("utf-8")
 
 
 def verify_password(password: str, password_hash: str) -> bool:
     try:
-        return pwd_context.verify(_safe_password(password), password_hash)
+        return bcrypt.checkpw(_safe_password(password), password_hash.encode("utf-8"))
     except Exception:
-        # Corrupt / unrecognized hash in the DB — treat as a failed login,
-        # never a 500. Old records could be in a format this passlib version
-        # doesn't recognize, and one bad row must not crash the endpoint.
+        # Corrupt/unrecognized hash in the DB → treat as failed login, not a 500.
         return False
 
 
