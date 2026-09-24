@@ -21,6 +21,7 @@ from backend.routes.test_records import router as test_records_router
 from backend.routes.teacher import router as teacher_router
 from backend.routes.backup import router as backup_router
 from backend.routes.parent import router as parent_router
+from backend.routes.imports import router as imports_router
 
 # ✅ ERROR MONITORING (Sentry) — initialized before the app is created so it
 # captures everything, including startup failures. Fully optional: without
@@ -310,6 +311,8 @@ app.include_router(backup_router, tags=["backup"])
 print("✅ Backup routes loaded")
 app.include_router(parent_router, tags=["parent-portal"])
 print("✅ Parent portal routes loaded")
+app.include_router(imports_router, tags=["imports"])
+print("✅ Bulk import routes loaded")
 
 @app.get("/health")
 async def health_check():

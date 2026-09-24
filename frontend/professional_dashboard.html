@@ -148,6 +148,33 @@
         #backgroundOverlaySlider { width: 100%; cursor: pointer; accent-color: var(--primary); height: 6px; }
         #overlaySliderContainer .slider-hints { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--gray); margin-top: 6px; }
         #overlaySliderContainer .slider-tip { font-size: 0.78rem; color: var(--gray); margin-top: 10px; margin-bottom: 0; line-height: 1.5; }
+
+        /* ============ CALCULATOR ============ */
+        #calcFabBtn { position: fixed; right: 24px; bottom: 96px; width: 58px; height: 58px; border-radius: 50%; border: none; background: linear-gradient(165deg, #0f8577, #14958c 70%); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(20, 149, 140, 0.35); z-index: 1100; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        #calcFabBtn:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(20, 149, 140, 0.5); }
+        #calcPanel { position: fixed; right: 24px; bottom: 96px; width: 320px; max-width: calc(100vw - 32px); max-height: 70vh; max-height: 70dvh; background: var(--bg-primary); border-radius: 18px; box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25); border: 1px solid var(--border); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.22s ease, opacity 0.22s ease; }
+        #calcPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+        #calcHeader { background: linear-gradient(165deg, #0a5a54, #0c6e6b 70%); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+        #calcHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        #calcBody { padding: 16px; overflow-y: auto; }
+        .calc-display { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; text-align: right; overflow: hidden; }
+        .calc-expression { font-size: 13px; color: var(--gray); min-height: 18px; word-break: break-all; font-family: 'Inter', monospace; }
+        .calc-result { font-size: 26px; font-weight: 700; color: var(--dark); word-break: break-all; font-family: 'Poppins', monospace; margin-top: 4px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { padding: 14px 0; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; background: var(--bg-secondary); color: var(--dark); font-family: 'Inter', sans-serif; transition: background 0.15s ease, transform 0.1s ease; user-select: none; }
+        .calc-btn:hover { background: var(--border); }
+        .calc-btn:active { transform: scale(0.96); }
+        .calc-btn.calc-op { background: #e6f2f1; color: var(--primary-dark); }
+        .calc-btn.calc-op:hover { background: #d0e8e6; }
+        .calc-btn.calc-fn { background: #f5e8e3; color: var(--accent); }
+        .calc-btn.calc-fn:hover { background: #eed9d0; }
+        .calc-btn.calc-eq { background: linear-gradient(165deg, var(--primary-dark), var(--primary)); color: #fff; }
+        .calc-btn.calc-eq:hover { background: linear-gradient(165deg, #094d47, var(--primary-dark)); }
+        .chart-empty-msg { color: var(--gray); font-size: 0.9rem; text-align: center; padding: 30px 0; }
+        @media (max-width: 480px) {
+            #calcPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); }
+            #calcFabBtn { right: 16px; bottom: 88px; }
+        }
     </style>
 </head>
 <body>
@@ -160,13 +187,14 @@
             <ul class="sidebar-menu">
                 <li><a class="menu-link active" data-view="dashboard"><span class="icon">📊</span> Dashboard</a></li>
                 <li><a class="menu-link" data-view="students"><span class="icon">👨‍🎓</span> Students</a></li>
-                <li><a class="menu-link" href="student-documents.html"><span class="icon">🪪</span> Student Documents</a></li>
                 <li><a class="menu-link" data-view="fees"><span class="icon">💰</span> Fees</a></li>
                 <li><a class="menu-link" data-view="attendance"><span class="icon">✅</span> Attendance</a></li>
                 <li><a class="menu-link" data-view="grades"><span class="icon">📈</span> Grades</a></li>
-                <li><a class="menu-link" data-view="staff"><span class="icon">🧑‍🏫</span> Staff</a></li>
+                <li><a class="menu-link" data-view="staff"><span class="icon">🧑</span> Staff</a></li>
                 <li><a class="menu-link" data-view="messages"><span class="icon">💬</span> Messages</a></li>
+                <li><a class="menu-link" href="student-documents.html"><span class="icon">🪪</span> Student Documents</a></li>
                 <li><a class="menu-link" data-view="announcements"><span class="icon">📢</span> Announcements</a></li>
+                <li><a class="menu-link" data-view="tools"><span class="icon">🛠️</span> Tools</a></li>
                 <li><a class="menu-link" data-view="settings"><span class="icon">⚙️</span> Settings</a></li>
             </ul>
             <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
@@ -453,6 +481,143 @@
                             <button class="btn btn-primary" onclick="openAddAnnouncementModal()">➕ Add Announcement</button>
                         </div>
                         <div class="card-body"><div style="display: grid; gap: 20px;" id="announcementsList"></div></div>
+                    </div>
+                </div>
+                <!-- TOOLS VIEW -->
+                <div class="view" id="toolsView">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🛠️ Tools &amp; Utilities</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:var(--gray); font-size:0.92rem; margin-bottom:20px;">
+                                Bulk operations and utilities that save time. Everything here works on many records at once.
+                            </p>
+
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+
+                                <!-- TOOL 1: Bulk Import -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="openBulkImportModal()" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">📥</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Bulk Import Students</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Import 100s of students at once from a CSV file. Auto-creates Parent Portal logins.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 2: Bulk Export -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">📤</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Bulk Export</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Export students, fees, attendance, grades to CSV — one file at a time or all together.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 3: Print Center -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">🖨️</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Print Center</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Print all report cards, ID cards, or fee receipts for a class in one go.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 4: Broadcast Center -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">📢</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Broadcast Center</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Send one WhatsApp message to many parents — fees, absence, holidays, announcements.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 5: Message Templates -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">💬</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Message Templates</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Save your common WhatsApp messages once — reuse with one tap later.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 6: Year-End Promotion -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">🎓</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Year-End Promotion</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Promote all students from one class to the next in one click at year end.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 7: Backup & Restore -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">🗄️</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Backup &amp; Restore</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Download a full backup of your school's data. Restore anytime.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- TOOL 8: Bulk Exam Entry -->
+                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
+                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
+                                        <div style="font-size:32px; line-height:1;">🎯</div>
+                                        <div>
+                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Bulk Exam Entry</div>
+                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Enter marks for a whole class in one screen — subject by subject, student by student.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BULK IMPORT MODAL -->
+                <div class="modal" id="bulkImportModal">
+                    <div class="modal-content modal-wide">
+                        <span class="modal-close" onclick="closeModal('bulkImportModal')">✕</span>
+                        <div class="modal-header">📥 Bulk Import Students</div>
+
+                        <p style="font-size:0.9rem; color:var(--gray); margin-bottom:14px; line-height:1.6;">
+                            Upload a CSV file with student data. Required columns: <b>name</b>, <b>class_name</b>, <b>roll_number</b>.
+                            Optional: father_name, mother_name, gender, date_of_birth, phone, email, parent_email, address.
+                        </p>
+
+                        <div style="background:var(--bg-secondary); border-radius:10px; padding:14px; margin-bottom:18px;">
+                            <div style="font-weight:600; font-size:0.88rem; margin-bottom:8px;">📄 Sample CSV format:</div>
+                            <pre style="font-size:11px; overflow-x:auto; margin:0; color:var(--gray); line-height:1.5;">name,father_name,class_name,roll_number,gender,date_of_birth,phone,parent_email
+                Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com
+                Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</pre>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label>Select CSV File</label>
+                            <input type="file" id="bulkImportFile" accept=".csv">
+                        </div>
+
+                        <div id="bulkImportResult" style="display:none; margin-top:14px; padding:14px; border-radius:10px; font-size:0.9rem; line-height:1.6;"></div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="bulkImportBtn" onclick="submitBulkImport()">⬆️ Upload &amp; Import</button>
+                            <button class="btn btn-secondary" onclick="closeModal('bulkImportModal')">Cancel</button>
+                        </div>
                     </div>
                 </div>
 
@@ -873,7 +1038,8 @@
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             document.querySelector(`[data-view="${viewName}"]`).classList.add("active");
             closeSidebar();
-            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", announcements: "Announcements", settings: "Settings" };
+            // ✅ BUG FIX: added "messages" title (was missing)
+            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", tools: "Tools", settings: "Settings" };
             document.getElementById("pageTitle").textContent = titles[viewName] || "Dashboard";
             loadViewData(viewName);
         }
@@ -889,6 +1055,7 @@
                     case "staff": await loadStaffTab(); break;
                     case "messages": await loadAdminMessageThreads(); break;
                     case "announcements": await loadAnnouncements(); break;
+                    case "tools": loadToolsView(); break;
                     case "settings": await loadSettings(); break;
                 }
             } catch (error) { console.error("Error loading data:", error); }
@@ -935,10 +1102,35 @@
 
         function destroyChart(key) { if (dashboardCharts[key]) { dashboardCharts[key].destroy(); dashboardCharts[key] = null; } }
 
+        // ✅ BUG FIX: chart empty-state helper (no more destroying the canvas)
+        function showChartEmptyState(canvasId, message) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const parent = canvas.parentElement;
+            let emptyMsg = parent.querySelector('.chart-empty-msg');
+            if (!emptyMsg) {
+                emptyMsg = document.createElement('p');
+                emptyMsg.className = 'chart-empty-msg';
+                parent.appendChild(emptyMsg);
+            }
+            emptyMsg.textContent = message;
+            emptyMsg.style.display = '';
+            canvas.style.display = 'none';
+        }
+        function hideChartEmptyState(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            canvas.style.display = '';
+            const emptyMsg = canvas.parentElement.querySelector('.chart-empty-msg');
+            if (emptyMsg) emptyMsg.style.display = 'none';
+        }
+
         function renderAttendanceTrendChart(trend) {
             destroyChart("attendance");
             const ctx = document.getElementById("attendanceTrendChart");
             if (!ctx) return;
+            if (!trend || trend.length === 0) { showChartEmptyState("attendanceTrendChart", "No attendance trend data yet."); return; }
+            hideChartEmptyState("attendanceTrendChart");
             dashboardCharts.attendance = new Chart(ctx, {
                 type: "line",
                 data: { labels: trend.map(t => t.date.slice(5)), datasets: [{ label: "Attendance %", data: trend.map(t => t.attendance_rate), borderColor: "#0c6e6b", backgroundColor: "rgba(12,110,107,0.12)", fill: true, tension: 0.3, spanGaps: true, pointRadius: 0 }] },
@@ -950,7 +1142,8 @@
             destroyChart("fee");
             const ctx = document.getElementById("feeTrendChart");
             if (!ctx) return;
-            if (!trend || trend.length === 0) { ctx.parentElement.innerHTML = `<p style="color:var(--gray); font-size:0.9rem; text-align:center; padding:30px 0;">No fee records yet.</p>`; return; }
+            if (!trend || trend.length === 0) { showChartEmptyState("feeTrendChart", "No fee records yet."); return; }
+            hideChartEmptyState("feeTrendChart");
             dashboardCharts.fee = new Chart(ctx, {
                 type: "bar",
                 data: { labels: trend.map(t => t.month), datasets: [{ label: "Due", data: trend.map(t => t.due), backgroundColor: "#e6e8e5" }, { label: "Collected", data: trend.map(t => t.collected), backgroundColor: "#0c6e6b" }] },
@@ -962,7 +1155,8 @@
             destroyChart("classAvg");
             const ctx = document.getElementById("classAveragesChart");
             if (!ctx) return;
-            if (!classAverages || classAverages.length === 0) { ctx.parentElement.innerHTML = `<p style="color:var(--gray); font-size:0.9rem; text-align:center; padding:30px 0;">No grades recorded yet.</p>`; return; }
+            if (!classAverages || classAverages.length === 0) { showChartEmptyState("classAveragesChart", "No grades recorded yet."); return; }
+            hideChartEmptyState("classAveragesChart");
             dashboardCharts.classAvg = new Chart(ctx, {
                 type: "bar",
                 data: { labels: classAverages.map(c => "Class " + c.class_name), datasets: [{ label: "Average %", data: classAverages.map(c => c.average_percentage), backgroundColor: "#14958c", borderRadius: 6 }] },
@@ -1827,6 +2021,82 @@
             else listEl.innerHTML = withPhones.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;"><span>${s.name} — ${s.phone}</span><button class="btn btn-sm btn-whatsapp" onclick="sendWhatsappToStudent(${s.id})">📱 Send</button></div>`).join("");
             openModal("whatsappBulkModal");
         }
+        // ==================== TOOLS ====================
+        function loadToolsView() {
+            // Tools view is static HTML — nothing to fetch.
+        }
+
+        function openBulkImportModal() {
+            document.getElementById("bulkImportFile").value = "";
+            const result = document.getElementById("bulkImportResult");
+            result.style.display = "none";
+            result.innerHTML = "";
+            openModal("bulkImportModal");
+        }
+
+        async function submitBulkImport() {
+            const fileInput = document.getElementById("bulkImportFile");
+            const btn = document.getElementById("bulkImportBtn");
+            const result = document.getElementById("bulkImportResult");
+
+            const file = fileInput.files[0];
+            if (!file) {
+                showAlert("Please select a CSV file first.", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Importing…";
+            result.style.display = "block";
+            result.style.background = "var(--bg-secondary)";
+            result.style.border = "1px solid var(--border)";
+            result.innerHTML = "⏳ Uploading and processing…";
+
+            try {
+                const form = new FormData();
+                form.append("file", file);
+
+                const data = await apiRequest("/imports/students", {
+                    method: "POST",
+                    body: form,
+                });
+
+                let html = `
+                    <div style="font-weight:700; color:var(--success); margin-bottom:6px;">
+                        ✅ Import Complete
+                    </div>
+                    <div><b>${data.created}</b> students added successfully.</div>
+                `;
+                if (data.parents_created > 0) {
+                    html += `<div><b>${data.parents_created}</b> parent portal logins created.</div>`;
+                }
+                if (data.skipped > 0) {
+                    html += `<div style="color:var(--warning); margin-top:6px;"><b>${data.skipped}</b> rows skipped.</div>`;
+                    if (data.errors && data.errors.length) {
+                        html += `<details style="margin-top:8px;"><summary style="cursor:pointer; font-size:0.85rem;">Show skipped rows</summary>
+                            <ul style="margin:8px 0 0 18px; font-size:0.82rem; color:var(--gray);">${data.errors.map(e => `<li>${e}</li>`).join("")}</ul>
+                        </details>`;
+                    }
+                }
+                result.innerHTML = html;
+                result.style.background = "#e7f5ee";
+                result.style.border = "1px solid #b8e0c8";
+
+                showAlert(`${data.created} students imported successfully.`, "success");
+
+                // ✅ BUG FIX: removed always-true condition
+                await loadStudents();
+            } catch (error) {
+                result.style.display = "block";
+                result.style.background = "#fbeae8";
+                result.style.border = "1px solid #f0c8c3";
+                result.innerHTML = `<div style="color:var(--danger);"><b>Import failed:</b> ${error.message}</div>`;
+                showAlert("Import failed: " + error.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "⬆️ Upload & Import";
+            }
+        }
 
         async function loadSettings() {
             try {
@@ -2051,7 +2321,8 @@
                     } else if (roleRaw === "parent") {
                         window.location.href = "parent-login.html";
                     } else {
-                        window.location.href = "login.html";
+                        // ✅ BUG FIX: was "login.html" (inconsistent). Use "index.html"
+                        window.location.href = "index.html";
                     }
                     return;
                 }
@@ -2092,8 +2363,9 @@
             const canvas = document.getElementById("studentProgressChart");
             if (!canvas || typeof Chart === "undefined") return;
             const dated = gradeRecords.filter(g => g.exam_date).slice().reverse();
-            if (window.studentProgressChartInstance) window.studentProgressChartInstance.destroy();
-            if (dated.length === 0) { canvas.parentElement.innerHTML = `<p style="color:var(--gray); font-size:0.9rem;">Not enough dated grades yet to show a progress trend.</p>`; return; }
+            if (window.studentProgressChartInstance) { window.studentProgressChartInstance.destroy(); window.studentProgressChartInstance = null; }
+            if (dated.length === 0) { showChartEmptyState("studentProgressChart", "Not enough dated grades yet to show a progress trend."); return; }
+            hideChartEmptyState("studentProgressChart");
             window.studentProgressChartInstance = new Chart(canvas, {
                 type: "line",
                 data: { labels: dated.map(g => g.exam_date), datasets: [{ label: "Score %", data: dated.map(g => g.percentage), borderColor: "#0c6e6b", backgroundColor: "rgba(12,110,107,0.12)", fill: true, tension: 0.3, pointBackgroundColor: "#0c6e6b" }] },
@@ -2129,9 +2401,11 @@
                 const attendanceRowsHtml = data.attendance.recent_records.length ? data.attendance.recent_records.map(r => `<tr><td>${r.date}</td><td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td><td>${r.remarks || "-"}</td></tr>`).join("") : `<tr><td colspan="3" style="text-align:center; color:var(--gray);">No attendance records</td></tr>`;
                 const gradeRowsHtml = data.grades.records.length ? data.grades.records.map(g => `<tr><td>${g.subject}</td><td>${g.marks_obtained}/${g.total_marks}</td><td>${g.percentage}%</td><td>${g.grade || "-"}</td><td>${g.exam_date || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No grade records</td></tr>`;
                 const feeRowsHtml = data.fees.records.length ? data.fees.records.map(f => `<tr><td>${f.fee_name || "-"}</td><td>Rs. ${f.amount}</td><td>Rs. ${f.paid_amount}</td><td>Rs. ${f.due_amount}</td><td><span class="badge ${feeBadgeClass(f.status)}">${f.status}</span></td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No fee records</td></tr>`;
-                document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Mother's Name:</strong><br>${s.mother_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance Rate</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average Grade</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${(localStorage.getItem("user_role") || "") === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
+                // ✅ BUG FIX: role check now case-insensitive
+                const userRole = (localStorage.getItem("user_role") || "").toLowerCase();
+                document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Mother's Name:</strong><br>${s.mother_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance Rate</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average Grade</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${userRole === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
                 loadStudentProfileDocuments(studentId);
-                if ((localStorage.getItem("user_role") || "") === "admin") renderParentLoginSection(s);
+                if (userRole === "admin") renderParentLoginSection(s);
                 renderStudentProgressChart(data.grades.records || []);
             } catch (error) {
                 console.error("Error loading student profile:", error);
@@ -2414,6 +2688,7 @@
         }
     </script>
 
+    <!-- ==================== AI FAB ==================== -->
     <button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
@@ -2485,12 +2760,215 @@
             const panel = document.getElementById("aiWidgetPanel");
             aiWidgetOpen = !aiWidgetOpen;
             panel.classList.toggle("open", aiWidgetOpen);
-            if (aiWidgetOpen && !aiWidgetLoaded) {
-                aiWidgetLoaded = true;
-                await loadAIInsightsView();
+            if (aiWidgetOpen) {
+                // ✅ Close calculator if it's open (avoid overlap)
+                const calcPanel = document.getElementById("calcPanel");
+                if (calcPanel && calcPanel.classList.contains("open")) {
+                    calcPanel.classList.remove("open");
+                    if (typeof window !== "undefined") window._calcPanelOpen = false;
+                }
+                if (!aiWidgetLoaded) {
+                    aiWidgetLoaded = true;
+                    await loadAIInsightsView();
+                }
             }
         }
     </script>
+
+    <!-- ==================== CALCULATOR FAB ==================== -->
+    <button id="calcFabBtn" onclick="toggleCalculator()" title="Calculator" aria-label="Open Calculator">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="3" width="14" height="18" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+            <rect x="8" y="6" width="8" height="3" rx="0.8" fill="currentColor"/>
+            <circle cx="9" cy="12.5" r="1" fill="currentColor"/>
+            <circle cx="12" cy="12.5" r="1" fill="currentColor"/>
+            <circle cx="15" cy="12.5" r="1" fill="currentColor"/>
+            <circle cx="9" cy="16" r="1" fill="currentColor"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+            <circle cx="15" cy="16" r="1" fill="currentColor"/>
+            <circle cx="9" cy="19.5" r="1" fill="currentColor"/>
+            <circle cx="12" cy="19.5" r="1" fill="currentColor"/>
+            <circle cx="15" cy="19.5" r="1" fill="currentColor"/>
+        </svg>
+    </button>
+
+    <div id="calcPanel">
+        <div id="calcHeader">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div id="calcHeaderIcon">🧮</div>
+                <div>
+                    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;">Calculator</div>
+                    <div style="font-size:11.5px; opacity:0.8;">Quick calculations</div>
+                </div>
+            </div>
+            <span onclick="toggleCalculator()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
+        </div>
+        <div id="calcBody">
+            <div class="calc-display">
+                <div class="calc-expression" id="calcExpression"></div>
+                <div class="calc-result" id="calcResult">0</div>
+            </div>
+            <div class="calc-grid">
+                <button class="calc-btn calc-fn" onclick="calcClear()" title="Clear (C)">C</button>
+                <button class="calc-btn calc-fn" onclick="calcBackspace()" title="Backspace">⌫</button>
+                <button class="calc-btn calc-fn" onclick="calcPercent()" title="Percent">%</button>
+                <button class="calc-btn calc-op" onclick="calcInput('/')" title="Divide">÷</button>
+
+                <button class="calc-btn" onclick="calcInput('7')">7</button>
+                <button class="calc-btn" onclick="calcInput('8')">8</button>
+                <button class="calc-btn" onclick="calcInput('9')">9</button>
+                <button class="calc-btn calc-op" onclick="calcInput('*')" title="Multiply">×</button>
+
+                <button class="calc-btn" onclick="calcInput('4')">4</button>
+                <button class="calc-btn" onclick="calcInput('5')">5</button>
+                <button class="calc-btn" onclick="calcInput('6')">6</button>
+                <button class="calc-btn calc-op" onclick="calcInput('-')" title="Subtract">−</button>
+
+                <button class="calc-btn" onclick="calcInput('1')">1</button>
+                <button class="calc-btn" onclick="calcInput('2')">2</button>
+                <button class="calc-btn" onclick="calcInput('3')">3</button>
+                <button class="calc-btn calc-op" onclick="calcInput('+')" title="Add">+</button>
+
+                <button class="calc-btn" onclick="calcInput('(')">(</button>
+                <button class="calc-btn" onclick="calcInput('0')">0</button>
+                <button class="calc-btn" onclick="calcInput('.')">.</button>
+                <button class="calc-btn calc-op" onclick="calcInput(')')">)</button>
+
+                <button class="calc-btn" style="grid-column: span 4; background: linear-gradient(165deg, var(--primary-dark), var(--primary)); color: #fff;" onclick="calcEquals()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CALCULATOR LOGIC ====================
+        let calcExpression = "";
+        let calcJustEvaluated = false;
+
+        function toggleCalculator() {
+            const panel = document.getElementById("calcPanel");
+            const isOpen = panel.classList.toggle("open");
+            window._calcPanelOpen = isOpen;
+            if (isOpen) {
+                // ✅ Close AI panel if open
+                const aiPanel = document.getElementById("aiWidgetPanel");
+                if (aiPanel && aiPanel.classList.contains("open")) {
+                    aiPanel.classList.remove("open");
+                    if (typeof aiWidgetOpen !== "undefined") aiWidgetOpen = false;
+                }
+                updateCalcDisplay();
+            }
+        }
+
+        function updateCalcDisplay() {
+            const exprEl = document.getElementById("calcExpression");
+            const resEl = document.getElementById("calcResult");
+            if (!exprEl || !resEl) return;
+            exprEl.textContent = calcExpression || "";
+            if (calcExpression.trim()) {
+                try {
+                    const result = evaluateCalcExpression(calcExpression);
+                    resEl.textContent = formatCalcNumber(result);
+                } catch (e) {
+                    // If partial expression, just show it raw in result for feedback
+                    resEl.textContent = calcExpression;
+                }
+            } else {
+                resEl.textContent = "0";
+            }
+        }
+
+        function evaluateCalcExpression(expr) {
+            // Only allow digits, operators, parentheses, dots, and whitespace
+            const sanitized = expr.replace(/[^0-9+\-*/().\s]/g, "");
+            if (!sanitized.trim()) throw new Error("Empty");
+            if (!/^[0-9+\-*/().\s]+$/.test(sanitized)) throw new Error("Invalid");
+            // eslint-disable-next-line no-new-func
+            const result = Function('"use strict"; return (' + sanitized + ')')();
+            if (typeof result !== "number" || !isFinite(result) || isNaN(result)) throw new Error("Invalid");
+            return result;
+        }
+
+        function formatCalcNumber(num) {
+            if (Number.isInteger(num)) return String(num);
+            const rounded = parseFloat(num.toFixed(10));
+            return String(rounded);
+        }
+
+        function calcInput(val) {
+            // If just evaluated and user types a digit or dot, start fresh
+            if (calcJustEvaluated && /^[0-9.]$/.test(val)) {
+                calcExpression = "";
+            }
+            calcJustEvaluated = false;
+            calcExpression += val;
+            updateCalcDisplay();
+        }
+
+        function calcClear() {
+            calcExpression = "";
+            calcJustEvaluated = false;
+            updateCalcDisplay();
+        }
+
+        function calcBackspace() {
+            if (calcJustEvaluated) {
+                calcClear();
+                return;
+            }
+            calcExpression = calcExpression.slice(0, -1);
+            updateCalcDisplay();
+        }
+
+        function calcPercent() {
+            if (calcJustEvaluated) {
+                const current = parseFloat(calcExpression);
+                if (!isNaN(current)) {
+                    calcExpression = formatCalcNumber(current / 100);
+                    calcJustEvaluated = false;
+                    updateCalcDisplay();
+                }
+                return;
+            }
+            if (calcExpression && !/[+\-*/(]$/.test(calcExpression)) {
+                calcExpression += "/100";
+                updateCalcDisplay();
+            }
+        }
+
+        function calcEquals() {
+            if (!calcExpression.trim()) return;
+            try {
+                const result = evaluateCalcExpression(calcExpression);
+                const resultStr = formatCalcNumber(result);
+                document.getElementById("calcExpression").textContent = calcExpression + " =";
+                document.getElementById("calcResult").textContent = resultStr;
+                calcExpression = resultStr;
+                calcJustEvaluated = true;
+            } catch (e) {
+                document.getElementById("calcResult").textContent = "Error";
+            }
+        }
+
+        // Keyboard support when calculator is open
+        document.addEventListener("keydown", (e) => {
+            const panel = document.getElementById("calcPanel");
+            if (!panel || !panel.classList.contains("open")) return;
+            const t = e.target;
+            if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+
+            const key = e.key;
+            if (/^[0-9]$/.test(key)) { calcInput(key); e.preventDefault(); }
+            else if (key === "+" || key === "-" || key === "*" || key === "/") { calcInput(key); e.preventDefault(); }
+            else if (key === ".") { calcInput("."); e.preventDefault(); }
+            else if (key === "(" || key === ")") { calcInput(key); e.preventDefault(); }
+            else if (key === "%") { calcPercent(); e.preventDefault(); }
+            else if (key === "Enter" || key === "=") { calcEquals(); e.preventDefault(); }
+            else if (key === "Backspace") { calcBackspace(); e.preventDefault(); }
+            else if (key === "Escape") { toggleCalculator(); e.preventDefault(); }
+            else if (key.toLowerCase() === "c") { calcClear(); e.preventDefault(); }
+        });
+    </script>
+
     <script src="js/branding.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/dark-mode.js"></script>
