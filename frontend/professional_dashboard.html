@@ -306,16 +306,15 @@
                     </div>
                 </div>
                 <div class="user-section">
-                    <!-- ✅ Calculator moved to header -->
+                    <!-- AI Ask button -->
+                    <button class="header-icon-btn" onclick="openAdminAIChat()" title="Ask AI about any student, teacher, or data" aria-label="Ask AI">
+                        <span>🤖</span><span class="header-btn-label">Ask AI</span>
+                    </button>
+                    <!-- Calculator -->
                     <button class="header-icon-btn" id="calcHeaderBtn" onclick="toggleCalculator()" title="Calculator" aria-label="Open Calculator">
                         <span>🧮</span><span class="header-btn-label">Calculator</span>
                     </button>
-                    <!-- ✅ Dark mode toggle added to header -->
-                    <button class="header-icon-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle day/night mode" aria-label="Toggle theme">
-                        <span id="darkModeIcon">🌙</span><span class="header-btn-label" id="darkModeLabel">Night</span>
-                    </button>
                     <a href="teacher-login.html" target="_blank" class="portal-link">🧑‍💻 Teacher Portal</a>
-                    <a href="parent-login.html" target="_blank" class="portal-link">👨‍👩‍👧 Parent Portal</a>
                     <div class="user-avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <div class="user-name" id="userName">User Name</div>
