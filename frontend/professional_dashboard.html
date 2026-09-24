@@ -26,7 +26,32 @@
             --bg-primary: #ffffff; --bg-secondary: #fbfaf7;
         }
         html, body { height: 100%; }
-        body { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; background-color: var(--bg-secondary); color: var(--dark); }
+        body { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; background-color: var(--bg-secondary); color: var(--dark); transition: background-color 0.3s, color 0.3s; }
+
+        /* ============ DARK MODE ============ */
+        body.dark-mode {
+            --dark: #e8eaf0; --gray: #9aa3b3; --border: #2a3040;
+            --bg-primary: #1c2230; --bg-secondary: #141822;
+            --light: #1f2532;
+        }
+        body.dark-mode { background-color: #141822; color: #e8eaf0; }
+        body.dark-mode .top-header { background: #1c2230; border-bottom-color: #2a3040; }
+        body.dark-mode .card, body.dark-mode .modal-content { background: #1c2230; border-color: #2a3040; }
+        body.dark-mode .card-header { background: #141822; border-bottom-color: #2a3040; }
+        body.dark-mode table thead { background: #141822; }
+        body.dark-mode table td { border-bottom-color: #2a3040; }
+        body.dark-mode table tbody tr:hover { background: #141822; }
+        body.dark-mode .form-group input, body.dark-mode .form-group select, body.dark-mode .form-group textarea { background: #141822; color: #e8eaf0; border-color: #2a3040; }
+        body.dark-mode .btn-secondary { background: #141822; color: #e8eaf0; border-color: #2a3040; }
+        body.dark-mode .metric-card { background: #1c2230; }
+        body.dark-mode .badge-success { background: #14532d; color: #bbf7d0; }
+        body.dark-mode .badge-warning { background: #713f12; color: #fef3c7; }
+        body.dark-mode .badge-danger { background: #7f1d1d; color: #fecaca; }
+        body.dark-mode .badge-info { background: #164e63; color: #cffafe; }
+        body.dark-mode .fee-filter-btn, body.dark-mode .staff-tab-btn, body.dark-mode .salary-filter-btn { background: #141822; color: #9aa3b3; }
+        body.dark-mode .header-icon-btn { background: #141822; color: #e8eaf0; border-color: #2a3040; }
+        body.dark-mode .header-icon-btn:hover { background: #2a3040; }
+
         h1, h2, h3, .card-title, .sidebar-header h2 { font-family: 'Poppins', sans-serif; }
         .app-container { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
         .sidebar { width: 280px; background: linear-gradient(165deg, var(--primary-dark) 0%, var(--primary) 70%); color: white; padding: 30px 0; overflow-y: auto; box-shadow: 0 10px 30px rgba(10, 90, 84, 0.18); position: fixed; left: 0; top: 0; height: 100vh; height: 100dvh; }
@@ -43,7 +68,30 @@
         .main-content { margin-left: 280px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .top-header { background: var(--bg-primary); padding: 20px 30px; box-shadow: 0 1px 3px rgba(10, 90, 84, 0.04); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .header-title { font-size: 26px; font-weight: 700; font-family: 'Poppins', sans-serif; color: var(--dark); }
-        .user-section { display: flex; align-items: center; gap: 20px; }
+        .user-section { display: flex; align-items: center; gap: 14px; }
+
+        /* ============ HEADER ICON BUTTONS (Calculator + Dark Mode) ============ */
+        .header-icon-btn {
+            background: var(--light); color: var(--primary-dark);
+            border: 1px solid var(--border); border-radius: 10px;
+            padding: 0.5rem 0.75rem; font-size: 1rem; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
+            white-space: nowrap; font-family: inherit;
+        }
+        .header-icon-btn:hover { background: var(--border); border-color: var(--primary); }
+        .header-icon-btn:active { transform: scale(0.95); }
+        .header-icon-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .header-icon-btn .header-btn-label { font-size: 0.8rem; }
+
+        .portal-link {
+            text-decoration: none; background: var(--light); color: var(--primary-dark);
+            border: 1px solid var(--border); padding: 0.5rem 0.9rem; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .portal-link:hover { background: var(--border); }
+
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 600; color: var(--dark); }
@@ -107,7 +155,8 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(10, 30, 28, 0.45); animation: fadeIn 0.2s; }
         .modal.show { display: flex; align-items: center; justify-content: center; }
         .modal-content { background: var(--bg-primary); padding: 28px 30px; border-radius: 18px; max-width: 500px; width: 90%; max-height: 85vh; max-height: 85dvh; overflow-y: auto; box-shadow: 0 24px 60px rgba(10, 90, 84, 0.22); animation: slideUp 0.25s; position: relative; }
-        .modal-content.modal-wide { max-width: 640px; }
+        .modal-content.modal-wide { max-width: 720px; }
+        .modal-content.modal-xl { max-width: 960px; }
         .modal-header { font-family: 'Poppins', sans-serif; font-size: 21px; font-weight: 700; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); color: var(--dark); }
         .modal-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--gray); background: var(--bg-secondary); transition: background 0.15s, color 0.15s; }
         .modal-close:hover { color: var(--dark); background: var(--border); }
@@ -123,21 +172,26 @@
         .hamburger-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 4px 8px; color: var(--dark); margin-right: 12px; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 998; }
         .sidebar-overlay.show { display: block; }
+        @media (max-width: 1100px) {
+            .header-icon-btn .header-btn-label { display: none; }
+            .portal-link { display: none; }
+        }
         @media (max-width: 900px), (max-height: 500px) and (pointer: coarse) {
             .hamburger-btn { display: inline-block; }
             .sidebar { width: 280px; height: 100vh; height: 100dvh; padding: 30px 0; position: fixed; transform: translateX(-100%); transition: transform 0.25s ease-in-out; z-index: 999; overflow-y: auto; }
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .table-responsive { -webkit-overflow-scrolling: touch; }
-            .table-responsive table th:first-child, .table-responsive table td:first-child { position: sticky; left: 0; background: white; z-index: 1; box-shadow: 2px 0 4px rgba(0, 0, 0, 0.06); }
+            .table-responsive table th:first-child, .table-responsive table td:first-child { position: sticky; left: 0; background: var(--bg-primary); z-index: 1; box-shadow: 2px 0 4px rgba(0, 0, 0, 0.06); }
             .table-responsive table th, .table-responsive table td { font-size: 13px; padding: 8px 10px; white-space: nowrap; }
             .btn-sm { padding: 8px 12px; font-size: 13px; }
             .metrics-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
             .header-title { font-size: 20px; }
             .top-header { flex-direction: row; flex-wrap: wrap; gap: 15px; }
+            .user-info { display: none; }
         }
-        .action-buttons { display: flex; gap: 8px; }
+        .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
         .logout-btn { background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); }
         .logout-btn:hover { background: rgba(255, 255, 255, 0.3); }
 
@@ -149,10 +203,8 @@
         #overlaySliderContainer .slider-hints { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--gray); margin-top: 6px; }
         #overlaySliderContainer .slider-tip { font-size: 0.78rem; color: var(--gray); margin-top: 10px; margin-bottom: 0; line-height: 1.5; }
 
-        /* ============ CALCULATOR ============ */
-        #calcFabBtn { position: fixed; right: 24px; bottom: 96px; width: 58px; height: 58px; border-radius: 50%; border: none; background: linear-gradient(165deg, #0f8577, #14958c 70%); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(20, 149, 140, 0.35); z-index: 1100; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        #calcFabBtn:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(20, 149, 140, 0.5); }
-        #calcPanel { position: fixed; right: 24px; bottom: 96px; width: 320px; max-width: calc(100vw - 32px); max-height: 70vh; max-height: 70dvh; background: var(--bg-primary); border-radius: 18px; box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25); border: 1px solid var(--border); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.22s ease, opacity 0.22s ease; }
+        /* ============ CALCULATOR PANEL (opened from header) ============ */
+        #calcPanel { position: fixed; right: 24px; top: 84px; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); background: var(--bg-primary); border-radius: 18px; box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25); border: 1px solid var(--border); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(-12px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.22s ease, opacity 0.22s ease; }
         #calcPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
         #calcHeader { background: linear-gradient(165deg, #0a5a54, #0c6e6b 70%); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
         #calcHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
@@ -165,15 +217,57 @@
         .calc-btn:hover { background: var(--border); }
         .calc-btn:active { transform: scale(0.96); }
         .calc-btn.calc-op { background: #e6f2f1; color: var(--primary-dark); }
+        body.dark-mode .calc-btn.calc-op { background: #1a3a37; color: #7dd3c8; }
         .calc-btn.calc-op:hover { background: #d0e8e6; }
         .calc-btn.calc-fn { background: #f5e8e3; color: var(--accent); }
+        body.dark-mode .calc-btn.calc-fn { background: #3d2a22; color: #f0a58f; }
         .calc-btn.calc-fn:hover { background: #eed9d0; }
         .calc-btn.calc-eq { background: linear-gradient(165deg, var(--primary-dark), var(--primary)); color: #fff; }
         .calc-btn.calc-eq:hover { background: linear-gradient(165deg, #094d47, var(--primary-dark)); }
         .chart-empty-msg { color: var(--gray); font-size: 0.9rem; text-align: center; padding: 30px 0; }
-        @media (max-width: 480px) {
-            #calcPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); }
-            #calcFabBtn { right: 16px; bottom: 88px; }
+
+        /* ============ TOOLS GRID ============ */
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .tool-card { margin: 0; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); }
+        .tool-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(10, 90, 84, 0.14); }
+        body.dark-mode .tool-card:hover { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+        .tool-card .card-body { display: flex; gap: 14px; align-items: flex-start; }
+        .tool-icon { font-size: 32px; line-height: 1; flex-shrink: 0; }
+        .tool-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+        .tool-desc { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+        /* Fancy CSV pre */
+        .csv-preview {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            overflow-x: auto;
+            font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+            font-size: 10.5px;
+            line-height: 1.7;
+            color: var(--gray);
+            white-space: pre;
+            border: 1px solid var(--border);
+        }
+
+        /* Templates list */
+        .template-item {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .template-item-text { flex: 1; font-size: 0.85rem; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+        .template-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+        @media (max-width: 640px) {
+            #calcPanel { right: 12px; left: 12px; width: auto; }
         }
     </style>
 </head>
@@ -212,8 +306,16 @@
                     </div>
                 </div>
                 <div class="user-section">
-                    <a href="teacher-login.html" target="_blank" style="text-decoration:none; background:var(--light); color:var(--primary-dark); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">🧑‍💻 Teacher Portal</a>
-                    <a href="parent-login.html" target="_blank" style="text-decoration:none; background:var(--light); color:var(--primary-dark); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:10px; font-size:0.85rem; font-weight:600; margin-right:10px; white-space:nowrap;">👨‍👩‍👧 Parent Portal</a>
+                    <!-- ✅ Calculator moved to header -->
+                    <button class="header-icon-btn" id="calcHeaderBtn" onclick="toggleCalculator()" title="Calculator" aria-label="Open Calculator">
+                        <span>🧮</span><span class="header-btn-label">Calculator</span>
+                    </button>
+                    <!-- ✅ Dark mode toggle added to header -->
+                    <button class="header-icon-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle day/night mode" aria-label="Toggle theme">
+                        <span id="darkModeIcon">🌙</span><span class="header-btn-label" id="darkModeLabel">Night</span>
+                    </button>
+                    <a href="teacher-login.html" target="_blank" class="portal-link">🧑‍💻 Teacher Portal</a>
+                    <a href="parent-login.html" target="_blank" class="portal-link">👨‍👩‍👧 Parent Portal</a>
                     <div class="user-avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <div class="user-name" id="userName">User Name</div>
@@ -251,8 +353,8 @@
                             <div class="card-header"><h3 class="card-title">📈 Attendance Trend</h3></div>
                             <div class="card-body">
                                 <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-                                    <select id="attendanceChartClassFilter" onchange="loadDashboardCharts()" style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.82rem; font-family:inherit;"><option value="">All Classes</option></select>
-                                    <select id="attendanceChartDaysFilter" onchange="loadDashboardCharts()" style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.82rem; font-family:inherit;">
+                                    <select id="attendanceChartClassFilter" onchange="loadDashboardCharts()" style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.82rem; font-family:inherit; background:var(--bg-primary); color:var(--dark);"><option value="">All Classes</option></select>
+                                    <select id="attendanceChartDaysFilter" onchange="loadDashboardCharts()" style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.82rem; font-family:inherit; background:var(--bg-primary); color:var(--dark);">
                                         <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="60">Last 60 days</option><option value="90">Last 90 days</option>
                                     </select>
                                 </div>
@@ -276,8 +378,8 @@
                         </div>
                         <div class="card-body">
                             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                                <input type="text" id="studentSearchInput" placeholder="🔍 Search by name..." style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" oninput="debounceFilterStudents()">
-                                <select id="studentClassFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterStudents()"><option value="">All Classes</option></select>
+                                <input type="text" id="studentSearchInput" placeholder="🔍 Search by name..." style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--dark);" oninput="debounceFilterStudents()">
+                                <select id="studentClassFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px; background: var(--bg-primary); color: var(--dark);" onchange="filterStudents()"><option value="">All Classes</option></select>
                                 <button class="btn btn-secondary" onclick="clearStudentFilters()">Clear</button>
                                 <button class="btn btn-whatsapp" id="studentWhatsappBtn" onclick="openWhatsappBulkForSelectedStudents()" disabled>📱 WhatsApp Selected (<span id="selectedStudentCount">0</span>)</button>
                                 <button class="btn btn-secondary" onclick="exportStudentsToCSV()">📥 Export CSV</button>
@@ -297,7 +399,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">💰 Fees Management</h3>
-                            <div style="display:flex; gap:8px;">
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                 <button class="btn btn-whatsapp" onclick="openWhatsappBulkForUnpaidFees()">📱 Remind All Unpaid</button>
                                 <button class="btn btn-whatsapp" onclick="openWhatsappBulkForFamilies()">👪 Family Reminders</button>
                                 <button class="btn btn-secondary" onclick="openClassDuesModal()">📊 Class-wise Dues</button>
@@ -332,7 +434,7 @@
                         <div class="card-body">
                             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                                 <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Filter by date:</label>
-                                <input type="date" id="attendanceDateFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" onchange="filterAttendance()">
+                                <input type="date" id="attendanceDateFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--dark);" onchange="filterAttendance()">
                                 <button class="btn btn-sm btn-secondary" onclick="setAttendanceToday()">Today</button>
                                 <button class="btn btn-sm btn-secondary" onclick="clearAttendanceFilter()">Show All</button>
                                 <button class="btn btn-whatsapp" onclick="openWhatsappBulkForAbsentees()">📱 Send Absence Alerts</button>
@@ -357,7 +459,7 @@
                         <div class="card-body">
                             <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                                 <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Filter by subject:</label>
-                                <select id="gradeSubjectFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterGrades()"><option value="">All Subjects</option></select>
+                                <select id="gradeSubjectFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px; background: var(--bg-primary); color: var(--dark);" onchange="filterGrades()"><option value="">All Subjects</option></select>
                                 <button class="btn btn-sm btn-secondary" onclick="clearGradeFilter()">Clear</button>
                             </div>
                             <div class="table-responsive">
@@ -388,10 +490,10 @@
                             </div>
                             <div class="card-body">
                                 <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                                    <input type="text" id="staffSearchInput" placeholder="🔍 Search by name..." style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" oninput="debounceFilterStaff()">
-                                    <select id="staffDesignationFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterStaff()"><option value="">All Designations</option></select>
-                                    <select id="staffRoleFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 140px;" onchange="filterStaff()"><option value="">All Roles</option><option value="admin">Admin</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select>
-                                    <select id="staffClassFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px;" onchange="filterStaff()"><option value="">All Classes</option></select>
+                                    <input type="text" id="staffSearchInput" placeholder="🔍 Search by name..." style="flex: 1; min-width: 200px; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--dark);" oninput="debounceFilterStaff()">
+                                    <select id="staffDesignationFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px; background: var(--bg-primary); color: var(--dark);" onchange="filterStaff()"><option value="">All Designations</option></select>
+                                    <select id="staffRoleFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 140px; background: var(--bg-primary); color: var(--dark);" onchange="filterStaff()"><option value="">All Roles</option><option value="admin">Admin</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select>
+                                    <select id="staffClassFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; min-width: 160px; background: var(--bg-primary); color: var(--dark);" onchange="filterStaff()"><option value="">All Classes</option></select>
                                     <button class="btn btn-sm btn-secondary" onclick="clearStaffFilters()">Clear</button>
                                 </div>
                                 <div class="table-responsive">
@@ -412,7 +514,7 @@
                             <div class="card-body">
                                 <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                                     <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Filter by date:</label>
-                                    <input type="date" id="staffAttendanceDateFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" onchange="filterStaffAttendance()">
+                                    <input type="date" id="staffAttendanceDateFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--dark);" onchange="filterStaffAttendance()">
                                     <button class="btn btn-sm btn-secondary" onclick="setStaffAttendanceToday()">Today</button>
                                     <button class="btn btn-sm btn-secondary" onclick="clearStaffAttendanceFilter()">Show All</button>
                                 </div>
@@ -431,7 +533,7 @@
                             <div class="card-body">
                                 <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
                                     <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Month:</label>
-                                    <input type="month" id="staffSalaryMonthFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;" onchange="renderStaffSalaryTable()">
+                                    <input type="month" id="staffSalaryMonthFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--bg-primary); color: var(--dark);" onchange="renderStaffSalaryTable()">
                                 </div>
                                 <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -459,13 +561,13 @@
                         <div class="card-body">
                             <div style="display:grid; grid-template-columns: 260px 1fr; gap:20px; min-height:380px;">
                                 <div>
-                                    <select id="msgClassFilter" onchange="loadAdminMessageThreads()" style="width:100%; margin-bottom:10px; padding:8px; border:1.5px solid var(--border); border-radius:8px;"><option value="">All Classes</option></select>
+                                    <select id="msgClassFilter" onchange="loadAdminMessageThreads()" style="width:100%; margin-bottom:10px; padding:8px; border:1.5px solid var(--border); border-radius:8px; background: var(--bg-primary); color: var(--dark);"><option value="">All Classes</option></select>
                                     <div id="adminMsgThreadList" style="border-top:1px solid var(--border); padding-top:10px; overflow-y:auto; max-height:420px;"><div style="color:var(--gray); font-size:0.85rem;">Loading...</div></div>
                                 </div>
                                 <div>
                                     <div id="adminMsgConversation" style="min-height:300px; max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px; padding:4px;"><div style="color:var(--gray); font-size:0.9rem;">Select a student to view messages.</div></div>
                                     <div id="adminMsgReplyBox" style="display:none; gap:8px;">
-                                        <input type="text" id="adminMsgReplyInput" placeholder="Type a reply..." style="flex:1; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;" />
+                                        <input type="text" id="adminMsgReplyInput" placeholder="Type a reply..." style="flex:1; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; background: var(--bg-primary); color: var(--dark);" />
                                         <button class="btn btn-primary" onclick="sendAdminMessage()">Send</button>
                                     </div>
                                 </div>
@@ -483,7 +585,8 @@
                         <div class="card-body"><div style="display: grid; gap: 20px;" id="announcementsList"></div></div>
                     </div>
                 </div>
-                <!-- TOOLS VIEW -->
+
+                <!-- ==================== TOOLS VIEW ==================== -->
                 <div class="view" id="toolsView">
                     <div class="card">
                         <div class="card-header">
@@ -494,92 +597,92 @@
                                 Bulk operations and utilities that save time. Everything here works on many records at once.
                             </p>
 
-                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                            <div class="tools-grid">
 
-                                <!-- TOOL 1: Bulk Import -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="openBulkImportModal()" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">📥</div>
+                                <!-- 1. Bulk Import -->
+                                <div class="card tool-card" onclick="openBulkImportModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">📥</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Bulk Import Students</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Import 100s of students at once from a CSV file. Auto-creates Parent Portal logins.</div>
+                                            <div class="tool-title">Bulk Import Students</div>
+                                            <div class="tool-desc">Import 100s of students at once from a CSV file. Auto-creates Parent Portal logins.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 2: Bulk Export -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">📤</div>
+                                <!-- 2. Bulk Export -->
+                                <div class="card tool-card" onclick="openBulkExportModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">📤</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Bulk Export</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Export students, fees, attendance, grades to CSV — one file at a time or all together.</div>
+                                            <div class="tool-title">Bulk Export</div>
+                                            <div class="tool-desc">Export students, fees, attendance, grades, staff to CSV — one file at a time or all together.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 3: Print Center -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">🖨️</div>
+                                <!-- 3. Print Center -->
+                                <div class="card tool-card" onclick="openPrintCenterModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">🖨️</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Print Center</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Print all report cards, ID cards, or fee receipts for a class in one go.</div>
+                                            <div class="tool-title">Print Center</div>
+                                            <div class="tool-desc">Print all report cards, ID cards, or fee receipts for a class in one go.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 4: Broadcast Center -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">📢</div>
+                                <!-- 4. Broadcast Center -->
+                                <div class="card tool-card" onclick="openBroadcastCenterModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">📢</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Broadcast Center</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Send one WhatsApp message to many parents — fees, absence, holidays, announcements.</div>
+                                            <div class="tool-title">Broadcast Center</div>
+                                            <div class="tool-desc">Send one WhatsApp message to many parents — fees, absence, holidays, announcements.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 5: Message Templates -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">💬</div>
+                                <!-- 5. Message Templates -->
+                                <div class="card tool-card" onclick="openTemplatesModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">💬</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Message Templates</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Save your common WhatsApp messages once — reuse with one tap later.</div>
+                                            <div class="tool-title">Message Templates</div>
+                                            <div class="tool-desc">Save your common WhatsApp messages once — reuse with one tap later.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 6: Year-End Promotion -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">🎓</div>
+                                <!-- 6. Year-End Promotion -->
+                                <div class="card tool-card" onclick="openPromotionModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">🎓</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Year-End Promotion</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Promote all students from one class to the next in one click at year end.</div>
+                                            <div class="tool-title">Year-End Promotion</div>
+                                            <div class="tool-desc">Promote all students from one class to the next in one click at year end.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 7: Backup & Restore -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">🗄️</div>
+                                <!-- 7. Backup & Restore -->
+                                <div class="card tool-card" onclick="openBackupModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">🗄️</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Backup &amp; Restore</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Download a full backup of your school's data. Restore anytime.</div>
+                                            <div class="tool-title">Backup &amp; Restore</div>
+                                            <div class="tool-desc">Download a full backup of your school's data. Restore anytime.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- TOOL 8: Bulk Exam Entry -->
-                                <div class="card" style="margin:0; cursor:pointer; transition:all 0.2s;" onclick="showAlert('Coming soon — will be added in next update.')" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 24px rgba(10,90,84,0.14)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(10,90,84,0.06)';">
-                                    <div class="card-body" style="display:flex; gap:14px; align-items:flex-start;">
-                                        <div style="font-size:32px; line-height:1;">🎯</div>
+                                <!-- 8. Bulk Exam Entry -->
+                                <div class="card tool-card" onclick="openBulkExamEntryModal()">
+                                    <div class="card-body">
+                                        <div class="tool-icon">🎯</div>
                                         <div>
-                                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px;">Bulk Exam Entry</div>
-                                            <div style="font-size:13px; color:var(--gray); line-height:1.5;">Enter marks for a whole class in one screen — subject by subject, student by student.</div>
+                                            <div class="tool-title">Bulk Exam Entry</div>
+                                            <div class="tool-desc">Enter marks for a whole class in one screen — subject by subject, student by student.</div>
                                         </div>
                                     </div>
                                 </div>
@@ -589,7 +692,9 @@
                     </div>
                 </div>
 
-                <!-- BULK IMPORT MODAL -->
+                <!-- ==================== TOOL MODALS ==================== -->
+
+                <!-- BULK IMPORT -->
                 <div class="modal" id="bulkImportModal">
                     <div class="modal-content modal-wide">
                         <span class="modal-close" onclick="closeModal('bulkImportModal')">✕</span>
@@ -600,12 +705,10 @@
                             Optional: father_name, mother_name, gender, date_of_birth, phone, email, parent_email, address.
                         </p>
 
-                        <div style="background:var(--bg-secondary); border-radius:10px; padding:14px; margin-bottom:18px;">
-                            <div style="font-weight:600; font-size:0.88rem; margin-bottom:8px;">📄 Sample CSV format:</div>
-                            <pre style="font-size:11px; overflow-x:auto; margin:0; color:var(--gray); line-height:1.5;">name,father_name,class_name,roll_number,gender,date_of_birth,phone,parent_email
-                Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com
-                Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</pre>
-                        </div>
+                        <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px;">📄 Sample CSV format:</div>
+                        <div class="csv-preview">name,father_name,class_name,roll_number,gender,date_of_birth,phone,parent_email
+Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com
+Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</div>
 
                         <div class="form-group" style="margin-bottom:16px;">
                             <label>Select CSV File</label>
@@ -617,6 +720,221 @@
                         <div class="btn-group">
                             <button class="btn btn-primary" id="bulkImportBtn" onclick="submitBulkImport()">⬆️ Upload &amp; Import</button>
                             <button class="btn btn-secondary" onclick="closeModal('bulkImportModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BULK EXPORT -->
+                <div class="modal" id="bulkExportModal">
+                    <div class="modal-content">
+                        <span class="modal-close" onclick="closeModal('bulkExportModal')">✕</span>
+                        <div class="modal-header">📤 Bulk Export</div>
+                        <p style="color:var(--gray); font-size:0.9rem; margin-bottom:16px;">
+                            Select which data to download as CSV files. Each dataset will download as a separate file.
+                        </p>
+                        <div style="display:grid; gap:10px; margin-bottom:20px;">
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+                                <input type="checkbox" id="expStudents" checked style="width:auto;">
+                                <span>👨‍🎓 Students</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+                                <input type="checkbox" id="expFees" checked style="width:auto;">
+                                <span>💰 Fees</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+                                <input type="checkbox" id="expAttendance" style="width:auto;">
+                                <span>✅ Attendance</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+                                <input type="checkbox" id="expGrades" style="width:auto;">
+                                <span>📈 Grades</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+                                <input type="checkbox" id="expStaff" style="width:auto;">
+                                <span>🧑‍🏫 Staff</span>
+                            </label>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="runBulkExport()">📥 Export Selected</button>
+                            <button class="btn btn-secondary" onclick="closeModal('bulkExportModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRINT CENTER -->
+                <div class="modal" id="printCenterModal">
+                    <div class="modal-content">
+                        <span class="modal-close" onclick="closeModal('printCenterModal')">✕</span>
+                        <div class="modal-header">🖨️ Print Center</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Class</label>
+                                <select id="pcClass"><option value="">Select Class</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>What to print</label>
+                                <select id="pcType">
+                                    <option value="report_cards">📋 Report Cards (all students)</option>
+                                    <option value="id_cards">🪪 Student ID Cards</option>
+                                    <option value="fee_receipts">🧾 Fee Receipts (paid fees)</option>
+                                    <option value="class_list">📝 Class Student List</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p style="font-size:0.85rem; color:var(--gray); margin-top:8px;">
+                            ℹ️ Print preview opens in a new tab. Har student ke liye separate section hoga.
+                        </p>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="runPrintCenter()">🖨️ Generate Print Preview</button>
+                            <button class="btn btn-secondary" onclick="closeModal('printCenterModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BROADCAST CENTER -->
+                <div class="modal" id="broadcastModal">
+                    <div class="modal-content modal-wide">
+                        <span class="modal-close" onclick="closeModal('broadcastModal')">✕</span>
+                        <div class="modal-header">📢 Broadcast Center</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Recipients</label>
+                                <select id="bcRecipients" onchange="updateBroadcastCount()">
+                                    <option value="all">All Students (with phone)</option>
+                                    <option value="class">Specific Class</option>
+                                    <option value="unpaid">Students with Unpaid Fees</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="bcClassGroup" style="display:none;">
+                                <label>Select Class</label>
+                                <select id="bcClass"><option value="">Select Class</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Use Template (optional)</label>
+                                <select id="bcTemplate" onchange="applyTemplateToBroadcast()"><option value="">— No template —</option></select>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label>Message</label>
+                            <textarea id="bcMessage" rows="5" placeholder="Type your broadcast message..." style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:14px; background:var(--bg-primary); color:var(--dark); resize:vertical;"></textarea>
+                        </div>
+                        <div id="bcCount" style="font-size:0.88rem; color:var(--gray); margin-bottom:14px; font-weight:600;"></div>
+                        <div id="bcRecipientsList" style="max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:14px;"></div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="loadBroadcastRecipients()">🔄 Load Recipients</button>
+                            <button class="btn btn-secondary" onclick="closeModal('broadcastModal')">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MESSAGE TEMPLATES -->
+                <div class="modal" id="templatesModal">
+                    <div class="modal-content modal-wide">
+                        <span class="modal-close" onclick="closeModal('templatesModal')">✕</span>
+                        <div class="modal-header">💬 Message Templates</div>
+                        <p style="font-size:0.88rem; color:var(--gray); margin-bottom:14px;">
+                            Save commonly-used messages. Templates yahan save hote hain aur Broadcast Center mein one-tap use ho sakte hain.
+                        </p>
+                        <div id="templatesList" style="margin-bottom:16px;"></div>
+                        <div style="background:var(--bg-secondary); padding:14px; border-radius:10px; border:1px solid var(--border); margin-bottom:14px;">
+                            <div class="form-group" style="margin-bottom:10px;">
+                                <label>Template Name</label>
+                                <input type="text" id="tplName" placeholder="e.g. Fee Reminder">
+                            </div>
+                            <div class="form-group">
+                                <label>Message Content</label>
+                                <textarea id="tplContent" rows="4" placeholder="Dear Parent, ..." style="width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:14px; background:var(--bg-primary); color:var(--dark); resize:vertical;"></textarea>
+                            </div>
+                            <button class="btn btn-primary" style="margin-top:10px;" onclick="saveTemplate()">💾 Save Template</button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="closeModal('templatesModal')">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- YEAR-END PROMOTION -->
+                <div class="modal" id="promotionModal">
+                    <div class="modal-content">
+                        <span class="modal-close" onclick="closeModal('promotionModal')">✕</span>
+                        <div class="modal-header">🎓 Year-End Promotion</div>
+                        <p style="font-size:0.88rem; color:var(--gray); margin-bottom:16px;">
+                            ⚠️ <b>Ye action sabhi students ki class change kar dega</b>. Ek baar chalane ke baad undo nahi hota — pehle backup le lein.
+                        </p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Promote from Class</label>
+                                <select id="promoteFromClass"><option value="">Select Class</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Promote to Class</label>
+                                <input type="text" id="promoteToClass" placeholder="e.g. 2">
+                            </div>
+                        </div>
+                        <div id="promotionPreview" style="font-size:0.88rem; color:var(--gray); padding:10px; background:var(--bg-secondary); border-radius:8px; margin-top:6px;"></div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="runPromotion()">✅ Promote Students</button>
+                            <button class="btn btn-secondary" onclick="closeModal('promotionModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BACKUP & RESTORE -->
+                <div class="modal" id="backupModal">
+                    <div class="modal-content">
+                        <span class="modal-close" onclick="closeModal('backupModal')">✕</span>
+                        <div class="modal-header">🗄️ Backup &amp; Restore</div>
+                        <div style="background:var(--bg-secondary); padding:16px; border-radius:10px; border:1px solid var(--border); margin-bottom:16px;">
+                            <div style="font-weight:700; margin-bottom:8px;">⬇️ Download Backup</div>
+                            <p style="font-size:0.85rem; color:var(--gray); margin-bottom:12px;">Export all your school data as a JSON file. Save it somewhere safe.</p>
+                            <button class="btn btn-primary" onclick="runBackup()">📥 Download JSON Backup</button>
+                        </div>
+                        <div style="background:var(--bg-secondary); padding:16px; border-radius:10px; border:1px solid var(--border);">
+                            <div style="font-weight:700; margin-bottom:8px;">⬆️ Restore from Backup</div>
+                            <p style="font-size:0.85rem; color:var(--gray); margin-bottom:12px;">
+                                ⚠️ Restore <b>existing records ko replace nahi karta</b> — yeh new records add karta hai. Pehle current data ka backup lein.
+                            </p>
+                            <input type="file" id="restoreFile" accept=".json" style="margin-bottom:10px;">
+                            <button class="btn btn-secondary" onclick="runRestore()">⬆️ Restore</button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="closeModal('backupModal')">Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BULK EXAM ENTRY -->
+                <div class="modal" id="bulkExamEntryModal">
+                    <div class="modal-content modal-xl">
+                        <span class="modal-close" onclick="closeModal('bulkExamEntryModal')">✕</span>
+                        <div class="modal-header">🎯 Bulk Exam Entry</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Class</label>
+                                <select id="beeClass" onchange="buildBulkExamTable()"><option value="">Select Class</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <input type="text" id="beeSubject" placeholder="e.g. Mathematics">
+                            </div>
+                            <div class="form-group">
+                                <label>Total Marks</label>
+                                <input type="number" id="beeTotalMarks" value="100" placeholder="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Exam Date</label>
+                                <input type="date" id="beeExamDate">
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height:50vh; overflow-y:auto; border:1px solid var(--border); border-radius:8px;">
+                            <table>
+                                <thead><tr><th>Roll</th><th>Student Name</th><th style="width:160px;">Marks Obtained</th></tr></thead>
+                                <tbody id="beeTableBody"><tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">Select a class to begin.</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="submitBulkExamEntry()">💾 Save All Marks</button>
+                            <button class="btn btn-secondary" onclick="closeModal('bulkExamEntryModal')">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -685,7 +1003,7 @@
                             <p style="color:#64748b; font-size:0.9rem; margin-bottom:14px;">Har class ki monthly fee yahan set karein. Jab us class ka naya student add hoga, us mahine ki fee automatically ban jayegi.</p>
                             <div class="form-group" style="margin-bottom:14px; max-width:260px;"><label>Fee Due Day (mahine ka konsa din)</label><input type="number" id="settingsFeeDueDay" min="1" max="31" placeholder="e.g. 10"></div>
                             <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
-                                <thead><tr style="background:#f1f5f9;"><th style="text-align:left; padding:8px; border:1px solid #e2e8f0;">Class</th><th style="text-align:left; padding:8px; border:1px solid #e2e8f0;">Monthly Fee (Rs.)</th><th style="padding:8px; border:1px solid #e2e8f0; width:50px;"></th></tr></thead>
+                                <thead><tr style="background:var(--bg-secondary);"><th style="text-align:left; padding:8px; border:1px solid var(--border);">Class</th><th style="text-align:left; padding:8px; border:1px solid var(--border);">Monthly Fee (Rs.)</th><th style="padding:8px; border:1px solid var(--border); width:50px;"></th></tr></thead>
                                 <tbody id="feeStructureRows"></tbody>
                             </table>
                             <button class="btn btn-secondary btn-sm" onclick="addFeeRow()" style="margin-right:8px;">➕ Add Class</button>
@@ -717,6 +1035,7 @@
         </div>
     </div>
 
+    <!-- ============ EXISTING MODALS ============ -->
     <div class="modal" id="addStudentModal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('addStudentModal')">✕</span>
@@ -815,7 +1134,7 @@
             <div class="modal-header" id="aiResultTitle">✨ AI Summary</div>
             <div style="margin-bottom: 12px;">
                 <label style="font-size: 13px; margin-right: 8px;">Language:</label>
-                <select id="aiLanguageSelect" style="padding: 6px 10px; border: 2px solid var(--border); border-radius: 6px;"><option value="urdu">Roman Urdu</option><option value="english">English</option></select>
+                <select id="aiLanguageSelect" style="padding: 6px 10px; border: 2px solid var(--border); border-radius: 6px; background:var(--bg-primary); color:var(--dark);"><option value="urdu">Roman Urdu</option><option value="english">English</option></select>
             </div>
             <div id="aiResultBody" style="max-height:55vh; max-height:55dvh; overflow-y:auto; white-space:pre-wrap; line-height:1.7; padding:16px; background:var(--bg-secondary); border-radius:8px;">Click Generate to create the summary.</div>
             <div class="btn-group">
@@ -1038,7 +1357,6 @@
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             document.querySelector(`[data-view="${viewName}"]`).classList.add("active");
             closeSidebar();
-            // ✅ BUG FIX: added "messages" title (was missing)
             const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", tools: "Tools", settings: "Settings" };
             document.getElementById("pageTitle").textContent = titles[viewName] || "Dashboard";
             loadViewData(viewName);
@@ -1102,7 +1420,6 @@
 
         function destroyChart(key) { if (dashboardCharts[key]) { dashboardCharts[key].destroy(); dashboardCharts[key] = null; } }
 
-        // ✅ BUG FIX: chart empty-state helper (no more destroying the canvas)
         function showChartEmptyState(canvasId, message) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
@@ -1187,7 +1504,7 @@
                 container.innerHTML = activities.map(a => {
                     const editView = ACTIVITY_EDIT_VIEW[a.type];
                     const editBtn = editView ? `<button class="btn btn-sm btn-secondary" onclick="switchView('${editView}')" style="margin-right:6px;">Edit</button>` : "";
-                    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9;"><div><span style="margin-right:6px;">${ACTIVITY_ICONS[a.type] || "•"}</span><strong>${a.teacher}</strong> — ${a.detail}<span style="color:#64748b;"> (${a.student})</span></div><div style="display:flex; align-items:center; gap:8px;"><span style="color:#94a3b8; font-size:0.8rem; white-space:nowrap;">${timeAgo(a.at)}</span>${editBtn}<button class="btn btn-sm" style="background:#dc2626; color:#fff; border:none;" onclick="deleteTeacherActivity('${a.type}', ${a.id}, ${a.student_id || "null"})">Delete</button></div></div>`;
+                    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);"><div><span style="margin-right:6px;">${ACTIVITY_ICONS[a.type] || "•"}</span><strong>${a.teacher}</strong> — ${a.detail}<span style="color:#64748b;"> (${a.student})</span></div><div style="display:flex; align-items:center; gap:8px;"><span style="color:#94a3b8; font-size:0.8rem; white-space:nowrap;">${timeAgo(a.at)}</span>${editBtn}<button class="btn btn-sm" style="background:#dc2626; color:#fff; border:none;" onclick="deleteTeacherActivity('${a.type}', ${a.id}, ${a.student_id || "null"})">Delete</button></div></div>`;
                 }).join("");
             } catch (error) { container.innerHTML = `<div style="color:#94a3b8; padding:10px 0;">Activity load nahi ho saki.</div>`; }
         }
@@ -2021,11 +2338,15 @@
             else listEl.innerHTML = withPhones.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;"><span>${s.name} — ${s.phone}</span><button class="btn btn-sm btn-whatsapp" onclick="sendWhatsappToStudent(${s.id})">📱 Send</button></div>`).join("");
             openModal("whatsappBulkModal");
         }
+
         // ==================== TOOLS ====================
-        function loadToolsView() {
-            // Tools view is static HTML — nothing to fetch.
+        function loadToolsView() { /* static HTML */ }
+
+        function getAllClasses() {
+            return [...new Set(students.map(s => s.class_name).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
         }
 
+        // -------- Bulk Import --------
         function openBulkImportModal() {
             document.getElementById("bulkImportFile").value = "";
             const result = document.getElementById("bulkImportResult");
@@ -2033,58 +2354,32 @@
             result.innerHTML = "";
             openModal("bulkImportModal");
         }
-
         async function submitBulkImport() {
             const fileInput = document.getElementById("bulkImportFile");
             const btn = document.getElementById("bulkImportBtn");
             const result = document.getElementById("bulkImportResult");
-
             const file = fileInput.files[0];
-            if (!file) {
-                showAlert("Please select a CSV file first.", "error");
-                return;
-            }
-
+            if (!file) { showAlert("Please select a CSV file first.", "error"); return; }
             btn.disabled = true;
             btn.textContent = "Importing…";
             result.style.display = "block";
             result.style.background = "var(--bg-secondary)";
             result.style.border = "1px solid var(--border)";
             result.innerHTML = "⏳ Uploading and processing…";
-
             try {
                 const form = new FormData();
                 form.append("file", file);
-
-                const data = await apiRequest("/imports/students", {
-                    method: "POST",
-                    body: form,
-                });
-
-                let html = `
-                    <div style="font-weight:700; color:var(--success); margin-bottom:6px;">
-                        ✅ Import Complete
-                    </div>
-                    <div><b>${data.created}</b> students added successfully.</div>
-                `;
-                if (data.parents_created > 0) {
-                    html += `<div><b>${data.parents_created}</b> parent portal logins created.</div>`;
-                }
+                const data = await apiRequest("/imports/students", { method: "POST", body: form });
+                let html = `<div style="font-weight:700; color:var(--success); margin-bottom:6px;">✅ Import Complete</div><div><b>${data.created}</b> students added successfully.</div>`;
+                if (data.parents_created > 0) html += `<div><b>${data.parents_created}</b> parent portal logins created.</div>`;
                 if (data.skipped > 0) {
                     html += `<div style="color:var(--warning); margin-top:6px;"><b>${data.skipped}</b> rows skipped.</div>`;
-                    if (data.errors && data.errors.length) {
-                        html += `<details style="margin-top:8px;"><summary style="cursor:pointer; font-size:0.85rem;">Show skipped rows</summary>
-                            <ul style="margin:8px 0 0 18px; font-size:0.82rem; color:var(--gray);">${data.errors.map(e => `<li>${e}</li>`).join("")}</ul>
-                        </details>`;
-                    }
+                    if (data.errors && data.errors.length) html += `<details style="margin-top:8px;"><summary style="cursor:pointer; font-size:0.85rem;">Show skipped rows</summary><ul style="margin:8px 0 0 18px; font-size:0.82rem; color:var(--gray);">${data.errors.map(e => `<li>${e}</li>`).join("")}</ul></details>`;
                 }
                 result.innerHTML = html;
                 result.style.background = "#e7f5ee";
                 result.style.border = "1px solid #b8e0c8";
-
                 showAlert(`${data.created} students imported successfully.`, "success");
-
-                // ✅ BUG FIX: removed always-true condition
                 await loadStudents();
             } catch (error) {
                 result.style.display = "block";
@@ -2098,6 +2393,362 @@
             }
         }
 
+        // -------- Bulk Export --------
+        function openBulkExportModal() { openModal("bulkExportModal"); }
+        async function runBulkExport() {
+            const stamp = new Date().toISOString().slice(0, 10);
+            const tasks = [];
+            if (document.getElementById("expStudents").checked) {
+                tasks.push(apiRequest("/students").then(d => {
+                    const header = ["ID", "Name", "Father's Name", "Class", "Roll Number", "Phone", "Email", "Gender", "DOB", "Address"];
+                    const rows = [header, ...d.map(s => [s.id, s.name, s.father_name || "", s.class_name || "", s.roll_number || "", s.phone || "", s.email || "", s.gender || "", s.date_of_birth || "", s.address || ""])];
+                    downloadCSV(rows, `students_${stamp}.csv`);
+                }));
+            }
+            if (document.getElementById("expFees").checked) {
+                tasks.push(apiRequest("/fees").then(async (fees) => {
+                    const studs = await apiRequest("/students");
+                    const header = ["Fee ID", "Student", "Class", "Fee Type", "Amount", "Paid", "Due", "Status", "Due Date", "Month"];
+                    const rows = [header, ...fees.map(f => {
+                        const st = studs.find(s => s.id === f.student_id);
+                        return [f.id, st ? st.name : "", st ? st.class_name : "", f.fee_name || "", f.amount, f.paid_amount, f.due_amount, f.status, f.due_date || "", f.month || ""];
+                    })];
+                    downloadCSV(rows, `fees_${stamp}.csv`);
+                }));
+            }
+            if (document.getElementById("expAttendance").checked) {
+                tasks.push(apiRequest("/attendance").then(async (recs) => {
+                    const studs = await apiRequest("/students");
+                    const header = ["Student", "Class", "Date", "Status", "Remarks"];
+                    const rows = [header, ...recs.map(r => {
+                        const st = studs.find(s => s.id === r.student_id);
+                        return [st ? st.name : "", st ? st.class_name : "", r.date, r.is_present ? "Present" : "Absent", r.remarks || ""];
+                    })];
+                    downloadCSV(rows, `attendance_${stamp}.csv`);
+                }));
+            }
+            if (document.getElementById("expGrades").checked) {
+                tasks.push(apiRequest("/grades").then(async (recs) => {
+                    const studs = await apiRequest("/students");
+                    const header = ["Student", "Class", "Subject", "Marks Obtained", "Total Marks", "Percentage", "Grade", "Exam Date"];
+                    const rows = [header, ...recs.map(g => {
+                        const st = studs.find(s => s.id === g.student_id);
+                        return [st ? st.name : "", st ? st.class_name : "", g.subject, g.marks_obtained, g.total_marks, g.percentage, g.grade || "", g.exam_date || ""];
+                    })];
+                    downloadCSV(rows, `grades_${stamp}.csv`);
+                }));
+            }
+            if (document.getElementById("expStaff").checked) {
+                tasks.push(apiRequest("/staff").then(d => {
+                    const header = ["Name", "Designation", "Role", "Subject", "Class", "Phone", "Email", "Salary", "Status"];
+                    const rows = [header, ...d.map(s => [s.name, s.designation, s.role, s.subject || "", s.class_assigned || "", s.phone || "", s.email || "", s.salary, s.status])];
+                    downloadCSV(rows, `staff_${stamp}.csv`);
+                }));
+            }
+            if (tasks.length === 0) { showAlert("Select at least one dataset", "error"); return; }
+            try {
+                await Promise.all(tasks);
+                showAlert(`${tasks.length} export(s) downloaded`, "success");
+                closeModal("bulkExportModal");
+            } catch (error) { showAlert("Export failed: " + error.message, "error"); }
+        }
+
+        // -------- Print Center --------
+        function openPrintCenterModal() {
+            const sel = document.getElementById("pcClass");
+            const classes = getAllClasses();
+            sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+            openModal("printCenterModal");
+        }
+        async function runPrintCenter() {
+            const className = document.getElementById("pcClass").value;
+            const type = document.getElementById("pcType").value;
+            if (!className) { showAlert("Select a class", "error"); return; }
+            try {
+                if (!students || students.length === 0) students = await apiRequest("/students");
+                const classStudents = students.filter(s => s.class_name === className);
+                if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
+                const school = await getSchoolProfile();
+
+                if (type === "class_list") {
+                    const rows = classStudents.map((s, i) => `<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.father_name || "-"}</td><td>${s.roll_number || "-"}</td><td>${s.phone || "-"}</td></tr>`).join("");
+                    const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:10px;">Class ${className} — Student List</h2></div><table><thead><tr><th>#</th><th>Name</th><th>Father's Name</th><th>Roll</th><th>Phone</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">${school.name} — ${new Date().toLocaleDateString()}</div>`;
+                    openPrintWindow(`Class ${className} - Student List`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
+
+                // For report cards / ID cards / receipts, loop through students
+                const allPages = [];
+                for (const s of classStudents) {
+                    try {
+                        const profile = await apiRequest(`/students/${s.id}/profile`);
+                        if (type === "report_cards") {
+                            const g = profile.grades; const a = profile.attendance;
+                            const rows = g.records.length ? g.records.map(r => `<tr><td>${r.subject}</td><td>${r.marks_obtained}</td><td>${r.total_marks}</td><td>${r.percentage}%</td><td>${r.grade || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center;">No grade records</td></tr>`;
+                            allPages.push(`<div style="page-break-after: always; padding: 20px 0;">
+                                <div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:14px;">Report Card</h2></div>
+                                <div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Father:</strong> ${s.father_name || "-"}</div><div><strong>Class:</strong> ${s.class_name}<br><strong>Roll:</strong> ${s.roll_number || "-"}</div><div><strong>Attendance:</strong> ${a.attendance_rate}%<br><strong>Average:</strong> ${g.average_percentage}%</div></div>
+                                <table><thead><tr><th>Subject</th><th>Marks</th><th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>
+                            </div>`);
+                        } else if (type === "id_cards") {
+                            allPages.push(`<div style="display:inline-block; width:48%; margin:1%; vertical-align:top;">
+                                <div style="border:2px solid #333; border-radius:10px; padding:16px; text-align:center;">
+                                    <div style="font-weight:700; font-size:14px;">${school.name || "School"}</div>
+                                    <div style="font-size:10px; color:#666;">${school.phone || ""}</div>
+                                    <div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div>
+                                    <div style="font-size:12px; margin-top:6px;"><strong>Class:</strong> ${s.class_name || "-"} | <strong>Roll:</strong> ${s.roll_number || "-"}</div>
+                                    <div style="font-size:12px;"><strong>Father:</strong> ${s.father_name || "-"}</div>
+                                </div>
+                            </div>`);
+                        } else if (type === "fee_receipts") {
+                            const paidFees = (profile.fees.records || []).filter(f => f.paid_amount > 0);
+                            paidFees.forEach(f => {
+                                allPages.push(`<div style="page-break-after: always; padding: 20px 0;">
+                                    <div class="header"><h1>${school.name || "School"}</h1><h2 style="margin-top:10px;">Fee Receipt</h2></div>
+                                    <div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Class:</strong> ${s.class_name || "-"}</div><div><strong>Fee:</strong> ${f.fee_name || "-"}<br><strong>Month:</strong> ${f.month || "-"}</div><div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div></div>
+                                    <table><tbody><tr><td>Total</td><td>Rs. ${f.amount}</td></tr><tr><td>Paid</td><td>Rs. ${f.paid_amount}</td></tr><tr class="total-row"><td>Due</td><td>Rs. ${f.due_amount}</td></tr></tbody></table>
+                                </div>`);
+                            });
+                        }
+                    } catch (e) { console.error("Failed for student " + s.name, e); }
+                }
+                if (allPages.length === 0) { showAlert("Nothing to print — no matching records", "error"); return; }
+                openPrintWindow(`Print Center — ${className}`, allPages.join(""));
+                closeModal("printCenterModal");
+            } catch (error) { showAlert("Print center failed: " + error.message, "error"); }
+        }
+
+        // -------- Broadcast Center --------
+        function openBroadcastCenterModal() {
+            const sel = document.getElementById("bcClass");
+            const classes = getAllClasses();
+            sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+            const tplSel = document.getElementById("bcTemplate");
+            const templates = loadTemplatesFromStorage();
+            tplSel.innerHTML = '<option value="">— No template —</option>' + templates.map((t, i) => `<option value="${i}">${t.name}</option>`).join("");
+            document.getElementById("bcMessage").value = "";
+            document.getElementById("bcRecipientsList").innerHTML = "";
+            document.getElementById("bcCount").textContent = "";
+            openModal("broadcastModal");
+            updateBroadcastCount();
+        }
+        function updateBroadcastCount() {
+            const val = document.getElementById("bcRecipients").value;
+            document.getElementById("bcClassGroup").style.display = val === "class" ? "flex" : "none";
+        }
+        function applyTemplateToBroadcast() {
+            const idx = document.getElementById("bcTemplate").value;
+            if (idx === "") return;
+            const templates = loadTemplatesFromStorage();
+            const t = templates[parseInt(idx)];
+            if (t) document.getElementById("bcMessage").value = t.content;
+        }
+        async function loadBroadcastRecipients() {
+            try {
+                if (!students || students.length === 0) students = await apiRequest("/students");
+                const mode = document.getElementById("bcRecipients").value;
+                const className = document.getElementById("bcClass").value;
+                let recipients = [];
+                if (mode === "all") recipients = students.filter(s => s.phone);
+                else if (mode === "class") {
+                    if (!className) { showAlert("Select a class first", "error"); return; }
+                    recipients = students.filter(s => s.class_name === className && s.phone);
+                } else if (mode === "unpaid") {
+                    const fees = await apiRequest("/fees");
+                    const unpaidIds = new Set(fees.filter(f => f.status !== "paid" && f.due_amount > 0).map(f => f.student_id));
+                    recipients = students.filter(s => unpaidIds.has(s.id) && s.phone);
+                }
+                document.getElementById("bcCount").textContent = `${recipients.length} recipient(s) loaded`;
+                const msg = document.getElementById("bcMessage").value.trim();
+                document.getElementById("bcRecipientsList").innerHTML = recipients.length === 0
+                    ? `<p style="color:var(--gray);">No recipients found.</p>`
+                    : recipients.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;"><span>${s.name} (${s.class_name || "-"}) — ${s.phone}</span><button class="btn btn-sm btn-whatsapp" onclick="sendBroadcastTo('${(s.phone || "").replace(/'/g, "\\'")}')">📱 Send</button></div>`).join("");
+            } catch (error) { showAlert("Could not load recipients: " + error.message, "error"); }
+        }
+        function sendBroadcastTo(phone) {
+            const msg = document.getElementById("bcMessage").value.trim();
+            if (!msg) { showAlert("Type a message first", "error"); return; }
+            const num = formatPhoneForWhatsApp(phone);
+            window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, "_blank");
+        }
+
+        // -------- Message Templates --------
+        function loadTemplatesFromStorage() {
+            try { return JSON.parse(localStorage.getItem("schoolhub_msg_templates") || "[]"); }
+            catch (e) { return []; }
+        }
+        function saveTemplatesToStorage(list) {
+            localStorage.setItem("schoolhub_msg_templates", JSON.stringify(list));
+        }
+        function openTemplatesModal() { renderTemplatesList(); openModal("templatesModal"); }
+        function renderTemplatesList() {
+            const list = loadTemplatesFromStorage();
+            const el = document.getElementById("templatesList");
+            if (list.length === 0) { el.innerHTML = `<p style="color:var(--gray); font-size:0.88rem;">No templates saved yet. Add one below.</p>`; return; }
+            el.innerHTML = list.map((t, i) => `<div class="template-item"><div class="template-item-text"><strong>${t.name}</strong><br>${t.content}</div><div class="template-item-actions"><button class="btn btn-sm btn-secondary" onclick="editTemplate(${i})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteTemplate(${i})">Delete</button></div></div>`).join("");
+        }
+        function saveTemplate() {
+            const name = document.getElementById("tplName").value.trim();
+            const content = document.getElementById("tplContent").value.trim();
+            if (!name || !content) { showAlert("Name and content required", "error"); return; }
+            const list = loadTemplatesFromStorage();
+            list.push({ name, content });
+            saveTemplatesToStorage(list);
+            document.getElementById("tplName").value = "";
+            document.getElementById("tplContent").value = "";
+            renderTemplatesList();
+            showAlert("Template saved!");
+        }
+        function editTemplate(i) {
+            const list = loadTemplatesFromStorage();
+            const t = list[i]; if (!t) return;
+            document.getElementById("tplName").value = t.name;
+            document.getElementById("tplContent").value = t.content;
+            list.splice(i, 1);
+            saveTemplatesToStorage(list);
+            renderTemplatesList();
+        }
+        function deleteTemplate(i) {
+            if (!confirm("Delete this template?")) return;
+            const list = loadTemplatesFromStorage();
+            list.splice(i, 1);
+            saveTemplatesToStorage(list);
+            renderTemplatesList();
+        }
+
+        // -------- Year-End Promotion --------
+        async function openPromotionModal() {
+            if (!students || students.length === 0) students = await apiRequest("/students");
+            const sel = document.getElementById("promoteFromClass");
+            const classes = getAllClasses();
+            sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+            document.getElementById("promotionPreview").textContent = "";
+            sel.onchange = () => {
+                const cls = sel.value;
+                const count = students.filter(s => s.class_name === cls).length;
+                document.getElementById("promotionPreview").textContent = cls ? `${count} student(s) currently in Class ${cls}` : "";
+            };
+            openModal("promotionModal");
+        }
+        async function runPromotion() {
+            const fromClass = document.getElementById("promoteFromClass").value;
+            const toClass = document.getElementById("promoteToClass").value.trim();
+            if (!fromClass || !toClass) { showAlert("Both fields required", "error"); return; }
+            const toPromote = students.filter(s => s.class_name === fromClass);
+            if (toPromote.length === 0) { showAlert("No students in that class", "error"); return; }
+            if (!confirm(`Promote ${toPromote.length} students from Class ${fromClass} → Class ${toClass}? This cannot be undone.`)) return;
+            let ok = 0, fail = 0;
+            for (const s of toPromote) {
+                try {
+                    await apiRequest(`/students/${s.id}`, { method: "PUT", body: JSON.stringify({ class_name: toClass }) });
+                    ok++;
+                } catch (e) { fail++; }
+            }
+            showAlert(`✅ Promoted ${ok} student(s). ${fail > 0 ? "Failed: " + fail : ""}`, fail > 0 ? "error" : "success");
+            closeModal("promotionModal");
+            await loadStudents();
+        }
+
+        // -------- Backup & Restore --------
+        function openBackupModal() { openModal("backupModal"); }
+        async function runBackup() {
+            try {
+                showAlert("Preparing backup…", "success");
+                const payload = { exported_at: new Date().toISOString(), version: 1 };
+                const safeGet = async (path, key) => { try { payload[key] = await apiRequest(path); } catch (e) { payload[key] = []; } };
+                await safeGet("/students", "students");
+                await safeGet("/fees", "fees");
+                await safeGet("/attendance", "attendance");
+                await safeGet("/grades", "grades");
+                await safeGet("/staff", "staff");
+                await safeGet("/announcements", "announcements");
+                const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `school_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAlert("Backup downloaded!");
+            } catch (error) { showAlert("Backup failed: " + error.message, "error"); }
+        }
+        async function runRestore() {
+            const file = document.getElementById("restoreFile").files[0];
+            if (!file) { showAlert("Select a backup JSON file", "error"); return; }
+            if (!confirm("⚠️ This will ADD records from the backup. Continue?")) return;
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+                let restored = 0, failed = 0;
+                const tryRestore = async (endpoint, items) => {
+                    for (const item of items || []) {
+                        try {
+                            const cleaned = { ...item };
+                            delete cleaned.id; delete cleaned.created_at; delete cleaned.updated_at;
+                            await apiRequest(endpoint, { method: "POST", body: JSON.stringify(cleaned) });
+                            restored++;
+                        } catch (e) { failed++; }
+                    }
+                };
+                await tryRestore("/students", data.students);
+                await tryRestore("/staff", data.staff);
+                await tryRestore("/announcements", data.announcements);
+                showAlert(`Restored ${restored} record(s). ${failed > 0 ? failed + " failed." : ""}`, failed > 0 ? "error" : "success");
+                closeModal("backupModal");
+                await loadStudents();
+            } catch (error) { showAlert("Restore failed: " + error.message, "error"); }
+        }
+
+        // -------- Bulk Exam Entry --------
+        async function openBulkExamEntryModal() {
+            if (!students || students.length === 0) students = await apiRequest("/students");
+            const sel = document.getElementById("beeClass");
+            const classes = getAllClasses();
+            sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+            document.getElementById("beeSubject").value = "";
+            document.getElementById("beeTotalMarks").value = "100";
+            document.getElementById("beeExamDate").value = new Date().toISOString().slice(0, 10);
+            document.getElementById("beeTableBody").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">Select a class to begin.</td></tr>`;
+            openModal("bulkExamEntryModal");
+        }
+        function buildBulkExamTable() {
+            const className = document.getElementById("beeClass").value;
+            const tbody = document.getElementById("beeTableBody");
+            if (!className) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">Select a class to begin.</td></tr>`; return; }
+            const list = students.filter(s => s.class_name === className);
+            if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">No students in this class.</td></tr>`; return; }
+            tbody.innerHTML = list.map(s => `<tr><td>${s.roll_number || "-"}</td><td>${s.name}</td><td><input type="number" class="bee-marks" data-student-id="${s.id}" placeholder="0" style="width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:6px; background:var(--bg-primary); color:var(--dark); font-family:inherit;"></td></tr>`).join("");
+        }
+        async function submitBulkExamEntry() {
+            const subject = document.getElementById("beeSubject").value.trim();
+            const totalMarks = parseFloat(document.getElementById("beeTotalMarks").value) || 100;
+            const examDate = document.getElementById("beeExamDate").value || null;
+            if (!subject) { showAlert("Subject required", "error"); return; }
+            const inputs = document.querySelectorAll(".bee-marks");
+            const entries = [];
+            inputs.forEach(inp => {
+                const val = inp.value.trim();
+                if (val === "") return;
+                const marks = parseFloat(val);
+                if (isNaN(marks)) return;
+                entries.push({ student_id: parseInt(inp.dataset.studentId), marks });
+            });
+            if (entries.length === 0) { showAlert("No marks entered", "error"); return; }
+            let ok = 0, fail = 0;
+            for (const e of entries) {
+                try {
+                    const payload = { student_id: e.student_id, subject, marks_obtained: e.marks, total_marks: totalMarks };
+                    if (examDate) payload.exam_date = examDate;
+                    await apiRequest("/grades", { method: "POST", body: JSON.stringify(payload) });
+                    ok++;
+                } catch (err) { fail++; }
+            }
+            showAlert(`✅ Saved ${ok} grade(s). ${fail > 0 ? fail + " failed." : ""}`, fail > 0 ? "error" : "success");
+            closeModal("bulkExamEntryModal");
+        }
+
+        // -------- Settings --------
         async function loadSettings() {
             try {
                 const s = await apiRequest("/settings/school");
@@ -2127,7 +2778,6 @@
             } catch (e) { /* ignore */ }
             await applyPortalBackground();
         }
-
         async function saveParentPortalSettings() {
             try {
                 const payload = {
@@ -2143,28 +2793,22 @@
                 showAlert("Parent Portal settings saved.");
             } catch (e) { showAlert("Could not save: " + e.message, "error"); }
         }
-
         function addFeeRow(className = "", amount = "") {
             const tbody = document.getElementById("feeStructureRows");
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td style="padding:6px; border:1px solid #e2e8f0;"><input type="text" class="fee-class" value="${className}" placeholder="e.g. 1" style="width:100%; padding:6px; border:1px solid #ddd; border-radius:4px;"></td><td style="padding:6px; border:1px solid #e2e8f0;"><input type="number" class="fee-amount" value="${amount}" placeholder="e.g. 1500" style="width:100%; padding:6px; border:1px solid #ddd; border-radius:4px;"></td><td style="padding:6px; border:1px solid #e2e8f0; text-align:center;"><button onclick="this.closest('tr').remove()" style="background:#dc2626; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">✕</button></td>`;
+            tr.innerHTML = `<td style="padding:6px; border:1px solid var(--border);"><input type="text" class="fee-class" value="${className}" placeholder="e.g. 1" style="width:100%; padding:6px; border:1px solid var(--border); border-radius:4px; background:var(--bg-primary); color:var(--dark);"></td><td style="padding:6px; border:1px solid var(--border);"><input type="number" class="fee-amount" value="${amount}" placeholder="e.g. 1500" style="width:100%; padding:6px; border:1px solid var(--border); border-radius:4px; background:var(--bg-primary); color:var(--dark);"></td><td style="padding:6px; border:1px solid var(--border); text-align:center;"><button onclick="this.closest('tr').remove()" style="background:#dc2626; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">✕</button></td>`;
             tbody.appendChild(tr);
         }
-
         function getLocalOverlay() {
             const stored = localStorage.getItem("schoolhub_bg_overlay");
             return stored !== null ? parseInt(stored) : 82;
         }
-
         async function applyPortalBackground() {
             try {
                 const result = await apiRequest("/settings/background-image");
                 let overlayPercent = 82;
-                if (result.overlay !== undefined && result.overlay !== null) {
-                    overlayPercent = parseInt(result.overlay);
-                } else {
-                    overlayPercent = getLocalOverlay();
-                }
+                if (result.overlay !== undefined && result.overlay !== null) overlayPercent = parseInt(result.overlay);
+                else overlayPercent = getLocalOverlay();
                 if (result.url) {
                     const topOpacity = overlayPercent / 100;
                     const bottomOpacity = Math.min(topOpacity + 0.08, 1);
@@ -2172,9 +2816,7 @@
                     document.body.style.backgroundSize = "cover";
                     document.body.style.backgroundAttachment = "fixed";
                     document.body.style.backgroundPosition = "center";
-                } else {
-                    document.body.style.backgroundImage = "";
-                }
+                } else { document.body.style.backgroundImage = ""; }
                 const preview = document.getElementById("backgroundImagePreview");
                 if (preview) preview.innerHTML = result.url ? `<img src="${result.url}" style="max-width:220px; border-radius:10px; border:1px solid var(--border);">` : "";
                 const toggle = document.getElementById("backgroundImageToggle");
@@ -2189,7 +2831,6 @@
                 if (sliderContainer) sliderContainer.style.display = result.has_image ? "block" : "none";
             } catch (error) { console.error("Could not load background image:", error); }
         }
-
         function onOverlaySliderChange(value) {
             const label = document.getElementById("overlayValueLabel");
             if (label) label.textContent = `${value}%`;
@@ -2200,31 +2841,22 @@
                 document.body.style.backgroundImage = `linear-gradient(rgba(251,250,247,${topOpacity}), rgba(251,250,247,${bottomOpacity})), url('${urlMatch[1]}')`;
             }
         }
-
         async function saveOverlayValue(value) {
             const intVal = parseInt(value);
             localStorage.setItem("schoolhub_bg_overlay", intVal);
             try {
-                await apiRequest("/settings/background-image/overlay", {
-                    method: "POST",
-                    body: JSON.stringify({ overlay: intVal })
-                });
+                await apiRequest("/settings/background-image/overlay", { method: "POST", body: JSON.stringify({ overlay: intVal }) });
                 showAlert(`Background intensity set to ${intVal}% — applied to all portals.`);
             } catch (error) {
-                if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) {
-                    showAlert(`Background intensity set to ${intVal}% (saved locally — backend endpoint not deployed yet).`);
-                } else {
-                    showAlert(`Background intensity set to ${intVal}%.`);
-                }
+                if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) showAlert(`Background intensity set to ${intVal}% (saved locally).`);
+                else showAlert(`Background intensity set to ${intVal}%.`);
             }
         }
-
         async function uploadBackgroundImage() {
             const input = document.getElementById("backgroundImageInput");
             const file = input.files[0];
             if (!file) { showAlert("Pehle ek image choose karein", "error"); return; }
-            const form = new FormData();
-            form.append("file", file);
+            const form = new FormData(); form.append("file", file);
             try {
                 await apiRequest("/settings/background-image", { method: "POST", body: form });
                 showAlert("Background image updated.");
@@ -2232,7 +2864,6 @@
                 await applyPortalBackground();
             } catch (error) { showAlert("Upload failed: " + error.message, "error"); }
         }
-
         async function removeBackgroundImage() {
             if (!confirm("Remove the portal background image?")) return;
             try {
@@ -2242,7 +2873,6 @@
                 await applyPortalBackground();
             } catch (error) { showAlert("Could not remove: " + error.message, "error"); }
         }
-
         async function toggleBackgroundImage() {
             const toggle = document.getElementById("backgroundImageToggle");
             const enabled = toggle.checked;
@@ -2251,7 +2881,6 @@
                 await applyPortalBackground();
             } catch (error) { showAlert("Could not update: " + error.message, "error"); toggle.checked = !enabled; }
         }
-
         async function saveSettings() {
             try {
                 const payload = { name: document.getElementById("settingsSchoolName").value.trim(), phone: document.getElementById("settingsPhone").value.trim() };
@@ -2261,7 +2890,6 @@
                 showAlert("School info saved successfully");
             } catch (e) { showAlert("Could not save: " + e.message, "error"); }
         }
-
         async function saveFeeSettings() {
             try {
                 const classes = document.querySelectorAll(".fee-class");
@@ -2280,223 +2908,113 @@
             } catch (e) { showAlert("Could not save fees: " + e.message, "error"); }
         }
 
-        // ==================== AUTH ====================
-        function logout() {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("user_role");
-            localStorage.removeItem("user_full_name");
-            localStorage.removeItem("user_email");
-            localStorage.removeItem("school_id");
-            localStorage.removeItem("school_name");
-            window.location.href = "index.html";
+        // ==================== DARK MODE ====================
+        function applyDarkMode(enabled) {
+            if (enabled) document.body.classList.add("dark-mode");
+            else document.body.classList.remove("dark-mode");
+            const icon = document.getElementById("darkModeIcon");
+            const label = document.getElementById("darkModeLabel");
+            if (icon) icon.textContent = enabled ? "☀️" : "🌙";
+            if (label) label.textContent = enabled ? "Day" : "Night";
+        }
+        function toggleDarkMode() {
+            const enabled = !document.body.classList.contains("dark-mode");
+            localStorage.setItem("schoolhub_dark_mode", enabled ? "1" : "0");
+            applyDarkMode(enabled);
         }
 
-        function startLiveClock() {
-            const el = document.getElementById("liveClockTime");
-            if (!el) return;
-            function tick() { el.textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true }); }
-            tick();
-            setInterval(tick, 1000);
-        }
-
-        async function init() {
-            try {
-                const token = getToken();
-                if (!token) { window.location.href = "index.html"; return; }
-
-                /* ✅ SECURITY FIX: Role check — sirf admin allowed.
-                   Defense in depth: even if someone manually navigates to this page
-                   with a teacher/parent token, they get bounced to the right portal. */
-                const roleRaw = (localStorage.getItem("user_role") || "").toLowerCase();
-                if (roleRaw !== "admin") {
-                    localStorage.removeItem("access_token");
-                    localStorage.removeItem("user_role");
-                    localStorage.removeItem("user_full_name");
-                    localStorage.removeItem("user_email");
-                    localStorage.removeItem("school_id");
-                    localStorage.removeItem("school_name");
-
-                    if (roleRaw === "teacher") {
-                        window.location.href = "teacher-login.html";
-                    } else if (roleRaw === "parent") {
-                        window.location.href = "parent-login.html";
-                    } else {
-                        // ✅ BUG FIX: was "login.html" (inconsistent). Use "index.html"
-                        window.location.href = "index.html";
-                    }
-                    return;
+        // ==================== CALCULATOR (from header) ====================
+        let calcExpression = "";
+        let calcJustEvaluated = false;
+        function toggleCalculator() {
+            const panel = document.getElementById("calcPanel");
+            const btn = document.getElementById("calcHeaderBtn");
+            const isOpen = panel.classList.toggle("open");
+            if (btn) btn.classList.toggle("active", isOpen);
+            if (isOpen) {
+                // Close AI panel to avoid overlap
+                const aiPanel = document.getElementById("aiWidgetPanel");
+                if (aiPanel && aiPanel.classList.contains("open")) {
+                    aiPanel.classList.remove("open");
+                    if (typeof aiWidgetOpen !== "undefined") aiWidgetOpen = false;
                 }
-
-                if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-
-                document.querySelectorAll(".menu-link").forEach(link => {
-                    link.addEventListener("click", (e) => {
-                        const view = e.target.closest("a").dataset.view;
-                        if (!view) return;
-                        switchView(view);
-                    });
-                });
-
-                startLiveClock();
-                applyPortalBackground();
-                await loadDashboard();
-
-                const displayName = localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || "User";
-                const roleDisplay = roleRaw.charAt(0).toUpperCase() + roleRaw.slice(1);
-                document.getElementById("userName").textContent = displayName;
-                document.getElementById("userRole").textContent = roleDisplay;
-                document.getElementById("userAvatar").textContent = displayName.charAt(0).toUpperCase();
-
-                const schoolName = localStorage.getItem("school_name");
-                if (schoolName) {
-                    const logoText = document.querySelector(".sidebar-logo .logo span:last-child");
-                    if (logoText) logoText.textContent = schoolName;
-                }
-            } catch (error) { console.error("Error initializing:", error); }
-        }
-        window.addEventListener("load", init);
-
-        // ==================== STUDENT PROFILE ====================
-        let currentProfileData = null;
-        const DOC_TYPE_LABELS = { id_card: "ID Card", b_form: "B-Form", test_paper: "Test Paper", profile_photo: "Card Photo", other: "Other" };
-        function renderStudentProgressChart(gradeRecords) {
-            const canvas = document.getElementById("studentProgressChart");
-            if (!canvas || typeof Chart === "undefined") return;
-            const dated = gradeRecords.filter(g => g.exam_date).slice().reverse();
-            if (window.studentProgressChartInstance) { window.studentProgressChartInstance.destroy(); window.studentProgressChartInstance = null; }
-            if (dated.length === 0) { showChartEmptyState("studentProgressChart", "Not enough dated grades yet to show a progress trend."); return; }
-            hideChartEmptyState("studentProgressChart");
-            window.studentProgressChartInstance = new Chart(canvas, {
-                type: "line",
-                data: { labels: dated.map(g => g.exam_date), datasets: [{ label: "Score %", data: dated.map(g => g.percentage), borderColor: "#0c6e6b", backgroundColor: "rgba(12,110,107,0.12)", fill: true, tension: 0.3, pointBackgroundColor: "#0c6e6b" }] },
-                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } } },
-            });
-        }
-        async function loadStudentProfileDocuments(studentId) {
-            const container = document.getElementById("studentProfileDocuments");
-            try {
-                const docs = await apiRequest(`/students/${studentId}/documents`);
-                if (!docs || docs.length === 0) { container.innerHTML = `<p style="color:var(--gray); font-size:0.9rem;">No documents uploaded yet. <a href="student-documents.html" style="color:var(--primary); font-weight:600;">Upload one →</a></p>`; return; }
-                container.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px;">${docs.map(d => `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);"><div><span style="background:var(--teal-100,#e3f3f1); color:var(--primary-dark); padding:2px 10px; border-radius:999px; font-size:0.78rem; font-weight:600; margin-right:8px;">${DOC_TYPE_LABELS[d.doc_type] || d.doc_type}</span><span style="font-size:0.85rem; color:var(--gray);">${d.label || d.file_name || ""}</span></div><div style="display:flex; gap:8px;"><button class="btn btn-secondary btn-sm" onclick="viewProfileDocument(${studentId}, ${d.id})">View</button><button class="btn btn-sm" style="background:var(--danger); color:#fff; border:none;" onclick="deleteProfileDocument(${studentId}, ${d.id})">Delete</button></div></div>`).join("")}</div><p style="margin-top:10px;"><a href="student-documents.html" style="color:var(--primary); font-weight:600; font-size:0.88rem;">+ Upload another document →</a></p>`;
-            } catch (error) { container.innerHTML = `<p style="color:var(--danger); font-size:0.9rem;">Could not load documents.</p>`; }
-        }
-        async function viewProfileDocument(studentId, documentId) {
-            try { const { url } = await apiRequest(`/students/${studentId}/documents/${documentId}/url`); window.open(url, "_blank"); }
-            catch (error) { showAlert("Could not open document: " + error.message, "error"); }
-        }
-        async function deleteProfileDocument(studentId, documentId) {
-            if (!confirm("Delete this document? This cannot be undone.")) return;
-            try { await apiRequest(`/students/${studentId}/documents/${documentId}`, { method: "DELETE" }); showAlert("Document deleted."); await loadStudentProfileDocuments(studentId); }
-            catch (error) { showAlert("Could not delete: " + error.message, "error"); }
-        }
-        async function openStudentProfile(studentId) {
-            document.getElementById("studentProfileTitle").textContent = "Student Profile";
-            document.getElementById("studentProfileBody").innerHTML = "Loading...";
-            openModal("studentProfileModal");
-            try {
-                const data = await apiRequest(`/students/${studentId}/profile`);
-                currentProfileData = data;
-                const s = data.student;
-                document.getElementById("studentProfileTitle").textContent = `${s.name} — ${s.class_name || "-"} (Roll ${s.roll_number || "-"})`;
-                const attendanceRowsHtml = data.attendance.recent_records.length ? data.attendance.recent_records.map(r => `<tr><td>${r.date}</td><td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td><td>${r.remarks || "-"}</td></tr>`).join("") : `<tr><td colspan="3" style="text-align:center; color:var(--gray);">No attendance records</td></tr>`;
-                const gradeRowsHtml = data.grades.records.length ? data.grades.records.map(g => `<tr><td>${g.subject}</td><td>${g.marks_obtained}/${g.total_marks}</td><td>${g.percentage}%</td><td>${g.grade || "-"}</td><td>${g.exam_date || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No grade records</td></tr>`;
-                const feeRowsHtml = data.fees.records.length ? data.fees.records.map(f => `<tr><td>${f.fee_name || "-"}</td><td>Rs. ${f.amount}</td><td>Rs. ${f.paid_amount}</td><td>Rs. ${f.due_amount}</td><td><span class="badge ${feeBadgeClass(f.status)}">${f.status}</span></td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No fee records</td></tr>`;
-                // ✅ BUG FIX: role check now case-insensitive
-                const userRole = (localStorage.getItem("user_role") || "").toLowerCase();
-                document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Mother's Name:</strong><br>${s.mother_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance Rate</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average Grade</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${userRole === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
-                loadStudentProfileDocuments(studentId);
-                if (userRole === "admin") renderParentLoginSection(s);
-                renderStudentProgressChart(data.grades.records || []);
-            } catch (error) {
-                console.error("Error loading student profile:", error);
-                document.getElementById("studentProfileBody").innerHTML = `<p style="color:var(--danger);">Failed to load student profile.</p>`;
+                updateCalcDisplay();
             }
         }
-        async function getSchoolProfile() {
-            if (cachedSchoolProfile) return cachedSchoolProfile;
-            try { cachedSchoolProfile = await apiRequest("/schools/profile"); }
-            catch (error) { cachedSchoolProfile = { name: "School", address: "", phone: "", email: "" }; }
-            return cachedSchoolProfile;
-        }
-        function openPrintWindow(title, bodyHtml) {
-            const printWindow = window.open("", "_blank", "width=800,height=900");
-            printWindow.document.write(`<html><head><title>${title}</title><style>body { font-family: Arial, sans-serif; padding: 30px; color: #222; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 14px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }</style></head><body>${bodyHtml}</body></html>`);
-            printWindow.document.close();
-            printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
-        }
-        async function printReportCard() {
-            if (!currentProfileData) return;
-            const school = await getSchoolProfile();
-            const s = currentProfileData.student; const g = currentProfileData.grades; const a = currentProfileData.attendance;
-            const rows = g.records.length ? g.records.map(r => `<tr><td>${r.subject}</td><td>${r.marks_obtained}</td><td>${r.total_marks}</td><td>${r.percentage}%</td><td>${r.grade || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center;">No grade records</td></tr>`;
-            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><div>${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div><h2 style="margin-top:14px;">Report Card</h2></div><div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Father's Name:</strong> ${s.father_name || "-"}</div><div><strong>Class:</strong> ${s.class_name || "-"}<br><strong>Roll No:</strong> ${s.roll_number || "-"}</div><div><strong>Attendance:</strong> ${a.attendance_rate}%<br><strong>Average:</strong> ${g.average_percentage}%</div></div><table><thead><tr><th>Subject</th><th>Marks Obtained</th><th>Total Marks</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">${school.name || "School"} — Generated on ${new Date().toLocaleDateString()}</div>`;
-            openPrintWindow(`Report Card - ${s.name}`, bodyHtml);
-        }
-        function shareReportCardOnWhatsapp() {
-            if (!currentProfileData) return;
-            const s = currentProfileData.student; const g = currentProfileData.grades; const a = currentProfileData.attendance;
-            if (!s.phone) { showAlert("No phone number on file for this student", "error"); return; }
-            const subjectLines = g.records.length ? g.records.map(r => `- ${r.subject}: ${r.marks_obtained}/${r.total_marks} (${r.percentage}%, ${r.grade || "-"})`).join("\n") : "No grade records yet.";
-            const message = `📋 *Academic Report — ${s.name}*\nClass: ${s.class_name || "-"}  |  Roll No: ${s.roll_number || "-"}\n\n${subjectLines}\n\n📊 Overall Average: ${g.average_percentage}%\n✅ Attendance Rate: ${a.attendance_rate}%\n\nFor details, please contact the school.`;
-            const whatsappNumber = formatPhoneForWhatsApp(s.phone);
-            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
-        }
-        async function printStudentIdCard() {
-            if (!currentProfileData) return;
-            const school = await getSchoolProfile();
-            const s = currentProfileData.student;
-            let photoHtml = `<div style="width:80px; height:80px; border:1px solid #999; border-radius:50%; margin:10px auto; display:flex; align-items:center; justify-content:center; font-size:11px; color:#999;">Photo</div>`;
-            async function resolvePhotoUrl() {
-                if (s.photo_url) {
-                    try { const resp = await fetch(`${API_BASE}/students/${s.id}/photo-url`, { headers: { Authorization: `Bearer ${getToken()}` } }); if (resp.ok) return (await resp.json()).url; } catch (e) {}
-                }
+        function updateCalcDisplay() {
+            const exprEl = document.getElementById("calcExpression");
+            const resEl = document.getElementById("calcResult");
+            if (!exprEl || !resEl) return;
+            exprEl.textContent = calcExpression || "";
+            if (calcExpression.trim()) {
                 try {
-                    const docsResp = await fetch(`${API_BASE}/students/${s.id}/documents?doc_type=profile_photo`, { headers: { Authorization: `Bearer ${getToken()}` } });
-                    if (docsResp.ok) { const docs = await docsResp.json(); if (Array.isArray(docs) && docs.length > 0) { const urlResp = await fetch(`${API_BASE}/students/${s.id}/documents/${docs[0].id}/url`, { headers: { Authorization: `Bearer ${getToken()}` } }); if (urlResp.ok) return (await urlResp.json()).url; } }
-                } catch (e) {}
-                return null;
+                    const result = evaluateCalcExpression(calcExpression);
+                    resEl.textContent = formatCalcNumber(result);
+                } catch (e) { resEl.textContent = calcExpression; }
+            } else { resEl.textContent = "0"; }
+        }
+        function evaluateCalcExpression(expr) {
+            const sanitized = expr.replace(/[^0-9+\-*/().\s]/g, "");
+            if (!sanitized.trim()) throw new Error("Empty");
+            if (!/^[0-9+\-*/().\s]+$/.test(sanitized)) throw new Error("Invalid");
+            const result = Function('"use strict"; return (' + sanitized + ')')();
+            if (typeof result !== "number" || !isFinite(result) || isNaN(result)) throw new Error("Invalid");
+            return result;
+        }
+        function formatCalcNumber(num) {
+            if (Number.isInteger(num)) return String(num);
+            const rounded = parseFloat(num.toFixed(10));
+            return String(rounded);
+        }
+        function calcInput(val) {
+            if (calcJustEvaluated && /^[0-9.]$/.test(val)) calcExpression = "";
+            calcJustEvaluated = false;
+            calcExpression += val;
+            updateCalcDisplay();
+        }
+        function calcClear() { calcExpression = ""; calcJustEvaluated = false; updateCalcDisplay(); }
+        function calcBackspace() {
+            if (calcJustEvaluated) { calcClear(); return; }
+            calcExpression = calcExpression.slice(0, -1);
+            updateCalcDisplay();
+        }
+        function calcPercent() {
+            if (calcJustEvaluated) {
+                const current = parseFloat(calcExpression);
+                if (!isNaN(current)) { calcExpression = formatCalcNumber(current / 100); calcJustEvaluated = false; updateCalcDisplay(); }
+                return;
             }
-            try { const photoUrl = await resolvePhotoUrl(); if (photoUrl) photoHtml = `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block; border:1px solid #999;" />`; } catch (e) {}
-            const bodyHtml = `<div style="width:340px; border:2px solid #333; border-radius:10px; padding:16px; margin:0 auto; text-align:center; font-family:Arial, sans-serif;"><div style="font-weight:700; font-size:16px;">${school.name || "School"}</div><div style="font-size:11px; color:#555;">${school.address || ""}</div><div style="font-size:11px; color:#555; margin-bottom:10px;">${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div>${photoHtml}<div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div><div style="font-size:13px; margin-top:6px; text-align:left; padding:0 10px;"><div><strong>Class:</strong> ${s.class_name || "-"}</div><div><strong>Roll No:</strong> ${s.roll_number || "-"}</div><div><strong>Father's Name:</strong> ${s.father_name || "-"}</div>${s.phone ? `<div><strong>Contact:</strong> ${s.phone}</div>` : ""}</div><div style="margin-top:12px; font-size:10px; color:#777; border-top:1px solid #ddd; padding-top:6px;">${school.name || "School"} — Student ID Card ${new Date().getFullYear()}</div></div>`;
-            openPrintWindow(`ID Card - ${s.name}`, bodyHtml);
+            if (calcExpression && !/[+\-*/(]$/.test(calcExpression)) { calcExpression += "/100"; updateCalcDisplay(); }
         }
-        async function printAdmissionSlip() {
-            if (!currentProfileData) return;
-            const school = await getSchoolProfile();
-            const s = currentProfileData.student;
-            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><div>${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div><h2 style="margin-top:14px;">Admission Slip</h2></div><table><tbody><tr><td><strong>Student Name</strong></td><td>${s.name}</td></tr><tr><td><strong>Father's Name</strong></td><td>${s.father_name || "-"}</td></tr><tr><td><strong>Class</strong></td><td>${s.class_name || "-"}</td></tr><tr><td><strong>Roll Number</strong></td><td>${s.roll_number || "-"}</td></tr><tr><td><strong>Date of Birth</strong></td><td>${s.date_of_birth || "-"}</td></tr><tr><td><strong>Gender</strong></td><td>${s.gender || "-"}</td></tr><tr><td><strong>Contact Phone</strong></td><td>${s.phone || "-"}</td></tr><tr><td><strong>Email</strong></td><td>${s.email || "-"}</td></tr><tr><td><strong>Address</strong></td><td>${s.address || "-"}</td></tr></tbody></table><div class="meta" style="margin-top:30px;"><div>Parent/Guardian Signature: ______________________</div><div>Date: ${new Date().toLocaleDateString()}</div></div><div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>`;
-            openPrintWindow(`Admission Slip - ${s.name}`, bodyHtml);
-        }
-        async function printFeeReceipt(feeId) {
-            const fee = cachedFeesForPayment.find(f => f.id === feeId);
-            if (!fee) return;
-            const student = cachedStudentsForFees.find(s => s.id === fee.student_id);
-            const school = await getSchoolProfile();
-            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><div>${school.phone || ""}</div><h2 style="margin-top:14px;">Fee Receipt</h2></div><div class="meta"><div><strong>Student:</strong> ${student?.name || "Unknown"}<br><strong>Class:</strong> ${student?.class_name || "-"}</div><div><strong>Fee Type:</strong> ${fee.fee_name || "-"}<br><strong>Month:</strong> ${fee.month || "-"}</div><div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div></div><table><tbody><tr><td>Total Amount</td><td>Rs. ${fee.amount}</td></tr><tr><td>Paid Amount</td><td>Rs. ${fee.paid_amount}</td></tr><tr class="total-row"><td>Due Amount</td><td>Rs. ${fee.due_amount}</td></tr></tbody></table><div class="footer">${school.name || "School"} — This is a computer-generated receipt.</div>`;
-            openPrintWindow(`Receipt - ${student?.name || "Student"}`, bodyHtml);
-        }
-
-        function openBulkFeeModal() {
-            const classFilter = document.getElementById("studentClassFilter");
-            const uniqueClasses = classFilter ? [...classFilter.options].map(o => o.value).filter(Boolean) : [...new Set(students.map(s => s.class_name).filter(Boolean))];
-            document.getElementById("bulkFeeClass").innerHTML = '<option value="">Select Class</option>' + uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join("");
-            document.getElementById("bulkFeeType").value = "";
-            document.getElementById("bulkFeeAmount").value = "";
-            document.getElementById("bulkFeeDueDate").value = "";
-            document.getElementById("bulkFeeSkipExisting").checked = true;
-            openModal("bulkFeeModal");
-        }
-        async function submitBulkFee() {
+        function calcEquals() {
+            if (!calcExpression.trim()) return;
             try {
-                const payload = { class_name: document.getElementById("bulkFeeClass").value, fee_name: document.getElementById("bulkFeeType").value, amount: parseFloat(document.getElementById("bulkFeeAmount").value), due_date: document.getElementById("bulkFeeDueDate").value || null, skip_if_exists: document.getElementById("bulkFeeSkipExisting").checked };
-                if (!payload.class_name || !payload.fee_name || !payload.amount) { showAlert("Please fill all required fields", "error"); return; }
-                const result = await apiRequest("/fees/bulk-generate", { method: "POST", body: JSON.stringify(payload) });
-                showAlert(`Generated ${result.created_count} fee(s), skipped ${result.skipped_count}`, "success");
-                closeModal("bulkFeeModal");
-                await loadFees();
-            } catch (error) { console.error("Error generating bulk fees:", error); }
+                const result = evaluateCalcExpression(calcExpression);
+                const resultStr = formatCalcNumber(result);
+                document.getElementById("calcExpression").textContent = calcExpression + " =";
+                document.getElementById("calcResult").textContent = resultStr;
+                calcExpression = resultStr;
+                calcJustEvaluated = true;
+            } catch (e) { document.getElementById("calcResult").textContent = "Error"; }
         }
+        document.addEventListener("keydown", (e) => {
+            const panel = document.getElementById("calcPanel");
+            if (!panel || !panel.classList.contains("open")) return;
+            const t = e.target;
+            if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+            const key = e.key;
+            if (/^[0-9]$/.test(key)) { calcInput(key); e.preventDefault(); }
+            else if (key === "+" || key === "-" || key === "*" || key === "/") { calcInput(key); e.preventDefault(); }
+            else if (key === ".") { calcInput("."); e.preventDefault(); }
+            else if (key === "(" || key === ")") { calcInput(key); e.preventDefault(); }
+            else if (key === "%") { calcPercent(); e.preventDefault(); }
+            else if (key === "Enter" || key === "=") { calcEquals(); e.preventDefault(); }
+            else if (key === "Backspace") { calcBackspace(); e.preventDefault(); }
+            else if (key === "Escape") { toggleCalculator(); e.preventDefault(); }
+            else if (key.toLowerCase() === "c") { calcClear(); e.preventDefault(); }
+        });
 
+        // ==================== CSV DOWNLOAD ====================
         function downloadCSV(rows, filename) {
             if (!rows || rows.length === 0) { showAlert("No data to export", "error"); return; }
             const escapeCell = (val) => { const str = (val === null || val === undefined) ? "" : String(val); if (str.includes(",") || str.includes('"') || str.includes("\n")) return `"${str.replace(/"/g, '""')}"`; return str; };
@@ -2519,10 +3037,10 @@
             downloadCSV(rows, `fees_${new Date().toISOString().slice(0, 10)}.csv`);
         }
 
+        // ==================== AI ====================
         let aiMode = null;
         let aiTargetId = null;
         let activeAdminMsgStudentId = null;
-
         async function loadAdminMessageThreads() {
             try {
                 if (!students || students.length === 0) students = await apiRequest("/students");
@@ -2611,7 +3129,7 @@
             if (!modal) {
                 modal = document.createElement("div");
                 modal.id = "credentialModal"; modal.className = "modal";
-                modal.innerHTML = `<div class="modal-content" style="max-width:420px;"><span class="modal-close" onclick="closeModal('credentialModal')">✕</span><div class="modal-header" id="credentialModalTitle">Login Created</div><div style="background:var(--bg-secondary); border-radius:10px; padding:16px; margin:14px 0;"><div style="font-size:0.85rem; color:var(--gray); margin-bottom:4px;">Email</div><div style="font-weight:600; margin-bottom:12px;" id="credentialModalEmail"></div><div style="font-size:0.85rem; color:var(--gray); margin-bottom:4px;">Temporary Password</div><div style="font-family:monospace; font-size:1.1rem; font-weight:700; color:var(--primary-dark); background:#fff; padding:8px 12px; border-radius:8px; border:1px dashed var(--border);" id="credentialModalPassword"></div></div><p style="color:var(--danger); font-size:0.85rem; margin-bottom:16px;">⚠️ Save or share this now — it will not be shown again.</p><button class="btn btn-primary" style="width:100%;" onclick="copyCredentialAndClose()">📋 Copy Password &amp; Close</button></div>`;
+                modal.innerHTML = `<div class="modal-content" style="max-width:420px;"><span class="modal-close" onclick="closeModal('credentialModal')">✕</span><div class="modal-header" id="credentialModalTitle">Login Created</div><div style="background:var(--bg-secondary); border-radius:10px; padding:16px; margin:14px 0;"><div style="font-size:0.85rem; color:var(--gray); margin-bottom:4px;">Email</div><div style="font-weight:600; margin-bottom:12px;" id="credentialModalEmail"></div><div style="font-size:0.85rem; color:var(--gray); margin-bottom:4px;">Temporary Password</div><div style="font-family:monospace; font-size:1.1rem; font-weight:700; color:var(--primary-dark); background:var(--bg-primary); padding:8px 12px; border-radius:8px; border:1px dashed var(--border);" id="credentialModalPassword"></div></div><p style="color:var(--danger); font-size:0.85rem; margin-bottom:16px;">⚠️ Save or share this now — it will not be shown again.</p><button class="btn btn-primary" style="width:100%;" onclick="copyCredentialAndClose()">📋 Copy Password &amp; Close</button></div>`;
                 document.body.appendChild(modal);
             }
             document.getElementById("credentialModalTitle").textContent = title;
@@ -2683,12 +3201,220 @@
                 const data = await apiRequest("/fees/class-summary");
                 if (data.length === 0) { document.getElementById("classDuesBody").innerHTML = `<p style="text-align:center; color:var(--gray); padding:20px;">No fee records yet.</p>`; return; }
                 const rows = data.map(c => `<tr><td>${c.class_name}</td><td>${c.student_count}</td><td>Rs. ${c.total_amount}</td><td>Rs. ${c.total_paid}</td><td>Rs. ${c.total_due}</td><td>${c.overdue_count}</td><td>${c.collection_rate}%</td></tr>`).join("");
-                document.getElementById("classDuesBody").innerHTML = `<div class="table-responsive"><table><thead><tr><th>Class</th><th>Students</th><th>Total Fee</th><th>Collected</th><th>Due</th><th>Overdue Records</th><th>Collection Rate</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+                document.getElementById("classDuesBody").innerHTML = `<div class="table-responsive"><table><thead><tr><th>Class</th><th>Students</th><th>Total Fee</th><th>Collected</th><th>Due</th><th>Overdue</th><th>Collection Rate</th></tr></thead><tbody>${rows}</tbody></table></div>`;
             } catch (error) { console.error("Error loading class dues summary:", error); document.getElementById("classDuesBody").innerHTML = `<p style="color:var(--danger);">Failed to load class dues summary.</p>`; }
+        }
+
+        // ==================== AUTH / INIT ====================
+        function logout() {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_role");
+            localStorage.removeItem("user_full_name");
+            localStorage.removeItem("user_email");
+            localStorage.removeItem("school_id");
+            localStorage.removeItem("school_name");
+            window.location.href = "index.html";
+        }
+        function startLiveClock() {
+            const el = document.getElementById("liveClockTime");
+            if (!el) return;
+            function tick() { el.textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true }); }
+            tick();
+            setInterval(tick, 1000);
+        }
+        async function init() {
+            try {
+                // Apply dark mode immediately (before auth check so login page doesn't flash)
+                const savedDark = localStorage.getItem("schoolhub_dark_mode") === "1";
+                applyDarkMode(savedDark);
+
+                const token = getToken();
+                if (!token) { window.location.href = "index.html"; return; }
+
+                const roleRaw = (localStorage.getItem("user_role") || "").toLowerCase();
+                if (roleRaw !== "admin") {
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("user_role");
+                    localStorage.removeItem("user_full_name");
+                    localStorage.removeItem("user_email");
+                    localStorage.removeItem("school_id");
+                    localStorage.removeItem("school_name");
+                    if (roleRaw === "teacher") window.location.href = "teacher-login.html";
+                    else if (roleRaw === "parent") window.location.href = "parent-login.html";
+                    else window.location.href = "index.html";
+                    return;
+                }
+
+                if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+                document.querySelectorAll(".menu-link").forEach(link => {
+                    link.addEventListener("click", (e) => {
+                        const view = e.target.closest("a").dataset.view;
+                        if (!view) return;
+                        switchView(view);
+                    });
+                });
+
+                startLiveClock();
+                applyPortalBackground();
+                await loadDashboard();
+
+                const displayName = localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || "User";
+                const roleDisplay = roleRaw.charAt(0).toUpperCase() + roleRaw.slice(1);
+                document.getElementById("userName").textContent = displayName;
+                document.getElementById("userRole").textContent = roleDisplay;
+                document.getElementById("userAvatar").textContent = displayName.charAt(0).toUpperCase();
+
+                const schoolName = localStorage.getItem("school_name");
+                if (schoolName) {
+                    const logoText = document.querySelector(".sidebar-logo .logo span:last-child");
+                    if (logoText) logoText.textContent = schoolName;
+                }
+            } catch (error) { console.error("Error initializing:", error); }
+        }
+        window.addEventListener("load", init);
+
+        // ==================== STUDENT PROFILE ====================
+        let currentProfileData = null;
+        const DOC_TYPE_LABELS = { id_card: "ID Card", b_form: "B-Form", test_paper: "Test Paper", profile_photo: "Card Photo", other: "Other" };
+        function renderStudentProgressChart(gradeRecords) {
+            const canvas = document.getElementById("studentProgressChart");
+            if (!canvas || typeof Chart === "undefined") return;
+            const dated = gradeRecords.filter(g => g.exam_date).slice().reverse();
+            if (window.studentProgressChartInstance) { window.studentProgressChartInstance.destroy(); window.studentProgressChartInstance = null; }
+            if (dated.length === 0) { showChartEmptyState("studentProgressChart", "Not enough dated grades yet to show a progress trend."); return; }
+            hideChartEmptyState("studentProgressChart");
+            window.studentProgressChartInstance = new Chart(canvas, {
+                type: "line",
+                data: { labels: dated.map(g => g.exam_date), datasets: [{ label: "Score %", data: dated.map(g => g.percentage), borderColor: "#0c6e6b", backgroundColor: "rgba(12,110,107,0.12)", fill: true, tension: 0.3, pointBackgroundColor: "#0c6e6b" }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } } },
+            });
+        }
+        async function loadStudentProfileDocuments(studentId) {
+            const container = document.getElementById("studentProfileDocuments");
+            try {
+                const docs = await apiRequest(`/students/${studentId}/documents`);
+                if (!docs || docs.length === 0) { container.innerHTML = `<p style="color:var(--gray); font-size:0.9rem;">No documents uploaded yet. <a href="student-documents.html" style="color:var(--primary); font-weight:600;">Upload one →</a></p>`; return; }
+                container.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px;">${docs.map(d => `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);"><div><span style="background:var(--teal-100,#e3f3f1); color:var(--primary-dark); padding:2px 10px; border-radius:999px; font-size:0.78rem; font-weight:600; margin-right:8px;">${DOC_TYPE_LABELS[d.doc_type] || d.doc_type}</span><span style="font-size:0.85rem; color:var(--gray);">${d.label || d.file_name || ""}</span></div><div style="display:flex; gap:8px;"><button class="btn btn-secondary btn-sm" onclick="viewProfileDocument(${studentId}, ${d.id})">View</button><button class="btn btn-sm" style="background:var(--danger); color:#fff; border:none;" onclick="deleteProfileDocument(${studentId}, ${d.id})">Delete</button></div></div>`).join("")}</div><p style="margin-top:10px;"><a href="student-documents.html" style="color:var(--primary); font-weight:600; font-size:0.88rem;">+ Upload another document →</a></p>`;
+            } catch (error) { container.innerHTML = `<p style="color:var(--danger); font-size:0.9rem;">Could not load documents.</p>`; }
+        }
+        async function viewProfileDocument(studentId, documentId) {
+            try { const { url } = await apiRequest(`/students/${studentId}/documents/${documentId}/url`); window.open(url, "_blank"); }
+            catch (error) { showAlert("Could not open document: " + error.message, "error"); }
+        }
+        async function deleteProfileDocument(studentId, documentId) {
+            if (!confirm("Delete this document? This cannot be undone.")) return;
+            try { await apiRequest(`/students/${studentId}/documents/${documentId}`, { method: "DELETE" }); showAlert("Document deleted."); await loadStudentProfileDocuments(studentId); }
+            catch (error) { showAlert("Could not delete: " + error.message, "error"); }
+        }
+        async function openStudentProfile(studentId) {
+            document.getElementById("studentProfileTitle").textContent = "Student Profile";
+            document.getElementById("studentProfileBody").innerHTML = "Loading...";
+            openModal("studentProfileModal");
+            try {
+                const data = await apiRequest(`/students/${studentId}/profile`);
+                currentProfileData = data;
+                const s = data.student;
+                document.getElementById("studentProfileTitle").textContent = `${s.name} — ${s.class_name || "-"} (Roll ${s.roll_number || "-"})`;
+                const attendanceRowsHtml = data.attendance.recent_records.length ? data.attendance.recent_records.map(r => `<tr><td>${r.date}</td><td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td><td>${r.remarks || "-"}</td></tr>`).join("") : `<tr><td colspan="3" style="text-align:center; color:var(--gray);">No attendance records</td></tr>`;
+                const gradeRowsHtml = data.grades.records.length ? data.grades.records.map(g => `<tr><td>${g.subject}</td><td>${g.marks_obtained}/${g.total_marks}</td><td>${g.percentage}%</td><td>${g.grade || "-"}</td><td>${g.exam_date || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No grade records</td></tr>`;
+                const feeRowsHtml = data.fees.records.length ? data.fees.records.map(f => `<tr><td>${f.fee_name || "-"}</td><td>Rs. ${f.amount}</td><td>Rs. ${f.paid_amount}</td><td>Rs. ${f.due_amount}</td><td><span class="badge ${feeBadgeClass(f.status)}">${f.status}</span></td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No fee records</td></tr>`;
+                const userRole = (localStorage.getItem("user_role") || "").toLowerCase();
+                document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Mother's Name:</strong><br>${s.mother_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance Rate</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average Grade</div></div><div style="padding:12px; border-radius:8px; background:var(--bg-secondary); text-align:center;"><div style="font-size:22px; font-weight:700;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${userRole === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
+                loadStudentProfileDocuments(studentId);
+                if (userRole === "admin") renderParentLoginSection(s);
+                renderStudentProgressChart(data.grades.records || []);
+            } catch (error) {
+                console.error("Error loading student profile:", error);
+                document.getElementById("studentProfileBody").innerHTML = `<p style="color:var(--danger);">Failed to load student profile.</p>`;
+            }
+        }
+        async function getSchoolProfile() {
+            if (cachedSchoolProfile) return cachedSchoolProfile;
+            try { cachedSchoolProfile = await apiRequest("/schools/profile"); }
+            catch (error) { cachedSchoolProfile = { name: "School", address: "", phone: "", email: "" }; }
+            return cachedSchoolProfile;
+        }
+        function openPrintWindow(title, bodyHtml) {
+            const printWindow = window.open("", "_blank", "width=800,height=900");
+            printWindow.document.write(`<html><head><title>${title}</title><style>body { font-family: Arial, sans-serif; padding: 30px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 14px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; } @media print { .header { border-bottom-color: #000; } }</style></head><body>${bodyHtml}</body></html>`);
+            printWindow.document.close();
+            printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
+        }
+        async function printReportCard() {
+            if (!currentProfileData) return;
+            const school = await getSchoolProfile();
+            const s = currentProfileData.student; const g = currentProfileData.grades; const a = currentProfileData.attendance;
+            const rows = g.records.length ? g.records.map(r => `<tr><td>${r.subject}</td><td>${r.marks_obtained}</td><td>${r.total_marks}</td><td>${r.percentage}%</td><td>${r.grade || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center;">No grade records</td></tr>`;
+            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><div>${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div><h2 style="margin-top:14px;">Report Card</h2></div><div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Father's Name:</strong> ${s.father_name || "-"}</div><div><strong>Class:</strong> ${s.class_name || "-"}<br><strong>Roll No:</strong> ${s.roll_number || "-"}</div><div><strong>Attendance:</strong> ${a.attendance_rate}%<br><strong>Average:</strong> ${g.average_percentage}%</div></div><table><thead><tr><th>Subject</th><th>Marks Obtained</th><th>Total Marks</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">${school.name || "School"} — Generated on ${new Date().toLocaleDateString()}</div>`;
+            openPrintWindow(`Report Card - ${s.name}`, bodyHtml);
+        }
+        function shareReportCardOnWhatsapp() {
+            if (!currentProfileData) return;
+            const s = currentProfileData.student; const g = currentProfileData.grades; const a = currentProfileData.attendance;
+            if (!s.phone) { showAlert("No phone number on file for this student", "error"); return; }
+            const subjectLines = g.records.length ? g.records.map(r => `- ${r.subject}: ${r.marks_obtained}/${r.total_marks} (${r.percentage}%, ${r.grade || "-"})`).join("\n") : "No grade records yet.";
+            const message = `📋 *Academic Report — ${s.name}*\nClass: ${s.class_name || "-"}  |  Roll No: ${s.roll_number || "-"}\n\n${subjectLines}\n\n📊 Overall Average: ${g.average_percentage}%\n✅ Attendance Rate: ${a.attendance_rate}%\n\nFor details, please contact the school.`;
+            const whatsappNumber = formatPhoneForWhatsApp(s.phone);
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
+        }
+        async function printStudentIdCard() {
+            if (!currentProfileData) return;
+            const school = await getSchoolProfile();
+            const s = currentProfileData.student;
+            let photoHtml = `<div style="width:80px; height:80px; border:1px solid #999; border-radius:50%; margin:10px auto; display:flex; align-items:center; justify-content:center; font-size:11px; color:#999;">Photo</div>`;
+            async function resolvePhotoUrl() {
+                if (s.photo_url) {
+                    try { const resp = await fetch(`${API_BASE}/students/${s.id}/photo-url`, { headers: { Authorization: `Bearer ${getToken()}` } }); if (resp.ok) return (await resp.json()).url; } catch (e) {}
+                }
+                try {
+                    const docsResp = await fetch(`${API_BASE}/students/${s.id}/documents?doc_type=profile_photo`, { headers: { Authorization: `Bearer ${getToken()}` } });
+                    if (docsResp.ok) { const docs = await docsResp.json(); if (Array.isArray(docs) && docs.length > 0) { const urlResp = await fetch(`${API_BASE}/students/${s.id}/documents/${docs[0].id}/url`, { headers: { Authorization: `Bearer ${getToken()}` } }); if (urlResp.ok) return (await urlResp.json()).url; } }
+                } catch (e) {}
+                return null;
+            }
+            try { const photoUrl = await resolvePhotoUrl(); if (photoUrl) photoHtml = `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block; border:1px solid #999;" />`; } catch (e) {}
+            const bodyHtml = `<div style="width:340px; border:2px solid #333; border-radius:10px; padding:16px; margin:0 auto; text-align:center; font-family:Arial, sans-serif;"><div style="font-weight:700; font-size:16px;">${school.name || "School"}</div><div style="font-size:11px; color:#555;">${school.address || ""}</div><div style="font-size:11px; color:#555; margin-bottom:10px;">${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div>${photoHtml}<div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div><div style="font-size:13px; margin-top:6px; text-align:left; padding:0 10px;"><div><strong>Class:</strong> ${s.class_name || "-"}</div><div><strong>Roll No:</strong> ${s.roll_number || "-"}</div><div><strong>Father's Name:</strong> ${s.father_name || "-"}</div>${s.phone ? `<div><strong>Contact:</strong> ${s.phone}</div>` : ""}</div><div style="margin-top:12px; font-size:10px; color:#777; border-top:1px solid #ddd; padding-top:6px;">${school.name || "School"} — Student ID Card ${new Date().getFullYear()}</div></div>`;
+            openPrintWindow(`ID Card - ${s.name}`, bodyHtml);
+        }
+        async function printAdmissionSlip() {
+            if (!currentProfileData) return;
+            const school = await getSchoolProfile();
+            const s = currentProfileData.student;
+            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><div>${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div><h2 style="margin-top:14px;">Admission Slip</h2></div><table><tbody><tr><td><strong>Student Name</strong></td><td>${s.name}</td></tr><tr><td><strong>Father's Name</strong></td><td>${s.father_name || "-"}</td></tr><tr><td><strong>Class</strong></td><td>${s.class_name || "-"}</td></tr><tr><td><strong>Roll Number</strong></td><td>${s.roll_number || "-"}</td></tr><tr><td><strong>Date of Birth</strong></td><td>${s.date_of_birth || "-"}</td></tr><tr><td><strong>Gender</strong></td><td>${s.gender || "-"}</td></tr><tr><td><strong>Contact Phone</strong></td><td>${s.phone || "-"}</td></tr><tr><td><strong>Email</strong></td><td>${s.email || "-"}</td></tr><tr><td><strong>Address</strong></td><td>${s.address || "-"}</td></tr></tbody></table><div class="meta" style="margin-top:30px;"><div>Parent/Guardian Signature: ______________________</div><div>Date: ${new Date().toLocaleDateString()}</div></div><div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>`;
+            openPrintWindow(`Admission Slip - ${s.name}`, bodyHtml);
+        }
+        async function printFeeReceipt(feeId) {
+            const fee = cachedFeesForPayment.find(f => f.id === feeId);
+            if (!fee) return;
+            const student = cachedStudentsForFees.find(s => s.id === fee.student_id);
+            const school = await getSchoolProfile();
+            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><div>${school.phone || ""}</div><h2 style="margin-top:14px;">Fee Receipt</h2></div><div class="meta"><div><strong>Student:</strong> ${student?.name || "Unknown"}<br><strong>Class:</strong> ${student?.class_name || "-"}</div><div><strong>Fee Type:</strong> ${fee.fee_name || "-"}<br><strong>Month:</strong> ${fee.month || "-"}</div><div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div></div><table><tbody><tr><td>Total Amount</td><td>Rs. ${fee.amount}</td></tr><tr><td>Paid Amount</td><td>Rs. ${fee.paid_amount}</td></tr><tr class="total-row"><td>Due Amount</td><td>Rs. ${fee.due_amount}</td></tr></tbody></table><div class="footer">${school.name || "School"} — This is a computer-generated receipt.</div>`;
+            openPrintWindow(`Receipt - ${student?.name || "Student"}`, bodyHtml);
+        }
+        function openBulkFeeModal() {
+            const classFilter = document.getElementById("studentClassFilter");
+            const uniqueClasses = classFilter ? [...classFilter.options].map(o => o.value).filter(Boolean) : [...new Set(students.map(s => s.class_name).filter(Boolean))];
+            document.getElementById("bulkFeeClass").innerHTML = '<option value="">Select Class</option>' + uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join("");
+            document.getElementById("bulkFeeType").value = "";
+            document.getElementById("bulkFeeAmount").value = "";
+            document.getElementById("bulkFeeDueDate").value = "";
+            document.getElementById("bulkFeeSkipExisting").checked = true;
+            openModal("bulkFeeModal");
+        }
+        async function submitBulkFee() {
+            try {
+                const payload = { class_name: document.getElementById("bulkFeeClass").value, fee_name: document.getElementById("bulkFeeType").value, amount: parseFloat(document.getElementById("bulkFeeAmount").value), due_date: document.getElementById("bulkFeeDueDate").value || null, skip_if_exists: document.getElementById("bulkFeeSkipExisting").checked };
+                if (!payload.class_name || !payload.fee_name || !payload.amount) { showAlert("Please fill all required fields", "error"); return; }
+                const result = await apiRequest("/fees/bulk-generate", { method: "POST", body: JSON.stringify(payload) });
+                showAlert(`Generated ${result.created_count} fee(s), skipped ${result.skipped_count}`, "success");
+                closeModal("bulkFeeModal");
+                await loadFees();
+            } catch (error) { console.error("Error generating bulk fees:", error); }
         }
     </script>
 
-    <!-- ==================== AI FAB ==================== -->
+    <!-- ==================== AI FAB (kept bottom-right) ==================== -->
     <button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
@@ -2746,7 +3472,7 @@
         .ai-widget-section { margin-bottom: 18px; }
         .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--dark); }
         .ai-widget-hint { font-size: 12px; color: var(--gray); margin: 0 0 8px; line-height: 1.4; }
-        .ai-widget-select { width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px; }
+        .ai-widget-select { width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: var(--bg-primary); color: var(--dark); }
         .ai-widget-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
         .ai-widget-btn:hover { background: var(--primary-dark); }
         .ai-widget-footnote { font-size: 10.5px; color: #94a3b8; line-height: 1.5; margin: 0; }
@@ -2761,11 +3487,12 @@
             aiWidgetOpen = !aiWidgetOpen;
             panel.classList.toggle("open", aiWidgetOpen);
             if (aiWidgetOpen) {
-                // ✅ Close calculator if it's open (avoid overlap)
+                // Close calculator if open
                 const calcPanel = document.getElementById("calcPanel");
+                const calcBtn = document.getElementById("calcHeaderBtn");
                 if (calcPanel && calcPanel.classList.contains("open")) {
                     calcPanel.classList.remove("open");
-                    if (typeof window !== "undefined") window._calcPanelOpen = false;
+                    if (calcBtn) calcBtn.classList.remove("active");
                 }
                 if (!aiWidgetLoaded) {
                     aiWidgetLoaded = true;
@@ -2773,200 +3500,6 @@
                 }
             }
         }
-    </script>
-
-    <!-- ==================== CALCULATOR FAB ==================== -->
-    <button id="calcFabBtn" onclick="toggleCalculator()" title="Calculator" aria-label="Open Calculator">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="3" width="14" height="18" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
-            <rect x="8" y="6" width="8" height="3" rx="0.8" fill="currentColor"/>
-            <circle cx="9" cy="12.5" r="1" fill="currentColor"/>
-            <circle cx="12" cy="12.5" r="1" fill="currentColor"/>
-            <circle cx="15" cy="12.5" r="1" fill="currentColor"/>
-            <circle cx="9" cy="16" r="1" fill="currentColor"/>
-            <circle cx="12" cy="16" r="1" fill="currentColor"/>
-            <circle cx="15" cy="16" r="1" fill="currentColor"/>
-            <circle cx="9" cy="19.5" r="1" fill="currentColor"/>
-            <circle cx="12" cy="19.5" r="1" fill="currentColor"/>
-            <circle cx="15" cy="19.5" r="1" fill="currentColor"/>
-        </svg>
-    </button>
-
-    <div id="calcPanel">
-        <div id="calcHeader">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div id="calcHeaderIcon">🧮</div>
-                <div>
-                    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;">Calculator</div>
-                    <div style="font-size:11.5px; opacity:0.8;">Quick calculations</div>
-                </div>
-            </div>
-            <span onclick="toggleCalculator()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
-        </div>
-        <div id="calcBody">
-            <div class="calc-display">
-                <div class="calc-expression" id="calcExpression"></div>
-                <div class="calc-result" id="calcResult">0</div>
-            </div>
-            <div class="calc-grid">
-                <button class="calc-btn calc-fn" onclick="calcClear()" title="Clear (C)">C</button>
-                <button class="calc-btn calc-fn" onclick="calcBackspace()" title="Backspace">⌫</button>
-                <button class="calc-btn calc-fn" onclick="calcPercent()" title="Percent">%</button>
-                <button class="calc-btn calc-op" onclick="calcInput('/')" title="Divide">÷</button>
-
-                <button class="calc-btn" onclick="calcInput('7')">7</button>
-                <button class="calc-btn" onclick="calcInput('8')">8</button>
-                <button class="calc-btn" onclick="calcInput('9')">9</button>
-                <button class="calc-btn calc-op" onclick="calcInput('*')" title="Multiply">×</button>
-
-                <button class="calc-btn" onclick="calcInput('4')">4</button>
-                <button class="calc-btn" onclick="calcInput('5')">5</button>
-                <button class="calc-btn" onclick="calcInput('6')">6</button>
-                <button class="calc-btn calc-op" onclick="calcInput('-')" title="Subtract">−</button>
-
-                <button class="calc-btn" onclick="calcInput('1')">1</button>
-                <button class="calc-btn" onclick="calcInput('2')">2</button>
-                <button class="calc-btn" onclick="calcInput('3')">3</button>
-                <button class="calc-btn calc-op" onclick="calcInput('+')" title="Add">+</button>
-
-                <button class="calc-btn" onclick="calcInput('(')">(</button>
-                <button class="calc-btn" onclick="calcInput('0')">0</button>
-                <button class="calc-btn" onclick="calcInput('.')">.</button>
-                <button class="calc-btn calc-op" onclick="calcInput(')')">)</button>
-
-                <button class="calc-btn" style="grid-column: span 4; background: linear-gradient(165deg, var(--primary-dark), var(--primary)); color: #fff;" onclick="calcEquals()">=</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ==================== CALCULATOR LOGIC ====================
-        let calcExpression = "";
-        let calcJustEvaluated = false;
-
-        function toggleCalculator() {
-            const panel = document.getElementById("calcPanel");
-            const isOpen = panel.classList.toggle("open");
-            window._calcPanelOpen = isOpen;
-            if (isOpen) {
-                // ✅ Close AI panel if open
-                const aiPanel = document.getElementById("aiWidgetPanel");
-                if (aiPanel && aiPanel.classList.contains("open")) {
-                    aiPanel.classList.remove("open");
-                    if (typeof aiWidgetOpen !== "undefined") aiWidgetOpen = false;
-                }
-                updateCalcDisplay();
-            }
-        }
-
-        function updateCalcDisplay() {
-            const exprEl = document.getElementById("calcExpression");
-            const resEl = document.getElementById("calcResult");
-            if (!exprEl || !resEl) return;
-            exprEl.textContent = calcExpression || "";
-            if (calcExpression.trim()) {
-                try {
-                    const result = evaluateCalcExpression(calcExpression);
-                    resEl.textContent = formatCalcNumber(result);
-                } catch (e) {
-                    // If partial expression, just show it raw in result for feedback
-                    resEl.textContent = calcExpression;
-                }
-            } else {
-                resEl.textContent = "0";
-            }
-        }
-
-        function evaluateCalcExpression(expr) {
-            // Only allow digits, operators, parentheses, dots, and whitespace
-            const sanitized = expr.replace(/[^0-9+\-*/().\s]/g, "");
-            if (!sanitized.trim()) throw new Error("Empty");
-            if (!/^[0-9+\-*/().\s]+$/.test(sanitized)) throw new Error("Invalid");
-            // eslint-disable-next-line no-new-func
-            const result = Function('"use strict"; return (' + sanitized + ')')();
-            if (typeof result !== "number" || !isFinite(result) || isNaN(result)) throw new Error("Invalid");
-            return result;
-        }
-
-        function formatCalcNumber(num) {
-            if (Number.isInteger(num)) return String(num);
-            const rounded = parseFloat(num.toFixed(10));
-            return String(rounded);
-        }
-
-        function calcInput(val) {
-            // If just evaluated and user types a digit or dot, start fresh
-            if (calcJustEvaluated && /^[0-9.]$/.test(val)) {
-                calcExpression = "";
-            }
-            calcJustEvaluated = false;
-            calcExpression += val;
-            updateCalcDisplay();
-        }
-
-        function calcClear() {
-            calcExpression = "";
-            calcJustEvaluated = false;
-            updateCalcDisplay();
-        }
-
-        function calcBackspace() {
-            if (calcJustEvaluated) {
-                calcClear();
-                return;
-            }
-            calcExpression = calcExpression.slice(0, -1);
-            updateCalcDisplay();
-        }
-
-        function calcPercent() {
-            if (calcJustEvaluated) {
-                const current = parseFloat(calcExpression);
-                if (!isNaN(current)) {
-                    calcExpression = formatCalcNumber(current / 100);
-                    calcJustEvaluated = false;
-                    updateCalcDisplay();
-                }
-                return;
-            }
-            if (calcExpression && !/[+\-*/(]$/.test(calcExpression)) {
-                calcExpression += "/100";
-                updateCalcDisplay();
-            }
-        }
-
-        function calcEquals() {
-            if (!calcExpression.trim()) return;
-            try {
-                const result = evaluateCalcExpression(calcExpression);
-                const resultStr = formatCalcNumber(result);
-                document.getElementById("calcExpression").textContent = calcExpression + " =";
-                document.getElementById("calcResult").textContent = resultStr;
-                calcExpression = resultStr;
-                calcJustEvaluated = true;
-            } catch (e) {
-                document.getElementById("calcResult").textContent = "Error";
-            }
-        }
-
-        // Keyboard support when calculator is open
-        document.addEventListener("keydown", (e) => {
-            const panel = document.getElementById("calcPanel");
-            if (!panel || !panel.classList.contains("open")) return;
-            const t = e.target;
-            if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-
-            const key = e.key;
-            if (/^[0-9]$/.test(key)) { calcInput(key); e.preventDefault(); }
-            else if (key === "+" || key === "-" || key === "*" || key === "/") { calcInput(key); e.preventDefault(); }
-            else if (key === ".") { calcInput("."); e.preventDefault(); }
-            else if (key === "(" || key === ")") { calcInput(key); e.preventDefault(); }
-            else if (key === "%") { calcPercent(); e.preventDefault(); }
-            else if (key === "Enter" || key === "=") { calcEquals(); e.preventDefault(); }
-            else if (key === "Backspace") { calcBackspace(); e.preventDefault(); }
-            else if (key === "Escape") { toggleCalculator(); e.preventDefault(); }
-            else if (key.toLowerCase() === "c") { calcClear(); e.preventDefault(); }
-        });
     </script>
 
     <script src="js/branding.js"></script>
