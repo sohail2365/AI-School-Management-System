@@ -28,7 +28,6 @@
         html, body { height: 100%; }
         body { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; background-color: var(--bg-secondary); color: var(--dark); transition: background-color 0.3s, color 0.3s; }
 
-        /* ============ DARK MODE ============ */
         body.dark-mode {
             --dark: #e8eaf0; --gray: #9aa3b3; --border: #2a3040;
             --bg-primary: #1c2230; --bg-secondary: #141822;
@@ -70,7 +69,6 @@
         .header-title { font-size: 26px; font-weight: 700; font-family: 'Poppins', sans-serif; color: var(--dark); }
         .user-section { display: flex; align-items: center; gap: 14px; }
 
-        /* ============ HEADER ICON BUTTONS (Calculator + Dark Mode) ============ */
         .header-icon-btn {
             background: var(--light); color: var(--primary-dark);
             border: 1px solid var(--border); border-radius: 10px;
@@ -203,7 +201,7 @@
         #overlaySliderContainer .slider-hints { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--gray); margin-top: 6px; }
         #overlaySliderContainer .slider-tip { font-size: 0.78rem; color: var(--gray); margin-top: 10px; margin-bottom: 0; line-height: 1.5; }
 
-        /* ============ CALCULATOR PANEL (opened from header) ============ */
+        /* ============ CALCULATOR PANEL ============ */
         #calcPanel { position: fixed; right: 24px; top: 84px; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); background: var(--bg-primary); border-radius: 18px; box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25); border: 1px solid var(--border); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(-12px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.22s ease, opacity 0.22s ease; }
         #calcPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
         #calcHeader { background: linear-gradient(165deg, #0a5a54, #0c6e6b 70%); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -236,7 +234,6 @@
         .tool-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 4px; }
         .tool-desc { font-size: 13px; color: var(--gray); line-height: 1.5; }
 
-        /* Fancy CSV pre */
         .csv-preview {
             background: var(--bg-secondary);
             border-radius: 10px;
@@ -251,7 +248,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Templates list */
         .template-item {
             padding: 10px 12px;
             background: var(--bg-secondary);
@@ -266,8 +262,156 @@
         .template-item-text { flex: 1; font-size: 0.85rem; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
         .template-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
+        /* ============ ADMIN AI CHAT ============ */
+        #adminAIChatModal .modal-content {
+            max-width: 760px;
+            height: 82vh;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+        #adminAIChatMessages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .ai-chat-bubble {
+            max-width: 82%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .ai-chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(165deg, var(--primary-dark), var(--primary));
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .ai-chat-bubble.assistant {
+            align-self: flex-start;
+            background: var(--bg-primary);
+            color: var(--dark);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        .ai-chat-bubble.error {
+            align-self: flex-start;
+            background: #fbeae8;
+            color: #991b1b;
+            border: 1px solid #f0c8c3;
+        }
+        body.dark-mode .ai-chat-bubble.error { background: #3d1a1a; color: #fecaca; border-color: #7f1d1d; }
+        .ai-chat-bubble.thinking {
+            align-self: flex-start;
+            background: var(--bg-primary);
+            color: var(--gray);
+            border: 1px solid var(--border);
+            font-style: italic;
+        }
+        .ai-chat-time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+        #adminAIQuestionInput {
+            flex: 1;
+            resize: none;
+            min-height: 46px;
+            max-height: 140px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--dark);
+            line-height: 1.4;
+        }
+        #adminAIQuestionInput:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(20, 149, 140, 0.14); }
+        .ai-quick-chips {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .ai-quick-chip {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--primary-dark);
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .ai-quick-chip:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+        body.dark-mode .ai-quick-chip { background: #1f2532; color: #7dd3c8; }
+        body.dark-mode .ai-quick-chip:hover { background: var(--primary); color: #fff; }
+
+        /* ============ BOTTOM-RIGHT FABs ============ */
+        #aiFabBtn { position: fixed; right: 24px; bottom: 24px; width: 58px; height: 58px; border-radius: 50%; border: none; background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(10, 90, 84, 0.35); z-index: 1200; transition: transform 0.2s ease, box-shadow 0.2s ease; animation: aiFabFloat 3s ease-in-out infinite; }
+        #aiFabBtn:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(10, 90, 84, 0.45); }
+        #aiFabBtn svg { position: relative; z-index: 1; }
+        #aiFabPulse { position: absolute; inset: 0; border-radius: 50%; background: var(--primary); opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite; }
+        @keyframes aiFabPulse { 0% { transform: scale(1); opacity: 0.5; } 70% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(1.7); opacity: 0; } }
+        @keyframes aiFabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        /* Dark mode FAB — sits above the AI FAB */
+        #darkModeFabBtn {
+            position: fixed;
+            right: 24px;
+            bottom: 96px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            color: var(--primary-dark);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(10, 90, 84, 0.18);
+            z-index: 1201;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+        }
+        #darkModeFabBtn:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(10, 90, 84, 0.3); }
+        #darkModeFabBtn:active { transform: scale(0.96); }
+        body.dark-mode #darkModeFabBtn { background: #1c2230; color: #fbbf24; border-color: #2a3040; }
+
+        #aiWidgetPanel { position: fixed; right: 24px; bottom: 96px; width: 340px; max-width: calc(100vw - 32px); max-height: 70vh; max-height: 70dvh; background: var(--bg-primary); border-radius: 18px; box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25); border: 1px solid var(--border); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.22s ease, opacity 0.22s ease; }
+        #aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+        #aiWidgetHeader { background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+        #aiWidgetHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        #aiWidgetBody { padding: 16px; overflow-y: auto; }
+        .ai-widget-section { margin-bottom: 18px; }
+        .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--dark); }
+        .ai-widget-hint { font-size: 12px; color: var(--gray); margin: 0 0 8px; line-height: 1.4; }
+        .ai-widget-select { width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: var(--bg-primary); color: var(--dark); }
+        .ai-widget-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+        .ai-widget-btn:hover { background: var(--primary-dark); }
+        .ai-widget-footnote { font-size: 10.5px; color: #94a3b8; line-height: 1.5; margin: 0; }
+
         @media (max-width: 640px) {
             #calcPanel { right: 12px; left: 12px; width: auto; }
+        }
+        @media (max-width: 480px) {
+            #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); }
+            #aiFabBtn { right: 16px; bottom: 16px; }
+            #darkModeFabBtn { right: 16px; bottom: 88px; }
         }
     </style>
 </head>
@@ -306,15 +450,14 @@
                     </div>
                 </div>
                 <div class="user-section">
-                    <!-- AI Ask button -->
                     <button class="header-icon-btn" onclick="openAdminAIChat()" title="Ask AI about any student, teacher, or data" aria-label="Ask AI">
                         <span>🤖</span><span class="header-btn-label">Ask AI</span>
                     </button>
-                    <!-- Calculator -->
                     <button class="header-icon-btn" id="calcHeaderBtn" onclick="toggleCalculator()" title="Calculator" aria-label="Open Calculator">
                         <span>🧮</span><span class="header-btn-label">Calculator</span>
                     </button>
                     <a href="teacher-login.html" target="_blank" class="portal-link">🧑‍💻 Teacher Portal</a>
+                    <a href="parent-login.html" target="_blank" class="portal-link">👨‍👩‍👧 Parent Portal</a>
                     <div class="user-avatar" id="userAvatar">U</div>
                     <div class="user-info">
                         <div class="user-name" id="userName">User Name</div>
@@ -585,7 +728,6 @@
                     </div>
                 </div>
 
-                <!-- ==================== TOOLS VIEW ==================== -->
                 <div class="view" id="toolsView">
                     <div class="card">
                         <div class="card-header">
@@ -595,10 +737,7 @@
                             <p style="color:var(--gray); font-size:0.92rem; margin-bottom:20px;">
                                 Bulk operations and utilities that save time. Everything here works on many records at once.
                             </p>
-
                             <div class="tools-grid">
-
-                                <!-- 1. Bulk Import -->
                                 <div class="card tool-card" onclick="openBulkImportModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">📥</div>
@@ -608,8 +747,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 2. Bulk Export -->
                                 <div class="card tool-card" onclick="openBulkExportModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">📤</div>
@@ -619,8 +756,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 3. Print Center -->
                                 <div class="card tool-card" onclick="openPrintCenterModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">🖨️</div>
@@ -630,8 +765,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 4. Broadcast Center -->
                                 <div class="card tool-card" onclick="openBroadcastCenterModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">📢</div>
@@ -641,8 +774,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 5. Message Templates -->
                                 <div class="card tool-card" onclick="openTemplatesModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">💬</div>
@@ -652,8 +783,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 6. Year-End Promotion -->
                                 <div class="card tool-card" onclick="openPromotionModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">🎓</div>
@@ -663,8 +792,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 7. Backup & Restore -->
                                 <div class="card tool-card" onclick="openBackupModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">🗄️</div>
@@ -674,8 +801,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 8. Bulk Exam Entry -->
                                 <div class="card tool-card" onclick="openBulkExamEntryModal()">
                                     <div class="card-body">
                                         <div class="tool-icon">🎯</div>
@@ -685,37 +810,28 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ==================== TOOL MODALS ==================== -->
-
-                <!-- BULK IMPORT -->
                 <div class="modal" id="bulkImportModal">
                     <div class="modal-content modal-wide">
                         <span class="modal-close" onclick="closeModal('bulkImportModal')">✕</span>
                         <div class="modal-header">📥 Bulk Import Students</div>
-
                         <p style="font-size:0.9rem; color:var(--gray); margin-bottom:14px; line-height:1.6;">
                             Upload a CSV file with student data. Required columns: <b>name</b>, <b>class_name</b>, <b>roll_number</b>.
                             Optional: father_name, mother_name, gender, date_of_birth, phone, email, parent_email, address.
                         </p>
-
                         <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px;">📄 Sample CSV format:</div>
                         <div class="csv-preview">name,father_name,class_name,roll_number,gender,date_of_birth,phone,parent_email
 Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com
 Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</div>
-
                         <div class="form-group" style="margin-bottom:16px;">
                             <label>Select CSV File</label>
                             <input type="file" id="bulkImportFile" accept=".csv">
                         </div>
-
                         <div id="bulkImportResult" style="display:none; margin-top:14px; padding:14px; border-radius:10px; font-size:0.9rem; line-height:1.6;"></div>
-
                         <div class="btn-group">
                             <button class="btn btn-primary" id="bulkImportBtn" onclick="submitBulkImport()">⬆️ Upload &amp; Import</button>
                             <button class="btn btn-secondary" onclick="closeModal('bulkImportModal')">Cancel</button>
@@ -723,7 +839,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- BULK EXPORT -->
                 <div class="modal" id="bulkExportModal">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeModal('bulkExportModal')">✕</span>
@@ -760,7 +875,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- PRINT CENTER -->
                 <div class="modal" id="printCenterModal">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeModal('printCenterModal')">✕</span>
@@ -790,7 +904,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- BROADCAST CENTER -->
                 <div class="modal" id="broadcastModal">
                     <div class="modal-content modal-wide">
                         <span class="modal-close" onclick="closeModal('broadcastModal')">✕</span>
@@ -826,7 +939,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- MESSAGE TEMPLATES -->
                 <div class="modal" id="templatesModal">
                     <div class="modal-content modal-wide">
                         <span class="modal-close" onclick="closeModal('templatesModal')">✕</span>
@@ -852,7 +964,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- YEAR-END PROMOTION -->
                 <div class="modal" id="promotionModal">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeModal('promotionModal')">✕</span>
@@ -878,7 +989,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- BACKUP & RESTORE -->
                 <div class="modal" id="backupModal">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeModal('backupModal')">✕</span>
@@ -902,7 +1012,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     </div>
                 </div>
 
-                <!-- BULK EXAM ENTRY -->
                 <div class="modal" id="bulkExamEntryModal">
                     <div class="modal-content modal-xl">
                         <span class="modal-close" onclick="closeModal('bulkExamEntryModal')">✕</span>
@@ -1030,6 +1139,75 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ ADMIN AI CHAT MODAL ============ -->
+    <div class="modal" id="adminAIChatModal">
+        <div class="modal-content modal-wide">
+            <span class="modal-close" onclick="closeModal('adminAIChatModal')">✕</span>
+            <div class="modal-header">🤖 Ask AI — Admin Assistant</div>
+            <div id="adminAIChatMessages">
+                <div class="ai-chat-bubble assistant">
+Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, class, fees, ya attendance ke baare mein sawaal poochein — Roman Urdu ya English mein.
+                    <div class="ai-chat-time">Try: "Ahmed Khan ki fees kitni hai?"</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <textarea id="adminAIQuestionInput" rows="1" placeholder="Apna sawaal yahan likhein..."></textarea>
+                <button class="btn btn-primary" onclick="sendAdminAIQuestion()" id="adminAISendBtn" style="min-width: 90px; justify-content: center;">Send</button>
+            </div>
+            <div class="ai-quick-chips">
+                <button class="ai-quick-chip" onclick="aiQuickAsk('Total students kitne hain?')">📊 Total students</button>
+                <button class="ai-quick-chip" onclick="aiQuickAsk('Is month kitni fees pending hai?')">💰 Pending fees</button>
+                <button class="ai-quick-chip" onclick="aiQuickAsk('Aaj ki attendance rate kya hai?')">✅ Today attendance</button>
+                <button class="ai-quick-chip" onclick="aiQuickAsk('Top 5 students by grades dikhao')">⭐ Top students</button>
+                <button class="ai-quick-chip" onclick="aiQuickAsk('Kaunse students ki fees 30 din se zyada overdue hai?')">⚠️ Overdue fees</button>
+                <button class="ai-quick-chip" onclick="aiQuickAsk('Inactive staff members dikhao')">🧑 Inactive staff</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CALCULATOR PANEL ============ -->
+    <div id="calcPanel">
+        <div id="calcHeader">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div id="calcHeaderIcon">🧮</div>
+                <div>
+                    <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;">Calculator</div>
+                    <div style="font-size:11.5px; opacity:0.8;">Quick calculations</div>
+                </div>
+            </div>
+            <span onclick="toggleCalculator()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
+        </div>
+        <div id="calcBody">
+            <div class="calc-display">
+                <div class="calc-expression" id="calcExpression"></div>
+                <div class="calc-result" id="calcResult">0</div>
+            </div>
+            <div class="calc-grid">
+                <button class="calc-btn calc-fn" onclick="calcClear()" title="Clear (C)">C</button>
+                <button class="calc-btn calc-fn" onclick="calcBackspace()" title="Backspace">⌫</button>
+                <button class="calc-btn calc-fn" onclick="calcPercent()" title="Percent">%</button>
+                <button class="calc-btn calc-op" onclick="calcInput('/')" title="Divide">÷</button>
+                <button class="calc-btn" onclick="calcInput('7')">7</button>
+                <button class="calc-btn" onclick="calcInput('8')">8</button>
+                <button class="calc-btn" onclick="calcInput('9')">9</button>
+                <button class="calc-btn calc-op" onclick="calcInput('*')" title="Multiply">×</button>
+                <button class="calc-btn" onclick="calcInput('4')">4</button>
+                <button class="calc-btn" onclick="calcInput('5')">5</button>
+                <button class="calc-btn" onclick="calcInput('6')">6</button>
+                <button class="calc-btn calc-op" onclick="calcInput('-')" title="Subtract">−</button>
+                <button class="calc-btn" onclick="calcInput('1')">1</button>
+                <button class="calc-btn" onclick="calcInput('2')">2</button>
+                <button class="calc-btn" onclick="calcInput('3')">3</button>
+                <button class="calc-btn calc-op" onclick="calcInput('+')" title="Add">+</button>
+                <button class="calc-btn" onclick="calcInput('(')">(</button>
+                <button class="calc-btn" onclick="calcInput('0')">0</button>
+                <button class="calc-btn" onclick="calcInput('.')">.</button>
+                <button class="calc-btn calc-op" onclick="calcInput(')')">)</button>
+                <button class="calc-btn calc-eq" style="grid-column: span 4;" onclick="calcEquals()">=</button>
             </div>
         </div>
     </div>
@@ -1294,10 +1472,10 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
         </div>
     </div>
 
+    <!-- ==================== MAIN SCRIPT ==================== -->
     <script>
         const API_BASE = (window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null")
             ? "http://127.0.0.1:8000" : window.location.origin;
-        let currentUser = null;
         let students = [];
         let cachedSchoolProfile = null;
 
@@ -1991,7 +2169,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
 
         let cachedStaffList = [];
         let cachedStaffAttendance = [];
-        let cachedSalaryPayments = [];
         let currentStaffSubtab = "list";
         let staffFilterTimeout = null;
         let currentStaffAttendanceDateFilter = "";
@@ -2340,12 +2517,10 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
 
         // ==================== TOOLS ====================
         function loadToolsView() { /* static HTML */ }
-
         function getAllClasses() {
             return [...new Set(students.map(s => s.class_name).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
         }
 
-        // -------- Bulk Import --------
         function openBulkImportModal() {
             document.getElementById("bulkImportFile").value = "";
             const result = document.getElementById("bulkImportResult");
@@ -2359,8 +2534,7 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             const result = document.getElementById("bulkImportResult");
             const file = fileInput.files[0];
             if (!file) { showAlert("Please select a CSV file first.", "error"); return; }
-            btn.disabled = true;
-            btn.textContent = "Importing…";
+            btn.disabled = true; btn.textContent = "Importing…";
             result.style.display = "block";
             result.style.background = "var(--bg-secondary)";
             result.style.border = "1px solid var(--border)";
@@ -2392,7 +2566,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             }
         }
 
-        // -------- Bulk Export --------
         function openBulkExportModal() { openModal("bulkExportModal"); }
         async function runBulkExport() {
             const stamp = new Date().toISOString().slice(0, 10);
@@ -2452,7 +2625,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             } catch (error) { showAlert("Export failed: " + error.message, "error"); }
         }
 
-        // -------- Print Center --------
         function openPrintCenterModal() {
             const sel = document.getElementById("pcClass");
             const classes = getAllClasses();
@@ -2468,7 +2640,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                 const classStudents = students.filter(s => s.class_name === className);
                 if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
                 const school = await getSchoolProfile();
-
                 if (type === "class_list") {
                     const rows = classStudents.map((s, i) => `<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.father_name || "-"}</td><td>${s.roll_number || "-"}</td><td>${s.phone || "-"}</td></tr>`).join("");
                     const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:10px;">Class ${className} — Student List</h2></div><table><thead><tr><th>#</th><th>Name</th><th>Father's Name</th><th>Roll</th><th>Phone</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">${school.name} — ${new Date().toLocaleDateString()}</div>`;
@@ -2476,8 +2647,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     closeModal("printCenterModal");
                     return;
                 }
-
-                // For report cards / ID cards / receipts, loop through students
                 const allPages = [];
                 for (const s of classStudents) {
                     try {
@@ -2485,29 +2654,13 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                         if (type === "report_cards") {
                             const g = profile.grades; const a = profile.attendance;
                             const rows = g.records.length ? g.records.map(r => `<tr><td>${r.subject}</td><td>${r.marks_obtained}</td><td>${r.total_marks}</td><td>${r.percentage}%</td><td>${r.grade || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center;">No grade records</td></tr>`;
-                            allPages.push(`<div style="page-break-after: always; padding: 20px 0;">
-                                <div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:14px;">Report Card</h2></div>
-                                <div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Father:</strong> ${s.father_name || "-"}</div><div><strong>Class:</strong> ${s.class_name}<br><strong>Roll:</strong> ${s.roll_number || "-"}</div><div><strong>Attendance:</strong> ${a.attendance_rate}%<br><strong>Average:</strong> ${g.average_percentage}%</div></div>
-                                <table><thead><tr><th>Subject</th><th>Marks</th><th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table>
-                            </div>`);
+                            allPages.push(`<div style="page-break-after: always; padding: 20px 0;"><div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:14px;">Report Card</h2></div><div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Father:</strong> ${s.father_name || "-"}</div><div><strong>Class:</strong> ${s.class_name}<br><strong>Roll:</strong> ${s.roll_number || "-"}</div><div><strong>Attendance:</strong> ${a.attendance_rate}%<br><strong>Average:</strong> ${g.average_percentage}%</div></div><table><thead><tr><th>Subject</th><th>Marks</th><th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`);
                         } else if (type === "id_cards") {
-                            allPages.push(`<div style="display:inline-block; width:48%; margin:1%; vertical-align:top;">
-                                <div style="border:2px solid #333; border-radius:10px; padding:16px; text-align:center;">
-                                    <div style="font-weight:700; font-size:14px;">${school.name || "School"}</div>
-                                    <div style="font-size:10px; color:#666;">${school.phone || ""}</div>
-                                    <div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div>
-                                    <div style="font-size:12px; margin-top:6px;"><strong>Class:</strong> ${s.class_name || "-"} | <strong>Roll:</strong> ${s.roll_number || "-"}</div>
-                                    <div style="font-size:12px;"><strong>Father:</strong> ${s.father_name || "-"}</div>
-                                </div>
-                            </div>`);
+                            allPages.push(`<div style="display:inline-block; width:48%; margin:1%; vertical-align:top;"><div style="border:2px solid #333; border-radius:10px; padding:16px; text-align:center;"><div style="font-weight:700; font-size:14px;">${school.name || "School"}</div><div style="font-size:10px; color:#666;">${school.phone || ""}</div><div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div><div style="font-size:12px; margin-top:6px;"><strong>Class:</strong> ${s.class_name || "-"} | <strong>Roll:</strong> ${s.roll_number || "-"}</div><div style="font-size:12px;"><strong>Father:</strong> ${s.father_name || "-"}</div></div></div>`);
                         } else if (type === "fee_receipts") {
                             const paidFees = (profile.fees.records || []).filter(f => f.paid_amount > 0);
                             paidFees.forEach(f => {
-                                allPages.push(`<div style="page-break-after: always; padding: 20px 0;">
-                                    <div class="header"><h1>${school.name || "School"}</h1><h2 style="margin-top:10px;">Fee Receipt</h2></div>
-                                    <div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Class:</strong> ${s.class_name || "-"}</div><div><strong>Fee:</strong> ${f.fee_name || "-"}<br><strong>Month:</strong> ${f.month || "-"}</div><div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div></div>
-                                    <table><tbody><tr><td>Total</td><td>Rs. ${f.amount}</td></tr><tr><td>Paid</td><td>Rs. ${f.paid_amount}</td></tr><tr class="total-row"><td>Due</td><td>Rs. ${f.due_amount}</td></tr></tbody></table>
-                                </div>`);
+                                allPages.push(`<div style="page-break-after: always; padding: 20px 0;"><div class="header"><h1>${school.name || "School"}</h1><h2 style="margin-top:10px;">Fee Receipt</h2></div><div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Class:</strong> ${s.class_name || "-"}</div><div><strong>Fee:</strong> ${f.fee_name || "-"}<br><strong>Month:</strong> ${f.month || "-"}</div><div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div></div><table><tbody><tr><td>Total</td><td>Rs. ${f.amount}</td></tr><tr><td>Paid</td><td>Rs. ${f.paid_amount}</td></tr><tr class="total-row"><td>Due</td><td>Rs. ${f.due_amount}</td></tr></tbody></table></div>`);
                             });
                         }
                     } catch (e) { console.error("Failed for student " + s.name, e); }
@@ -2518,7 +2671,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             } catch (error) { showAlert("Print center failed: " + error.message, "error"); }
         }
 
-        // -------- Broadcast Center --------
         function openBroadcastCenterModal() {
             const sel = document.getElementById("bcClass");
             const classes = getAllClasses();
@@ -2559,7 +2711,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                     recipients = students.filter(s => unpaidIds.has(s.id) && s.phone);
                 }
                 document.getElementById("bcCount").textContent = `${recipients.length} recipient(s) loaded`;
-                const msg = document.getElementById("bcMessage").value.trim();
                 document.getElementById("bcRecipientsList").innerHTML = recipients.length === 0
                     ? `<p style="color:var(--gray);">No recipients found.</p>`
                     : recipients.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:6px;"><span>${s.name} (${s.class_name || "-"}) — ${s.phone}</span><button class="btn btn-sm btn-whatsapp" onclick="sendBroadcastTo('${(s.phone || "").replace(/'/g, "\\'")}')">📱 Send</button></div>`).join("");
@@ -2572,7 +2723,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, "_blank");
         }
 
-        // -------- Message Templates --------
         function loadTemplatesFromStorage() {
             try { return JSON.parse(localStorage.getItem("schoolhub_msg_templates") || "[]"); }
             catch (e) { return []; }
@@ -2616,7 +2766,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             renderTemplatesList();
         }
 
-        // -------- Year-End Promotion --------
         async function openPromotionModal() {
             if (!students || students.length === 0) students = await apiRequest("/students");
             const sel = document.getElementById("promoteFromClass");
@@ -2649,7 +2798,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             await loadStudents();
         }
 
-        // -------- Backup & Restore --------
         function openBackupModal() { openModal("backupModal"); }
         async function runBackup() {
             try {
@@ -2699,7 +2847,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             } catch (error) { showAlert("Restore failed: " + error.message, "error"); }
         }
 
-        // -------- Bulk Exam Entry --------
         async function openBulkExamEntryModal() {
             if (!students || students.length === 0) students = await apiRequest("/students");
             const sel = document.getElementById("beeClass");
@@ -2747,7 +2894,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             closeModal("bulkExamEntryModal");
         }
 
-        // -------- Settings --------
         async function loadSettings() {
             try {
                 const s = await apiRequest("/settings/school");
@@ -2911,10 +3057,8 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
         function applyDarkMode(enabled) {
             if (enabled) document.body.classList.add("dark-mode");
             else document.body.classList.remove("dark-mode");
-            const icon = document.getElementById("darkModeIcon");
-            const label = document.getElementById("darkModeLabel");
-            if (icon) icon.textContent = enabled ? "☀️" : "🌙";
-            if (label) label.textContent = enabled ? "Day" : "Night";
+            const fabIcon = document.getElementById("darkModeFabIcon");
+            if (fabIcon) fabIcon.textContent = enabled ? "☀️" : "🌙";
         }
         function toggleDarkMode() {
             const enabled = !document.body.classList.contains("dark-mode");
@@ -2922,21 +3066,18 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             applyDarkMode(enabled);
         }
 
-        // ==================== CALCULATOR (from header) ====================
+        // ==================== CALCULATOR ====================
         let calcExpression = "";
         let calcJustEvaluated = false;
         function toggleCalculator() {
             const panel = document.getElementById("calcPanel");
             const btn = document.getElementById("calcHeaderBtn");
+            if (!panel) { console.error("calcPanel not found"); return; }
             const isOpen = panel.classList.toggle("open");
             if (btn) btn.classList.toggle("active", isOpen);
             if (isOpen) {
-                // Close AI panel to avoid overlap
-                const aiPanel = document.getElementById("aiWidgetPanel");
-                if (aiPanel && aiPanel.classList.contains("open")) {
-                    aiPanel.classList.remove("open");
-                    if (typeof aiWidgetOpen !== "undefined") aiWidgetOpen = false;
-                }
+                const aiModal = document.getElementById("adminAIChatModal");
+                if (aiModal && aiModal.classList.contains("show")) closeModal("adminAIChatModal");
                 updateCalcDisplay();
             }
         }
@@ -3013,7 +3154,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             else if (key.toLowerCase() === "c") { calcClear(); e.preventDefault(); }
         });
 
-        // ==================== CSV DOWNLOAD ====================
         function downloadCSV(rows, filename) {
             if (!rows || rows.length === 0) { showAlert("No data to export", "error"); return; }
             const escapeCell = (val) => { const str = (val === null || val === undefined) ? "" : String(val); if (str.includes(",") || str.includes('"') || str.includes("\n")) return `"${str.replace(/"/g, '""')}"`; return str; };
@@ -3036,7 +3176,7 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             downloadCSV(rows, `fees_${new Date().toISOString().slice(0, 10)}.csv`);
         }
 
-        // ==================== AI ====================
+        // ==================== AI INSIGHTS ====================
         let aiMode = null;
         let aiTargetId = null;
         let activeAdminMsgStudentId = null;
@@ -3083,9 +3223,12 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             try {
                 if (!students || students.length === 0) students = await apiRequest("/students");
                 const studentSelect = document.getElementById("aiStudentSelect");
-                studentSelect.innerHTML = students.map(s => `<option value="${s.id}" data-name="${s.name}">${s.roll_number} - ${s.name} (${s.class_name || "-"})</option>`).join("") || `<option value="">No students yet</option>`;
-                const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
-                document.getElementById("aiClassSelect").innerHTML = classes.length ? classes.map(c => `<option value="${c}">${c}</option>`).join("") : `<option value="">No classes yet</option>`;
+                if (studentSelect) studentSelect.innerHTML = students.map(s => `<option value="${s.id}" data-name="${s.name}">${s.roll_number} - ${s.name} (${s.class_name || "-"})</option>`).join("") || `<option value="">No students yet</option>`;
+                const aiClassSelect = document.getElementById("aiClassSelect");
+                if (aiClassSelect) {
+                    const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
+                    aiClassSelect.innerHTML = classes.length ? classes.map(c => `<option value="${c}">${c}</option>`).join("") : `<option value="">No classes yet</option>`;
+                }
             } catch (error) { console.error("Error loading AI Insights view:", error); }
         }
         function generateAIStudentSummaryFromInsights() {
@@ -3166,42 +3309,224 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             const text = document.getElementById("aiResultBody").textContent;
             navigator.clipboard.writeText(text).then(() => showAlert("Copied to clipboard", "success"), () => showAlert("Copy failed", "error"));
         }
-        async function openAttendanceRegisterModal() {
-            try { if (!students || students.length === 0) students = await apiRequest("/students"); } catch (error) { console.error("Error loading students:", error); }
-            const uniqueClasses = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
-            document.getElementById("registerClassSelect").innerHTML = '<option value="">Select Class</option>' + uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join("");
-            const now = new Date();
-            document.getElementById("registerMonthInput").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-            openModal("attendanceRegisterModal");
+
+        // ==================== ADMIN AI CHAT ====================
+        let aiChatHistory = [];
+
+        function openAdminAIChat() {
+            openModal("adminAIChatModal");
+            const calcPanel = document.getElementById("calcPanel");
+            const calcBtn = document.getElementById("calcHeaderBtn");
+            if (calcPanel && calcPanel.classList.contains("open")) {
+                calcPanel.classList.remove("open");
+                if (calcBtn) calcBtn.classList.remove("active");
+            }
+            setTimeout(() => {
+                const inp = document.getElementById("adminAIQuestionInput");
+                if (inp) inp.focus();
+            }, 150);
         }
-        async function printAttendanceRegister() {
-            const className = document.getElementById("registerClassSelect").value;
-            const month = document.getElementById("registerMonthInput").value;
-            if (!className || !month) { showAlert("Class aur month dono select karein", "error"); return; }
-            let data;
-            try { data = await apiRequest(`/attendance/register/${encodeURIComponent(className)}?month=${month}`); }
-            catch (error) { console.error("Error loading register:", error); return; }
-            const school = await getSchoolProfile();
-            const days = data.days_in_month;
-            const dayHeaders = Array.from({ length: days }, (_, i) => `<th style="min-width:18px; padding:3px 2px; font-size:9px;">${i + 1}</th>`).join("");
-            const studentRows = data.students.map((s, idx) => {
-                const dayCells = Array.from({ length: days }, (_, i) => { const v = s.days[String(i + 1)]; const mark = v === true ? "P" : v === false ? '<span style="color:#c00; font-weight:700;">A</span>' : ""; return `<td style="text-align:center; padding:3px 2px; font-size:9px;">${mark}</td>`; }).join("");
-                return `<tr><td style="font-size:10px; padding:3px 4px;">${idx + 1}</td><td style="font-size:10px; padding:3px 4px; white-space:nowrap;">${s.name}</td><td style="font-size:10px; padding:3px 4px; text-align:center;">${s.roll_number}</td>${dayCells}<td style="font-size:10px; text-align:center; font-weight:700;">${s.present_count}</td><td style="font-size:10px; text-align:center; font-weight:700; color:#c00;">${s.absent_count}</td></tr>`;
-            }).join("");
-            const monthLabel = new Date(month + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" });
-            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:10px;">Attendance Register — Class ${data.class_name}</h2><div style="font-size:14px; margin-top:4px;">${monthLabel}</div></div><table style="border-collapse:collapse; width:100%;"><thead><tr><th style="font-size:10px; padding:3px 4px;">#</th><th style="font-size:10px; padding:3px 4px;">Student Name</th><th style="font-size:10px; padding:3px 4px;">Roll</th>${dayHeaders}<th style="font-size:10px; padding:3px 2px;">P</th><th style="font-size:10px; padding:3px 2px;">A</th></tr></thead><tbody>${studentRows}</tbody></table><div style="margin-top:16px; font-size:11px;">P = Present &nbsp;&nbsp; A = Absent &nbsp;&nbsp; Blank = Not marked</div><div class="meta" style="margin-top:24px;"><div>Teacher's Signature: ______________</div><div>Principal's Signature: ______________</div></div><div class="footer">${school.name || "School"} — Attendance Register (${monthLabel})</div>`;
-            closeModal("attendanceRegisterModal");
-            openPrintWindow(`Attendance Register - Class ${data.class_name} - ${month}`, bodyHtml);
+
+        function escapeHtml(str) {
+            return String(str || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
-        async function openClassDuesModal() {
-            document.getElementById("classDuesBody").innerHTML = "Loading...";
-            openModal("classDuesModal");
+
+        function addAIChatBubble(role, text, isError = false) {
+            const container = document.getElementById("adminAIChatMessages");
+            const bubble = document.createElement("div");
+            bubble.className = "ai-chat-bubble " + (isError ? "error" : role);
+            const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            bubble.innerHTML = `${escapeHtml(text)}<div class="ai-chat-time">${time}</div>`;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+            return bubble;
+        }
+
+        async function aiQuickAsk(question) {
+            const inp = document.getElementById("adminAIQuestionInput");
+            if (inp) inp.value = question;
+            await sendAdminAIQuestion();
+        }
+
+        async function sendAdminAIQuestion() {
+            const input = document.getElementById("adminAIQuestionInput");
+            const sendBtn = document.getElementById("adminAISendBtn");
+            const question = input.value.trim();
+            if (!question) return;
+
+            input.value = "";
+            input.style.height = "auto";
+            addAIChatBubble("user", question);
+            aiChatHistory.push({ role: "user", text: question });
+
+            const thinking = addAIChatBubble("thinking", "🤔 Soch raha hoon...");
+            sendBtn.disabled = true;
+            sendBtn.textContent = "…";
+
             try {
-                const data = await apiRequest("/fees/class-summary");
-                if (data.length === 0) { document.getElementById("classDuesBody").innerHTML = `<p style="text-align:center; color:var(--gray); padding:20px;">No fee records yet.</p>`; return; }
-                const rows = data.map(c => `<tr><td>${c.class_name}</td><td>${c.student_count}</td><td>Rs. ${c.total_amount}</td><td>Rs. ${c.total_paid}</td><td>Rs. ${c.total_due}</td><td>${c.overdue_count}</td><td>${c.collection_rate}%</td></tr>`).join("");
-                document.getElementById("classDuesBody").innerHTML = `<div class="table-responsive"><table><thead><tr><th>Class</th><th>Students</th><th>Total Fee</th><th>Collected</th><th>Due</th><th>Overdue</th><th>Collection Rate</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-            } catch (error) { console.error("Error loading class dues summary:", error); document.getElementById("classDuesBody").innerHTML = `<p style="color:var(--danger);">Failed to load class dues summary.</p>`; }
+                const context = await buildAdminAIContext(question);
+                const language = /[\u0600-\u06FF]/.test(question) ? "urdu" : "roman_urdu";
+                const result = await apiRequest("/ai/ask", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        question: question,
+                        context: context,
+                        history: aiChatHistory.slice(-6),
+                        language: language
+                    })
+                });
+                thinking.remove();
+                const answer = result.answer || result.summary || result.response || "No response.";
+                addAIChatBubble("assistant", answer);
+                aiChatHistory.push({ role: "assistant", text: answer });
+            } catch (error) {
+                thinking.remove();
+                let msg;
+                if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) {
+                    msg = "⚠️ Backend mein /ai/ask endpoint abhi available nahi hai. Apne developer se isay add karne ko kahein. (Frontend bilkul ready hai.)";
+                } else {
+                    msg = "❌ AI response nahi mil saka: " + error.message;
+                }
+                addAIChatBubble("assistant", msg, true);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = "Send";
+                document.getElementById("adminAIQuestionInput").focus();
+            }
+        }
+
+        async function buildAdminAIContext(question) {
+            const q = question.toLowerCase();
+            const context = { school_context: {} };
+
+            try {
+                const school = await getSchoolProfile();
+                context.school_context.name = school.name || "";
+            } catch (e) {}
+
+            try {
+                context.school_context.metrics = await apiRequest("/dashboard/metrics");
+            } catch (e) {}
+
+            try {
+                if (!students || students.length === 0) students = await apiRequest("/students");
+            } catch (e) { students = []; }
+
+            const qNorm = q.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+            let matchedStudent = null;
+            for (const s of students) {
+                const nameNorm = (s.name || "").toLowerCase();
+                if (nameNorm && qNorm.includes(nameNorm)) { matchedStudent = s; break; }
+                const words = nameNorm.split(/\s+/).filter(w => w.length >= 4);
+                if (words.length && words.every(w => qNorm.includes(w))) { matchedStudent = s; break; }
+            }
+
+            if (matchedStudent) {
+                try {
+                    context.focus_student = await apiRequest(`/students/${matchedStudent.id}/profile`);
+                } catch (e) {
+                    context.focus_student = { student: matchedStudent };
+                }
+            }
+
+            const classMatch = q.match(/class\s*([a-z0-9\-]+)/i);
+            const allClasses = [...new Set(students.map(s => s.class_name).filter(Boolean))];
+            let focusClass = null;
+            if (classMatch) {
+                const needle = classMatch[1].toLowerCase();
+                focusClass = allClasses.find(c => c.toLowerCase() === needle) || null;
+            }
+
+            if (focusClass) {
+                const classStudents = students.filter(s => s.class_name === focusClass);
+                context.focus_class = {
+                    class_name: focusClass,
+                    student_count: classStudents.length,
+                    students: classStudents.slice(0, 60).map(s => ({
+                        id: s.id, name: s.name, roll: s.roll_number, phone: s.phone
+                    })),
+                };
+                if (/\b(fee|fees|dues|payment|pending|overdue)\b/.test(q)) {
+                    try {
+                        const allFees = await apiRequest("/fees");
+                        const ids = new Set(classStudents.map(s => s.id));
+                        context.focus_class.fees = allFees.filter(f => ids.has(f.student_id)).slice(0, 200);
+                    } catch (e) {}
+                }
+            }
+
+            if (/\b(fee|fees|dues|payment|pending|overdue|collect)\b/.test(q) && !context.focus_class && !context.focus_student) {
+                try {
+                    const fees = await apiRequest("/fees");
+                    context.fees_summary = {
+                        total_records: fees.length,
+                        pending_count: fees.filter(f => f.status !== "paid").length,
+                        overdue_count: fees.filter(f => f.status !== "paid" && f.due_date && new Date(f.due_date) < new Date()).length,
+                        total_due: fees.reduce((sum, f) => sum + (f.due_amount || 0), 0),
+                        sample: fees.filter(f => f.status !== "paid").slice(0, 30)
+                    };
+                } catch (e) {}
+            }
+
+            if (/\b(attendance|present|absent|hazri|hazir)\b/.test(q)) {
+                try {
+                    context.attendance_today = await apiRequest("/dashboard/attendance-today");
+                } catch (e) {}
+            }
+
+            if (/\b(staff|teacher|teachers|employee|employees|ustad)\b/.test(q)) {
+                try {
+                    const staff = await apiRequest("/staff");
+                    context.staff_summary = {
+                        total: staff.length,
+                        active: staff.filter(s => s.status === "active").length,
+                        inactive: staff.filter(s => s.status === "inactive").length,
+                        list: staff.slice(0, 50).map(s => ({
+                            name: s.name, designation: s.designation, role: s.role,
+                            subject: s.subject, class_assigned: s.class_assigned,
+                            salary: s.salary, status: s.status
+                        }))
+                    };
+                } catch (e) {}
+            }
+
+            if (/\b(top|best|highest|grade|grades|marks|topper)\b/.test(q)) {
+                try {
+                    const grades = await apiRequest("/grades");
+                    const byStudent = {};
+                    grades.forEach(g => {
+                        if (!byStudent[g.student_id]) byStudent[g.student_id] = { total_pct: 0, count: 0 };
+                        byStudent[g.student_id].total_pct += (g.percentage || 0);
+                        byStudent[g.student_id].count++;
+                    });
+                    const ranked = Object.entries(byStudent)
+                        .map(([sid, d]) => {
+                            const st = students.find(s => String(s.id) === String(sid));
+                            return st ? { id: st.id, name: st.name, class_name: st.class_name, avg_pct: d.count ? +(d.total_pct / d.count).toFixed(1) : 0 } : null;
+                        })
+                        .filter(Boolean)
+                        .sort((a, b) => b.avg_pct - a.avg_pct)
+                        .slice(0, 10);
+                    context.top_students = ranked;
+                } catch (e) {}
+            }
+
+            if (!context.focus_student && !context.focus_class) {
+                context.students_overview = {
+                    total: students.length,
+                    classes: allClasses,
+                    roster_sample: students.slice(0, 80).map(s => ({
+                        name: s.name, class_name: s.class_name, roll: s.roll_number, phone: s.phone
+                    }))
+                };
+            }
+
+            return context;
         }
 
         // ==================== AUTH / INIT ====================
@@ -3223,7 +3548,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
         }
         async function init() {
             try {
-                // Apply dark mode immediately (before auth check so login page doesn't flash)
                 const savedDark = localStorage.getItem("schoolhub_dark_mode") === "1";
                 applyDarkMode(savedDark);
 
@@ -3253,6 +3577,21 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
                         switchView(view);
                     });
                 });
+
+                // Wire up AI chat textarea auto-resize + Enter-to-send
+                const aiTa = document.getElementById("adminAIQuestionInput");
+                if (aiTa) {
+                    aiTa.addEventListener("input", () => {
+                        aiTa.style.height = "auto";
+                        aiTa.style.height = Math.min(aiTa.scrollHeight, 140) + "px";
+                    });
+                    aiTa.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendAdminAIQuestion();
+                        }
+                    });
+                }
 
                 startLiveClock();
                 applyPortalBackground();
@@ -3413,7 +3752,7 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
         }
     </script>
 
-    <!-- ==================== AI FAB (kept bottom-right) ==================== -->
+    <!-- ==================== AI INSIGHTS FAB ==================== -->
     <button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
@@ -3426,6 +3765,11 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             <rect x="20.3" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
         </svg>
         <span id="aiFabPulse"></span>
+    </button>
+
+    <!-- ==================== DARK MODE FAB ==================== -->
+    <button id="darkModeFabBtn" onclick="toggleDarkMode()" title="Toggle day/night mode" aria-label="Toggle theme">
+        <span id="darkModeFabIcon">🌙</span>
     </button>
 
     <div id="aiWidgetPanel">
@@ -3456,28 +3800,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
         </div>
     </div>
 
-    <style>
-        #aiFabBtn { position: fixed; right: 24px; bottom: 24px; width: 58px; height: 58px; border-radius: 50%; border: none; background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(10, 90, 84, 0.35); z-index: 1200; transition: transform 0.2s ease, box-shadow 0.2s ease; animation: aiFabFloat 3s ease-in-out infinite; }
-        #aiFabBtn:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(10, 90, 84, 0.45); }
-        #aiFabBtn svg { position: relative; z-index: 1; }
-        #aiFabPulse { position: absolute; inset: 0; border-radius: 50%; background: var(--primary); opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite; }
-        @keyframes aiFabPulse { 0% { transform: scale(1); opacity: 0.5; } 70% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(1.7); opacity: 0; } }
-        @keyframes aiFabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        #aiWidgetPanel { position: fixed; right: 24px; bottom: 96px; width: 340px; max-width: calc(100vw - 32px); max-height: 70vh; max-height: 70dvh; background: var(--bg-primary); border-radius: 18px; box-shadow: 0 20px 50px rgba(10, 90, 84, 0.25); border: 1px solid var(--border); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.22s ease, opacity 0.22s ease; }
-        #aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
-        #aiWidgetHeader { background: linear-gradient(165deg, var(--primary-dark), var(--primary) 70%); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
-        #aiWidgetHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        #aiWidgetBody { padding: 16px; overflow-y: auto; }
-        .ai-widget-section { margin-bottom: 18px; }
-        .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--dark); }
-        .ai-widget-hint { font-size: 12px; color: var(--gray); margin: 0 0 8px; line-height: 1.4; }
-        .ai-widget-select { width: 100%; padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: var(--bg-primary); color: var(--dark); }
-        .ai-widget-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
-        .ai-widget-btn:hover { background: var(--primary-dark); }
-        .ai-widget-footnote { font-size: 10.5px; color: #94a3b8; line-height: 1.5; margin: 0; }
-        @media (max-width: 480px) { #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); } #aiFabBtn { right: 16px; bottom: 16px; } }
-    </style>
-
     <script>
         let aiWidgetOpen = false;
         let aiWidgetLoaded = false;
@@ -3486,7 +3808,6 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             aiWidgetOpen = !aiWidgetOpen;
             panel.classList.toggle("open", aiWidgetOpen);
             if (aiWidgetOpen) {
-                // Close calculator if open
                 const calcPanel = document.getElementById("calcPanel");
                 const calcBtn = document.getElementById("calcHeaderBtn");
                 if (calcPanel && calcPanel.classList.contains("open")) {
