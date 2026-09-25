@@ -285,8 +285,14 @@ body.hope-theme .toggle-switch input:checked + .toggle-slider::before { transfor
 
 /* ============================================================
    SECTION 7 — CARDS
+   ------------------------------------------------------------
+   NOTE: Uses :not(.hope-login-page) so that login/register pages
+   keep their OWN custom card/header styling (purple gradient).
+   Without this exclusion, the global card-header rule overrides
+   the login page's specific header style and the purple gradient
+   disappears.
    ============================================================ */
-body.hope-theme .card {
+body.hope-theme:not(.hope-login-page) .card {
     background: var(--ht-bg-primary);
     border-radius: var(--ht-radius-lg);
     box-shadow: var(--ht-shadow-sm);
@@ -294,8 +300,8 @@ body.hope-theme .card {
     overflow: hidden;
     transition: box-shadow 0.3s ease;
 }
-body.hope-theme .card:hover { box-shadow: var(--ht-shadow-md); }
-body.hope-theme .card-header {
+body.hope-theme:not(.hope-login-page) .card:hover { box-shadow: var(--ht-shadow-md); }
+body.hope-theme:not(.hope-login-page) .card-header {
     background: linear-gradient(135deg, rgba(124, 92, 224, 0.04) 0%, rgba(245, 165, 92, 0.04) 100%);
     padding: 18px 24px;
     border-bottom: 1px solid rgba(124, 92, 224, 0.08);
@@ -305,8 +311,8 @@ body.hope-theme .card-header {
     flex-wrap: wrap;
     gap: 10px;
 }
-body.hope-theme .card-body { padding: 22px 24px; }
-body.hope-theme .card-title {
+body.hope-theme:not(.hope-login-page) .card-body { padding: 22px 24px; }
+body.hope-theme:not(.hope-login-page) .card-title {
     font-family: 'Poppins', sans-serif;
     font-size: 17px;
     font-weight: 700;
