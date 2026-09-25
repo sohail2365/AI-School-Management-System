@@ -1,0 +1,667 @@
+/* ============================================================
+   HOPE-TO-SKILL MASTER THEME  —  v1.0.0
+   ------------------------------------------------------------
+   Apply to any page with just 3 changes:
+     1. <link rel="stylesheet" href="css/hope-theme.css">
+     2. <body class="hope-theme">
+     3. <script src="js/hope-theme.js"></script> (before </body>)
+
+   Login/Register pages:  <body class="hope-theme hope-login-page">
+   Portal pages:          <body class="hope-theme hope-portal-page">
+
+   FUTURE UPDATES: edit ONLY this file + hope-theme.js, every page
+   picks up changes automatically.
+
+   Version: v1.0.0   Last updated: 2026-09-24
+   ============================================================ */
+
+/* ============================================================
+   SECTION 1 — DESIGN TOKENS (CSS VARIABLES)
+   Change colors here → whole system updates
+   ============================================================ */
+body.hope-theme {
+    /* Primary — Purple */
+    --ht-primary: #7C5CE0;
+    --ht-primary-dark: #6244C7;
+    --ht-primary-deep: #4F36A8;
+    --ht-primary-light: #A78BFA;
+    --ht-primary-lighter: #EDE9FE;
+
+    /* Accent — Orange */
+    --ht-accent: #F5A55C;
+    --ht-accent-dark: #E58E3F;
+    --ht-accent-light: #FFD4AC;
+    --ht-accent-lighter: #FFF1E0;
+
+    /* Status */
+    --ht-success: #10B981;
+    --ht-warning: #F59E0B;
+    --ht-danger: #EF4444;
+    --ht-info: #3B82F6;
+
+    /* Neutrals */
+    --ht-dark: #1E1B4B;
+    --ht-gray: #6B7280;
+    --ht-light: #F7F5FF;
+    --ht-border: #E5E1F5;
+    --ht-border-strong: #D5CDF0;
+
+    /* Surfaces */
+    --ht-bg-primary: #FFFFFF;
+    --ht-bg-secondary: #F7F5FF;
+    --ht-bg-body: #F7F5FF;
+
+    /* Shadows */
+    --ht-shadow-sm: 0 2px 8px rgba(124, 92, 224, 0.08);
+    --ht-shadow-md: 0 8px 24px rgba(124, 92, 224, 0.12);
+    --ht-shadow-lg: 0 16px 40px rgba(124, 92, 224, 0.18);
+    --ht-shadow-xl: 0 24px 64px rgba(79, 54, 168, 0.3);
+    --ht-shadow-accent: 0 8px 24px rgba(245, 165, 92, 0.35);
+
+    /* Radii */
+    --ht-radius-sm: 10px;
+    --ht-radius-md: 14px;
+    --ht-radius-lg: 20px;
+    --ht-radius-xl: 24px;
+
+    /* Transitions */
+    --ht-transition: 0.2s ease;
+    --ht-transition-smooth: 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   SECTION 2 — GLOBAL BODY
+   ============================================================ */
+body.hope-theme {
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    background: var(--ht-bg-body);
+    color: var(--ht-dark);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
+}
+body.hope-theme * { box-sizing: border-box; }
+
+/* ============================================================
+   SECTION 3 — FLOATING BACKGROUND (auto-injected by JS)
+   ============================================================ */
+body.hope-theme .ht-bg-pattern {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background: linear-gradient(135deg, #8B7FE8 0%, #7C5CE0 50%, #6D4DC7 100%);
+}
+body.hope-theme .ht-bg-pattern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08) 0%, transparent 25%),
+        radial-gradient(circle at 85% 80%, rgba(245, 165, 92, 0.12) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 40%);
+    animation: htBgPulse 12s ease-in-out infinite;
+}
+body.hope-theme .ht-bg-pattern::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    transform: rotate(15deg);
+    opacity: 0.35;
+}
+@keyframes htBgPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.85; } }
+
+body.hope-theme .ht-bg-pattern .ht-float-icon {
+    position: absolute;
+    font-size: 80px;
+    opacity: 0.08;
+    animation: htFloatIcon 20s ease-in-out infinite;
+    user-select: none;
+}
+body.hope-theme .ht-bg-pattern .ht-fi-1 { top: 8%; left: 5%; animation-delay: 0s; }
+body.hope-theme .ht-bg-pattern .ht-fi-2 { top: 20%; right: 8%; animation-delay: -3s; font-size: 120px; }
+body.hope-theme .ht-bg-pattern .ht-fi-3 { bottom: 15%; left: 12%; animation-delay: -6s; font-size: 100px; }
+body.hope-theme .ht-bg-pattern .ht-fi-4 { bottom: 8%; right: 15%; animation-delay: -9s; }
+body.hope-theme .ht-bg-pattern .ht-fi-5 { top: 45%; left: 45%; animation-delay: -12s; font-size: 140px; }
+body.hope-theme .ht-bg-pattern .ht-fi-6 { top: 70%; right: 40%; animation-delay: -15s; }
+
+@keyframes htFloatIcon {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(20px, -20px) rotate(5deg); }
+    50% { transform: translate(-15px, 15px) rotate(-5deg); }
+    75% { transform: translate(15px, 20px) rotate(3deg); }
+}
+
+/* Ensure page content sits above background */
+body.hope-theme > *:not(.ht-bg-pattern) { position: relative; z-index: 1; }
+
+/* ============================================================
+   SECTION 4 — TYPOGRAPHY
+   ============================================================ */
+body.hope-theme h1,
+body.hope-theme h2,
+body.hope-theme h3,
+body.hope-theme h4,
+body.hope-theme .card-title {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    color: var(--ht-dark);
+}
+body.hope-theme h1 { font-weight: 800; letter-spacing: 0.3px; }
+body.hope-theme h2 { font-weight: 700; }
+body.hope-theme h3 { font-weight: 700; }
+
+body.hope-theme a {
+    color: var(--ht-primary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+body.hope-theme a:hover { color: var(--ht-primary-dark); }
+
+/* ============================================================
+   SECTION 5 — BUTTONS
+   ============================================================ */
+body.hope-theme .btn,
+body.hope-theme button:not(.ht-no-theme):not(.icon-only) {
+    border-radius: var(--ht-radius-sm);
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--ht-transition);
+    border: none;
+    font-size: 14px;
+    padding: 12px 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+body.hope-theme .btn-primary,
+body.hope-theme button[type="submit"]:not(.ht-no-theme),
+body.hope-theme input[type="submit"] {
+    background: linear-gradient(135deg, var(--ht-primary) 0%, var(--ht-primary-dark) 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3);
+}
+body.hope-theme .btn-primary:hover,
+body.hope-theme button[type="submit"]:not(.ht-no-theme):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124, 92, 224, 0.45);
+}
+body.hope-theme .btn-primary:active { transform: translateY(0); }
+
+body.hope-theme .btn-secondary {
+    background: var(--ht-bg-secondary);
+    color: var(--ht-primary-dark);
+    border: 1.5px solid var(--ht-border-strong);
+}
+body.hope-theme .btn-secondary:hover {
+    border-color: var(--ht-primary);
+    color: var(--ht-primary);
+    background: var(--ht-primary-lighter);
+    transform: translateY(-2px);
+}
+
+body.hope-theme .btn-danger {
+    background: linear-gradient(135deg, var(--ht-danger), #DC2626);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+}
+body.hope-theme .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45); }
+
+body.hope-theme .btn-success {
+    background: linear-gradient(135deg, var(--ht-success), #059669);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+body.hope-theme .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45); }
+
+body.hope-theme .btn-whatsapp {
+    background: linear-gradient(135deg, #25D366, #1EBE5A);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+}
+body.hope-theme .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 211, 102, 0.45); }
+
+body.hope-theme .btn-sm { padding: 8px 14px; font-size: 12.5px; border-radius: 8px; }
+body.hope-theme .btn-lg { padding: 15px 32px; font-size: 15px; border-radius: 12px; }
+
+/* ============================================================
+   SECTION 6 — FORMS
+   ============================================================ */
+body.hope-theme input[type="text"],
+body.hope-theme input[type="email"],
+body.hope-theme input[type="password"],
+body.hope-theme input[type="number"],
+body.hope-theme input[type="tel"],
+body.hope-theme input[type="date"],
+body.hope-theme input[type="month"],
+body.hope-theme input[type="search"],
+body.hope-theme input[type="url"],
+body.hope-theme select,
+body.hope-theme textarea {
+    padding: 12px 15px;
+    border: 1.5px solid var(--ht-border);
+    border-radius: var(--ht-radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    background: var(--ht-bg-primary);
+    color: var(--ht-dark);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+    max-width: 100%;
+}
+body.hope-theme input::placeholder,
+body.hope-theme textarea::placeholder {
+    color: #B0A8C8;
+}
+body.hope-theme input:focus,
+body.hope-theme select:focus,
+body.hope-theme textarea:focus {
+    outline: none;
+    border-color: var(--ht-primary);
+    box-shadow: 0 0 0 4px rgba(124, 92, 224, 0.12);
+}
+body.hope-theme label {
+    font-weight: 600;
+    color: var(--ht-dark);
+    font-size: 13px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Toggle switch */
+body.hope-theme .toggle-switch { position: relative; display: inline-block; width: 44px; height: 25px; flex-shrink: 0; }
+body.hope-theme .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+body.hope-theme .toggle-slider { position: absolute; cursor: pointer; inset: 0; background-color: #D5CDF0; border-radius: 24px; transition: background-color 0.2s ease; }
+body.hope-theme .toggle-slider::before { content: ""; position: absolute; height: 19px; width: 19px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: transform 0.2s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+body.hope-theme .toggle-switch input:checked + .toggle-slider { background: linear-gradient(135deg, var(--ht-primary), var(--ht-primary-dark)); }
+body.hope-theme .toggle-switch input:checked + .toggle-slider::before { transform: translateX(19px); }
+
+/* ============================================================
+   SECTION 7 — CARDS
+   ============================================================ */
+body.hope-theme .card {
+    background: var(--ht-bg-primary);
+    border-radius: var(--ht-radius-lg);
+    box-shadow: var(--ht-shadow-sm);
+    border: 1px solid rgba(124, 92, 224, 0.08);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+body.hope-theme .card:hover { box-shadow: var(--ht-shadow-md); }
+body.hope-theme .card-header {
+    background: linear-gradient(135deg, rgba(124, 92, 224, 0.04) 0%, rgba(245, 165, 92, 0.04) 100%);
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(124, 92, 224, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+body.hope-theme .card-body { padding: 22px 24px; }
+body.hope-theme .card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ht-dark);
+    margin: 0;
+}
+
+/* ============================================================
+   SECTION 8 — TABLES
+   ============================================================ */
+body.hope-theme table {
+    width: 100%;
+    border-collapse: collapse;
+}
+body.hope-theme table thead {
+    background: linear-gradient(135deg, rgba(124, 92, 224, 0.06), rgba(245, 165, 92, 0.04));
+    border-bottom: 1.5px solid rgba(124, 92, 224, 0.1);
+}
+body.hope-theme table th {
+    padding: 14px 15px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--ht-primary-dark);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+body.hope-theme table td {
+    padding: 14px 15px;
+    border-bottom: 1px solid rgba(124, 92, 224, 0.06);
+    font-size: 14px;
+}
+body.hope-theme table tbody tr { transition: background 0.15s ease; }
+body.hope-theme table tbody tr:hover { background: rgba(124, 92, 224, 0.03); }
+body.hope-theme table tbody tr:last-child td { border-bottom: none; }
+
+/* ============================================================
+   SECTION 9 — BADGES & ALERTS
+   ============================================================ */
+body.hope-theme .badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+body.hope-theme .badge-success { background: #D1FAE5; color: #065F46; }
+body.hope-theme .badge-warning { background: #FEF3C7; color: #92400E; }
+body.hope-theme .badge-danger { background: #FEE2E2; color: #991B1B; }
+body.hope-theme .badge-info { background: #DBEAFE; color: #1E40AF; }
+
+body.hope-theme .alert {
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+body.hope-theme .alert-success { background: #D1FAE5; color: #065F46; border-left: 4px solid var(--ht-success); }
+body.hope-theme .alert-error { background: #FEE2E2; color: #991B1B; border-left: 4px solid var(--ht-danger); }
+body.hope-theme .alert-warning { background: #FEF3C7; color: #92400E; border-left: 4px solid var(--ht-warning); }
+body.hope-theme .alert-info { background: #DBEAFE; color: #1E40AF; border-left: 4px solid var(--ht-info); }
+
+/* ============================================================
+   SECTION 10 — MODALS
+   ============================================================ */
+body.hope-theme .modal {
+    background: rgba(30, 27, 75, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+body.hope-theme .modal-content {
+    background: var(--ht-bg-primary);
+    border-radius: var(--ht-radius-xl);
+    box-shadow: var(--ht-shadow-xl);
+    animation: htSlideUp var(--ht-transition-smooth);
+}
+body.hope-theme .modal-header {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ht-primary-dark);
+    border-bottom: 1.5px solid var(--ht-border);
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+}
+body.hope-theme .modal-close {
+    border-radius: 50%;
+    transition: all 0.15s;
+}
+body.hope-theme .modal-close:hover {
+    background: var(--ht-danger);
+    color: #fff;
+    transform: rotate(90deg);
+}
+@keyframes htSlideUp {
+    from { transform: translateY(24px) scale(0.96); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   SECTION 11 — TOP HEADER (for portal pages)
+   ============================================================ */
+body.hope-theme.hope-portal-page .top-header,
+body.hope-theme .top-header {
+    background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(124, 92, 224, 0.2);
+    padding: 18px 30px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: none;
+}
+body.hope-theme .top-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
+    background-size: 200% 100%;
+    animation: htHeaderShine 5s linear infinite;
+    pointer-events: none;
+}
+@keyframes htHeaderShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+body.hope-theme .header-title {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(90deg, #ffffff 0%, #FFD4AC 50%, #ffffff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: htTitleGradient 4s ease-in-out infinite;
+    letter-spacing: 0.3px;
+    position: relative;
+    margin: 0;
+}
+@keyframes htTitleGradient { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+
+/* Header buttons inside top-header */
+body.hope-theme .top-header button:not(.btn-primary):not(.btn-danger):not(.btn-success):not(.btn-whatsapp):not(.ht-no-theme),
+body.hope-theme .top-header .header-icon-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 0.5rem 0.85rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+body.hope-theme .top-header button:not(.btn-primary):not(.btn-danger):not(.btn-success):not(.btn-whatsapp):not(.ht-no-theme):hover,
+body.hope-theme .top-header .header-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   SECTION 12 — SIDEBAR (for portal pages)
+   ============================================================ */
+body.hope-theme .sidebar {
+    background: linear-gradient(165deg, #6D4DC7 0%, #7C5CE0 55%, #8B7FE8 100%);
+    color: #fff;
+    box-shadow: 8px 0 40px rgba(79, 54, 168, 0.35);
+}
+body.hope-theme .sidebar-menu { list-style: none; padding: 0 12px; margin: 0; }
+body.hope-theme .sidebar-menu li { margin: 4px 0; }
+body.hope-theme .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    font-weight: 500;
+    font-size: 14.5px;
+    cursor: pointer;
+}
+body.hope-theme .sidebar-menu a:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: translateX(4px);
+}
+body.hope-theme .sidebar-menu a.active {
+    background: linear-gradient(135deg, var(--ht-accent) 0%, #FFB978 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(245, 165, 92, 0.45);
+    font-weight: 600;
+    transform: translateX(4px);
+}
+
+/* ============================================================
+   SECTION 13 — LOGIN / REGISTER PAGE VARIANT
+   Add class "hope-login-page" to body
+   ============================================================ */
+body.hope-theme.hope-login-page {
+    background: #F7F5FF !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+body.hope-theme.hope-login-page .login-card,
+body.hope-theme.hope-login-page .auth-card,
+body.hope-theme.hope-login-page .register-card,
+body.hope-theme.hope-login-page .login-container,
+body.hope-theme.hope-login-page .auth-container {
+    background: var(--ht-bg-primary);
+    border-radius: var(--ht-radius-xl);
+    box-shadow: var(--ht-shadow-xl);
+    padding: 40px;
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid rgba(124, 92, 224, 0.08);
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================================
+   SECTION 14 — FLOATING ACTION BUTTONS
+   ============================================================ */
+body.hope-theme .ht-fab {
+    position: fixed;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1200;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #fff;
+    font-size: 24px;
+}
+body.hope-theme .ht-fab:hover { transform: scale(1.1); }
+body.hope-theme .ht-fab:active { transform: scale(0.95); }
+body.hope-theme .ht-fab-primary {
+    background: linear-gradient(135deg, var(--ht-primary), var(--ht-primary-dark));
+    box-shadow: 0 8px 28px rgba(124, 92, 224, 0.4), 0 0 0 6px rgba(124, 92, 224, 0.1);
+}
+body.hope-theme .ht-fab-accent {
+    background: linear-gradient(135deg, var(--ht-accent), #FFB978);
+    box-shadow: 0 8px 28px rgba(245, 165, 92, 0.4), 0 0 0 6px rgba(245, 165, 92, 0.1);
+}
+
+/* ============================================================
+   SECTION 15 — ANIMATIONS (utility classes)
+   ============================================================ */
+body.hope-theme .ht-fade-in { animation: htFadeIn 0.35s ease; }
+body.hope-theme .ht-slide-up { animation: htSlideUpSimple 0.35s ease; }
+body.hope-theme .ht-scale-in { animation: htScaleIn 0.3s ease; }
+
+@keyframes htFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes htSlideUpSimple {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes htScaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Page title gradient animation (for title elements) */
+body.hope-theme .ht-animated-title {
+    background: linear-gradient(90deg, var(--ht-primary-dark) 0%, var(--ht-accent) 50%, var(--ht-primary-dark) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: htTitleGradient 4s ease-in-out infinite;
+}
+
+/* ============================================================
+   SECTION 16 — RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+    body.hope-theme .top-header { padding: 14px 18px; }
+    body.hope-theme .header-title { font-size: 18px; }
+    body.hope-theme.hope-login-page .login-card,
+    body.hope-theme.hope-login-page .auth-card,
+    body.hope-theme.hope-login-page .register-card,
+    body.hope-theme.hope-login-page .login-container,
+    body.hope-theme.hope-login-page .auth-container {
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+    body.hope-theme table th,
+    body.hope-theme table td {
+        font-size: 13px;
+        padding: 10px;
+    }
+}
+@media (max-width: 480px) {
+    body.hope-theme .ht-fab { width: 52px; height: 52px; font-size: 22px; }
+}
+
+/* ============================================================
+   SECTION 17 — DARK MODE
+   Triggered by adding class "dark-mode" to body (existing system)
+   ============================================================ */
+body.hope-theme.dark-mode {
+    --ht-dark: #E5E2F5;
+    --ht-gray: #9B95B8;
+    --ht-border: #2E2A4A;
+    --ht-border-strong: #3D3660;
+    --ht-bg-primary: #1E1B36;
+    --ht-bg-secondary: #262042;
+    --ht-bg-body: #141028;
+    --ht-primary-lighter: #2E2650;
+    --ht-accent-lighter: #3A2E20;
+
+    background: #141028;
+    color: var(--ht-dark);
+}
+body.hope-theme.dark-mode .ht-bg-pattern {
+    background: linear-gradient(135deg, #2A1F58 0%, #1E1B36 50%, #141028 100%);
+}
+body.hope-theme.dark-mode .card,
+body.hope-theme.dark-mode .modal-content {
+    background: #1E1B36;
+    border-color: #2E2A4A;
+}
+body.hope-theme.dark-mode .card-header {
+    background: linear-gradient(135deg, rgba(124,92,224,0.08), rgba(245,165,92,0.06));
+}
+body.hope-theme.dark-mode table thead { background: rgba(124, 92, 224, 0.08); }
+body.hope-theme.dark-mode table td { border-bottom-color: rgba(124, 92, 224, 0.08); }
+body.hope-theme.dark-mode table tbody tr:hover { background: rgba(124, 92, 224, 0.05); }
+body.hope-theme.dark-mode input,
+body.hope-theme.dark-mode select,
+body.hope-theme.dark-mode textarea {
+    background: #141028;
+    color: var(--ht-dark);
+    border-color: #2E2A4A;
+}
+body.hope-theme.dark-mode .btn-secondary {
+    background: #262042;
+    color: var(--ht-dark);
+    border-color: #3D3660;
+}
+body.hope-theme.dark-mode .badge-success { background: #14532D; color: #BBF7D0; }
+body.hope-theme.dark-mode .badge-warning { background: #713F12; color: #FEF3C7; }
+body.hope-theme.dark-mode .badge-danger { background: #7F1D1D; color: #FECACA; }
+body.hope-theme.dark-mode .badge-info { background: #164E63; color: #CFFAFE; }
+body.hope-theme.dark-mode.hope-login-page {
+    background: #141028 !important;
+}
