@@ -14,7 +14,7 @@ email-validator
 
 # ---------- Database ----------
 sqlalchemy
-psycopg2-binary
+psycopg[binary]==3.2.3
 
 # ---------- Authentication & Security ----------
 pyjwt
