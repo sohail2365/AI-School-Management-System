@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SchoolHub — Login</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0c6e6b">
+    <meta name="theme-color" content="#7C5CE0">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,76 +14,41 @@
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="css/empty-states.css">
     <link rel="stylesheet" href="css/success-anim.css">
+    <link rel="stylesheet" href="css/hope-theme.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --teal-900: #0a5a54;
-            --teal-700: #0c6e6b;
-            --teal-500: #14958c;
-            --teal-100: #e3f3f1;
-            --clay-500: #c87757;
-            --ink-900: #1a2b29;
-            --ink-500: #5c6b69;
-            --paper: #fbfaf7;
-            --card: #ffffff;
-            --line: #e6e8e5;
-            --success: #1a8c5c;
-            --danger: #c4453b;
-        }
-
-        html, body { height: 100%; }
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 65%);
-            min-height: 100vh;
-            min-height: 100dvh;
+        body.hope-theme.hope-login-page {
+            background: #F7F5FF;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--ink-900);
+            min-height: 100vh;
+            min-height: 100dvh;
             padding: 24px;
             overflow-x: hidden;
-        }
-
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            pointer-events: none;
-        }
-        .bg-orb.one { width: 340px; height: 340px; top: -120px; left: -100px; animation: floatSlow 9s ease-in-out infinite; }
-        .bg-orb.two { width: 220px; height: 220px; bottom: -80px; right: -60px; animation: floatSlow 11s ease-in-out infinite reverse; }
-        .bg-orb.three {
-            width: 180px; height: 180px; top: 40%; right: 10%;
-            background: radial-gradient(circle, rgba(200,119,87,0.18), transparent 70%);
-            animation: floatSlow 13s ease-in-out infinite;
-            filter: blur(2px);
-        }
-        @keyframes floatSlow {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(16px, -20px) scale(1.05); }
         }
 
         .phone-card {
             position: relative;
             width: 100%;
-            max-width: 380px;
-            background: var(--card);
+            max-width: 400px;
+            background: var(--ht-bg-primary, #fff);
             border-radius: 32px;
-            box-shadow: 0 30px 70px rgba(5, 40, 37, 0.35);
+            box-shadow: 0 30px 70px rgba(79, 54, 168, 0.3), 0 0 0 1px rgba(124, 92, 224, 0.08);
             overflow: hidden;
-            animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: htSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 2;
         }
-        @keyframes cardIn {
+        @keyframes htSlideUp {
             from { opacity: 0; transform: translateY(24px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .card-header {
             position: relative;
-            background: linear-gradient(150deg, var(--teal-700), var(--teal-900) 80%);
+            background: linear-gradient(150deg, var(--ht-primary, #7C5CE0), var(--ht-primary-deep, #4F36A8) 80%);
             padding: 40px 32px 64px;
             color: #fff;
             overflow: hidden;
@@ -95,7 +60,7 @@
             right: -10%;
             bottom: -1px;
             height: 60px;
-            background: var(--card);
+            background: var(--ht-bg-primary, #fff);
             border-radius: 50% 50% 0 0 / 100% 100% 0 0;
         }
         .card-header::before {
@@ -103,7 +68,7 @@
             position: absolute;
             width: 220px; height: 220px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+            background: radial-gradient(circle, rgba(245, 165, 92, 0.18), transparent 70%);
             top: -80px; right: -60px;
         }
         .brand-mark {
@@ -113,8 +78,19 @@
             position: relative;
             z-index: 1;
         }
-        .brand-mark .notch { width: 8px; height: 26px; border-radius: 4px; background: var(--clay-500); }
-        .brand-mark .wordmark { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
+        .brand-mark .notch {
+            width: 8px;
+            height: 26px;
+            border-radius: 4px;
+            background: var(--ht-accent, #F5A55C);
+        }
+        .brand-mark .wordmark {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.01em;
+        }
+        .brand-mark .wordmark .accent { color: var(--ht-accent, #F5A55C); }
         .card-header h1 {
             font-family: 'Poppins', sans-serif;
             font-size: 24px;
@@ -125,15 +101,13 @@
         }
         .card-header p {
             font-size: 13.5px;
-            color: rgba(255,255,255,0.78);
+            color: rgba(255,255,255,0.85);
             margin-top: 4px;
             position: relative;
             z-index: 1;
         }
 
-        .card-body {
-            padding: 8px 32px 32px;
-        }
+        .card-body { padding: 8px 32px 32px; }
 
         .alert {
             padding: 11px 14px;
@@ -141,10 +115,11 @@
             margin-bottom: 16px;
             font-size: 13.5px;
             display: none;
+            font-weight: 500;
         }
-        .alert.show { display: block; animation: cardIn 0.3s ease; }
-        .alert-error { background: #fbeae8; color: var(--danger); border-left: 3px solid var(--danger); }
-        .alert-success { background: #e7f5ee; color: var(--success); border-left: 3px solid var(--success); }
+        .alert.show { display: block; animation: htSlideUp 0.3s ease; }
+        .alert-error { background: #FEE2E2; color: #991B1B; border-left: 3px solid var(--ht-danger, #EF4444); }
+        .alert-success { background: #D1FAE5; color: #065F46; border-left: 3px solid var(--ht-success, #10B981); }
 
         .field {
             position: relative;
@@ -155,26 +130,27 @@
             left: 16px;
             top: 14px;
             font-size: 14.5px;
-            color: var(--ink-500);
+            color: var(--ht-gray, #6B7280);
             pointer-events: none;
             transition: all 0.18s ease;
-            background: var(--card);
+            background: var(--ht-bg-primary, #fff);
             padding: 0 4px;
         }
         .field input {
             width: 100%;
             padding: 14px 16px;
-            border: 1.5px solid var(--line);
+            border: 1.5px solid var(--ht-border, #E5E1F5);
             border-radius: 14px;
             font-family: inherit;
             font-size: 14.5px;
-            background: var(--card);
+            background: var(--ht-bg-primary, #fff);
+            color: var(--ht-dark, #1E1B4B);
             transition: border-color 0.15s, box-shadow 0.15s;
         }
         .field input:focus {
             outline: none;
-            border-color: var(--teal-500);
-            box-shadow: 0 0 0 4px var(--teal-100);
+            border-color: var(--ht-primary, #7C5CE0);
+            box-shadow: 0 0 0 4px rgba(124, 92, 224, 0.12);
         }
         .field input:focus + label,
         .field input:not(:placeholder-shown) + label {
@@ -182,7 +158,7 @@
             left: 12px;
             font-size: 11.5px;
             font-weight: 600;
-            color: var(--teal-700);
+            color: var(--ht-primary, #7C5CE0);
         }
 
         .field.has-toggle input { padding-right: 44px; }
@@ -194,19 +170,19 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: var(--ink-500);
+            color: var(--ht-gray, #6B7280);
             padding: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: color 0.15s;
         }
-        .password-toggle-btn:hover { color: var(--teal-700); }
+        .password-toggle-btn:hover { color: var(--ht-primary, #7C5CE0); }
 
         .password-strength {
             height: 4px;
             border-radius: 2px;
-            background: var(--line);
+            background: var(--ht-border, #E5E1F5);
             overflow: hidden;
             margin-top: 6px;
         }
@@ -226,12 +202,12 @@
         .remember-row input[type="checkbox"] {
             width: 16px;
             height: 16px;
-            accent-color: var(--teal-700);
+            accent-color: var(--ht-primary, #7C5CE0);
             cursor: pointer;
         }
         .remember-row label {
             font-size: 13px;
-            color: var(--ink-500);
+            color: var(--ht-gray, #6B7280);
             cursor: pointer;
             margin: 0;
             user-select: none;
@@ -240,7 +216,7 @@
         .forgot-link { text-align: right; margin-bottom: 20px; margin-top: -6px; }
         .forgot-link a, .switch-link a {
             font-size: 12.5px;
-            color: var(--teal-700);
+            color: var(--ht-primary, #7C5CE0);
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
@@ -251,7 +227,7 @@
             position: relative;
             width: 100%;
             padding: 15px;
-            background: var(--teal-700);
+            background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7));
             color: #fff;
             border: none;
             border-radius: 999px;
@@ -260,11 +236,14 @@
             font-size: 15px;
             cursor: pointer;
             overflow: hidden;
-            transition: background 0.2s ease, transform 0.15s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3);
         }
-        .login-btn:hover { background: var(--teal-900); }
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 92, 224, 0.45);
+        }
         .login-btn:active { transform: scale(0.98); }
-        .login-btn:focus-visible { outline: 3px solid var(--teal-100); outline-offset: 2px; }
         .login-btn .btn-label { position: relative; z-index: 1; transition: opacity 0.2s ease; }
         .login-btn .btn-spinner {
             position: absolute;
@@ -276,20 +255,22 @@
             border-radius: 50%;
             opacity: 0;
             transition: opacity 0.2s ease;
-            animation: spin 0.7s linear infinite;
+            animation: htSpin 0.7s linear infinite;
         }
         .login-btn.loading .btn-label { opacity: 0; }
         .login-btn.loading .btn-spinner { opacity: 1; }
-        .login-btn.success { background: var(--success); }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .login-btn.success { background: linear-gradient(135deg, var(--ht-success, #10B981), #059669); }
+        @keyframes htSpin { to { transform: rotate(360deg); } }
 
         .login-footer {
             text-align: center;
             margin-top: 22px;
             font-size: 12.5px;
-            color: var(--ink-500);
+            color: var(--ht-gray, #6B7280);
         }
         .login-footer p:first-child { margin-bottom: 8px; }
+        .login-footer a { color: var(--ht-primary, #7C5CE0); font-weight: 700; text-decoration: none; }
+        .login-footer a:hover { text-decoration: underline; }
 
         @media (max-width: 420px) {
             .card-header { padding: 32px 24px 56px; }
@@ -297,18 +278,14 @@
         }
     </style>
 </head>
-<body>
-    <div class="bg-orb one"></div>
-    <div class="bg-orb two"></div>
-    <div class="bg-orb three"></div>
-
+<body class="hope-theme hope-login-page">
     <div class="phone-card">
         <div class="card-header">
             <div class="brand-mark">
                 <div class="notch"></div>
-                <div class="wordmark">SchoolHub</div>
+                <div class="wordmark">School<span class="accent">Hub</span></div>
             </div>
-            <h1>Welcome back <span style="display:inline-block;animation:waveHand 2.5s ease-in-out infinite;">👋</span></h1>
+            <h1>Welcome back 👋</h1>
             <p>Sign in to your school's dashboard</p>
         </div>
 
@@ -316,7 +293,6 @@
             <div class="alert alert-error" id="errorAlert"></div>
             <div class="alert alert-success" id="successAlert"></div>
 
-            <!-- LOGIN FORM -->
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="field">
                     <input type="email" id="email" placeholder=" " required autocomplete="email">
@@ -350,7 +326,6 @@
                 </button>
             </form>
 
-            <!-- FORGOT PASSWORD FORM -->
             <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" style="display: none;">
                 <div class="field">
                     <input type="email" id="forgotEmail" placeholder=" " required>
@@ -366,7 +341,7 @@
             </form>
 
             <div class="login-footer">
-                <p>Don't have an account? <a href="register.html" style="color: var(--teal-700); font-weight: 700; text-decoration: none;">Sign up</a></p>
+                <p>Don't have an account? <a href="register.html">Sign up</a></p>
                 <p>© 2026 SchoolHub. All rights reserved.</p>
             </div>
         </div>
@@ -377,7 +352,6 @@
             ? "http://127.0.0.1:8000"
             : window.location.origin;
 
-        /* ==================== ALERT ==================== */
         function showAlert(message, type = "error", redirect = true) {
             if (typeof showToast === "function") {
                 showToast(message, type === "success" ? "success" : "error");
@@ -397,7 +371,6 @@
             }
         }
 
-        /* ==================== PASSWORD TOGGLE ==================== */
         function togglePassword(inputId, btn) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -410,7 +383,6 @@
             }
         }
 
-        /* ==================== PASSWORD STRENGTH ==================== */
         function updatePasswordStrength(pwd) {
             const bar = document.getElementById("strengthBar");
             if (!bar) return;
@@ -421,10 +393,9 @@
             if (/[0-9]/.test(pwd)) s += 15;
             if (/[^A-Za-z0-9]/.test(pwd)) s += 15;
             bar.style.width = s + "%";
-            bar.style.background = s < 40 ? "#c4453b" : s < 70 ? "#c78a1e" : "#1a8c5c";
+            bar.style.background = s < 40 ? "#EF4444" : s < 70 ? "#F59E0B" : "#10B981";
         }
 
-        /* ==================== FORM SWITCHING ==================== */
         function showForgotPasswordForm(event) {
             event.preventDefault();
             document.getElementById("errorAlert").classList.remove("show");
@@ -441,7 +412,6 @@
             document.getElementById("loginForm").style.display = "block";
         }
 
-        /* ==================== FORGOT PASSWORD ==================== */
         async function handleForgotPassword(event) {
             event.preventDefault();
             const email = document.getElementById("forgotEmail").value;
@@ -456,7 +426,6 @@
                     body: JSON.stringify({ email })
                 });
                 const data = await response.json().catch(() => ({}));
-
                 if (response.ok) {
                     showAlert(data.message || "If that email is registered, a reset link has been sent.", "success", false);
                 } else {
@@ -470,10 +439,8 @@
             }
         }
 
-        /* ==================== LOGIN ==================== */
         async function handleLogin(event) {
             event.preventDefault();
-
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
             const loginBtn = document.getElementById("loginBtn");
@@ -493,46 +460,17 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
                 });
-
                 const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || "Login failed");
 
-                if (!response.ok) {
-                    throw new Error(data.detail || "Login failed");
-                }
-
-                /* =====================================================
-                   ✅ SECURITY FIX: Role check — sirf admin allowed
-                   =====================================================
-                   Teacher/parent/staff credentials yahan se log ho sakte
-                   hain, lekin unhe admin dashboard par nahi jaane dena.
-                   Unhe apne apne portal par bhejna hai.
-                */
                 const role = data.role || "staff";
-
                 if (role !== "admin") {
-                    // Clear any partial auth data that may have been stored
                     localStorage.removeItem("access_token");
                     localStorage.removeItem("user_role");
-
-                    // Friendly message + redirect to appropriate portal
-                    if (role === "teacher") {
-                        throw new Error(
-                            "This is the school ADMIN login page. Teachers should use the Teacher Portal. " +
-                            "Redirecting you to teacher-login.html…"
-                        );
-                    } else if (role === "parent") {
-                        throw new Error(
-                            "This is the school ADMIN login page. Parents should use the Parent Portal. " +
-                            "Redirecting you to parent-login.html…"
-                        );
-                    } else {
-                        throw new Error(
-                            "This account does not have admin access. Please contact your school administrator."
-                        );
-                    }
+                    if (role === "teacher") throw new Error("This is the school ADMIN login page. Teachers should use the Teacher Portal. Redirecting you to teacher-login.html…");
+                    else if (role === "parent") throw new Error("This is the school ADMIN login page. Parents should use the Parent Portal. Redirecting you to parent-login.html…");
+                    else throw new Error("This account does not have admin access. Please contact your school administrator.");
                 }
-
-                /* ---- Only reached if role === "admin" ---- */
 
                 localStorage.setItem("access_token", data.access_token);
                 localStorage.setItem("user_role", data.role);
@@ -558,33 +496,22 @@
                 loginBtn.classList.remove("loading");
                 loginBtn.disabled = false;
 
-                // If error message contains "Redirecting", wait a moment then redirect
                 if (error.message && error.message.includes("Redirecting")) {
-                    const target =
-                        error.message.includes("teacher-login") ? "teacher-login.html" :
-                        error.message.includes("parent-login") ? "parent-login.html" :
-                        null;
-                    if (target) {
-                        setTimeout(() => { window.location.href = target; }, 2500);
-                    }
+                    const target = error.message.includes("teacher-login") ? "teacher-login.html" :
+                        error.message.includes("parent-login") ? "parent-login.html" : null;
+                    if (target) setTimeout(() => { window.location.href = target; }, 2500);
                 }
             }
         }
 
-        /* ==================== INIT ON PAGE LOAD ==================== */
         window.addEventListener("load", () => {
             const token = localStorage.getItem("access_token");
             const role = localStorage.getItem("user_role");
 
-            /* ✅ FIX: only auto-redirect if the stored token belongs to an admin.
-               A stale teacher/parent token sitting in localStorage must not
-               silently let them back into the admin dashboard on page refresh. */
             if (token && role === "admin") {
                 window.location.href = "professional_dashboard.html";
                 return;
             }
-
-            // Stale non-admin token — clear it so the login page renders cleanly.
             if (token && role !== "admin") {
                 localStorage.removeItem("access_token");
                 localStorage.removeItem("user_role");
@@ -597,14 +524,10 @@
                 document.getElementById("rememberMe").checked = true;
             }
 
-            if ("serviceWorker" in navigator) {
-                navigator.serviceWorker.register("sw.js").catch(() => {});
-            }
+            if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
             const pwdInput = document.getElementById("password");
-            if (pwdInput) {
-                pwdInput.addEventListener("input", (e) => updatePasswordStrength(e.target.value));
-            }
+            if (pwdInput) pwdInput.addEventListener("input", (e) => updatePasswordStrength(e.target.value));
 
             if (window.lucide) window.lucide.createIcons();
         });
@@ -617,5 +540,6 @@
     <script src="js/empty-states.js"></script>
     <script src="js/success-anim.js"></script>
     <script src="js/form-validation.js"></script>
+    <script src="js/hope-theme.js"></script>
 </body>
 </html>

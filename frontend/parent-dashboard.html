@@ -5,58 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Parent Portal — SchoolHub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/dark-mode.css">
 <link rel="stylesheet" href="css/empty-states.css">
 <link rel="stylesheet" href="css/success-anim.css">
+<link rel="stylesheet" href="css/hope-theme.css">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
-  :root {
-    --teal-900: #0a5a54; --teal-700: #0c6e6b; --teal-500: #14958c; --teal-100: #e3f3f1;
-    --clay-500: #c87757; --ink-900: #1a2b29; --ink-500: #5c6b69;
-    --paper: #fbfaf7; --card: #ffffff; --line: #e6e8e5;
-    --success: #1a8c5c; --danger: #c4453b; --warn: #c78a1e;
+  body.hope-theme.hope-portal-page { background: #F7F5FF; color: var(--ht-dark, #1E1B4B); }
+  .topbar {
+    background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
+    color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 24px rgba(124, 92, 224, 0.25);
+    position: sticky; top: 0; z-index: 50; overflow: hidden;
   }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink-900); }
-  .topbar { background:linear-gradient(165deg,var(--teal-900),var(--teal-700) 70%); color:#fff; padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center; }
-  .topbar .brand { display:flex; align-items:center; gap:10px; }
-  .topbar .notch { width:8px; height:24px; border-radius:4px; background:var(--clay-500); }
-  .topbar .word { font-family:'Poppins',sans-serif; font-weight:800; font-size:18px; }
-  .topbar button { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:0.4rem 0.9rem; border-radius:8px; cursor:pointer; font-size:13px; }
-  .container { max-width:920px; margin:1.5rem auto; padding:0 1rem 3rem; }
-  .card { background:var(--card); border-radius:14px; padding:1.3rem 1.5rem; margin-bottom:1.2rem; box-shadow:0 2px 12px rgba(10,90,84,0.06); border:1px solid var(--line); transition: box-shadow 0.25s ease; }
-  .card:hover { box-shadow: 0 8px 24px rgba(10,90,84,0.10); }
-  .card h2 { font-family:'Poppins',sans-serif; font-size:1.05rem; margin:0 0 1rem; }
-  .student-hero { display:flex; align-items:center; gap:14px; }
-  .student-avatar { width:52px; height:52px; border-radius:50%; background:var(--teal-100); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-weight:700; font-size:20px; flex-shrink:0; }
-  .student-hero h1 { font-family:'Poppins',sans-serif; font-size:1.2rem; margin:0; }
-  .student-hero .meta { color:var(--ink-500); font-size:0.88rem; margin-top:2px; }
-  .tabs { display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; }
-  .tab-btn { padding:0.5rem 1rem; border:1px solid var(--line); background:var(--card); border-radius:10px; cursor:pointer; font-size:0.88rem; font-weight:600; color:var(--ink-500); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease; }
-  .tab-btn:hover { transform: translateY(-1px); border-color: var(--teal-500); color: var(--teal-700); }
-  .tab-btn.active { background:var(--teal-700); color:#fff; border-color:var(--teal-700); }
-  table { width:100%; border-collapse:collapse; font-size:0.9rem; }
-  th, td { text-align:left; padding:0.55rem 0.6rem; border-bottom:1px solid var(--line); }
-  th { color:var(--ink-500); font-weight:600; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.02em; }
-  .pill { display:inline-block; padding:0.15rem 0.6rem; border-radius:999px; font-size:0.78rem; font-weight:600; }
-  .pill.present, .pill.paid { background:#e7f5ee; color:var(--success); }
-  .pill.absent, .pill.unpaid { background:#fbeae8; color:var(--danger); }
-  .pill.partial { background:#fdf3e3; color:var(--warn); }
-  .empty { color:var(--ink-500); padding:1rem 0; font-size:0.9rem; }
-  .disabled-note { color:var(--ink-500); font-size:0.88rem; background:var(--paper); padding:0.8rem 1rem; border-radius:10px; border:1px dashed var(--line); }
-  .payment-box { background:var(--teal-100); border-radius:10px; padding:1rem 1.2rem; margin-bottom:1rem; white-space:pre-line; font-size:0.9rem; line-height:1.6; }
-  .msg-list { max-height:340px; overflow-y:auto; margin-bottom:1rem; display:flex; flex-direction:column; gap:8px; }
-  .msg-bubble { max-width:75%; padding:0.6rem 0.9rem; border-radius:12px; font-size:0.88rem; line-height:1.4; }
-  .msg-bubble.parent { align-self:flex-end; background:var(--teal-700); color:#fff; border-bottom-right-radius:3px; }
-  .msg-bubble.staff { align-self:flex-start; background:var(--paper); border:1px solid var(--line); border-bottom-left-radius:3px; }
-  .msg-time { font-size:0.7rem; opacity:0.7; margin-top:3px; }
-  .msg-form { display:flex; gap:8px; }
-  .msg-form input { flex:1; padding:0.6rem 0.8rem; border:1.5px solid var(--line); border-radius:10px; font-size:0.9rem; font-family:inherit; }
-  .msg-form button { padding:0.6rem 1.1rem; border:none; border-radius:10px; background:var(--teal-700); color:#fff; font-weight:600; cursor:pointer; }
+  .topbar::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
+    background-size: 200% 100%; animation: htHeaderShine 5s linear infinite; pointer-events: none;
+  }
+  @keyframes htHeaderShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .topbar .brand { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+  .topbar .notch { width: 8px; height: 24px; border-radius: 4px; background: var(--ht-accent, #F5A55C); }
+  .topbar .word {
+    font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 17px;
+    background: linear-gradient(90deg, #ffffff 0%, #FFD4AC 50%, #ffffff 100%);
+    background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: htTitleGradient 4s ease-in-out infinite;
+  }
+  @keyframes htTitleGradient { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+  .topbar button {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;
+    padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
+    position: relative; z-index: 1; transition: all 0.2s; backdrop-filter: blur(10px);
+  }
+  .topbar button:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+
+  .container { max-width: 920px; margin: 1.5rem auto; padding: 0 1rem 3rem; position: relative; z-index: 2; }
+
+  .card {
+    background: #fff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem;
+    box-shadow: 0 4px 20px rgba(124, 92, 224, 0.08); border: 1px solid rgba(124, 92, 224, 0.08);
+    transition: box-shadow 0.25s ease;
+  }
+  .card:hover { box-shadow: 0 8px 32px rgba(124, 92, 224, 0.12); }
+  .card h2 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; margin: 0 0 1rem; color: var(--ht-primary-dark, #6244C7); }
+
+  .student-hero { display: flex; align-items: center; gap: 14px; }
+  .student-avatar {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFF8F0, #FFE6C7);
+    color: var(--ht-primary-dark, #6244C7);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 22px; flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(245, 165, 92, 0.35);
+  }
+  .student-hero h1 { font-family: 'Poppins', sans-serif; font-size: 1.25rem; margin: 0; color: var(--ht-dark, #1E1B4B); }
+  .student-hero .meta { color: var(--ht-gray, #6B7280); font-size: 0.88rem; margin-top: 4px; }
+
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 0.6rem 1.1rem; border: 1.5px solid var(--ht-border, #E5E1F5); background: #fff;
+    border-radius: 12px; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+    color: var(--ht-gray, #6B7280); transition: all 0.2s ease; font-family: inherit;
+  }
+  .tab-btn:hover { transform: translateY(-2px); border-color: var(--ht-primary, #7C5CE0); color: var(--ht-primary, #7C5CE0); background: var(--ht-primary-lighter, #EDE9FE); }
+  .tab-btn.active { background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7)); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(124, 92, 224, 0.35); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid rgba(124, 92, 224, 0.06); }
+  th { color: var(--ht-primary-dark, #6244C7); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .pill { display: inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .pill.present, .pill.paid { background: #D1FAE5; color: #065F46; }
+  .pill.absent, .pill.unpaid { background: #FEE2E2; color: #991B1B; }
+  .pill.partial { background: #FEF3C7; color: #92400E; }
+
+  .empty { color: var(--ht-gray, #6B7280); padding: 1rem 0; font-size: 0.9rem; }
+  .disabled-note { color: var(--ht-gray, #6B7280); font-size: 0.88rem; background: var(--ht-bg-secondary, #F7F5FF); padding: 0.9rem 1rem; border-radius: 10px; border: 1px dashed var(--ht-border, #E5E1F5); }
+
+  .payment-box {
+    background: linear-gradient(135deg, var(--ht-primary-lighter, #EDE9FE), var(--ht-accent-lighter, #FFF1E0));
+    border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+    white-space: pre-line; font-size: 0.9rem; line-height: 1.6;
+    border-left: 4px solid var(--ht-accent, #F5A55C);
+    color: var(--ht-dark, #1E1B4B);
+  }
+
+  .msg-list { max-height: 340px; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
+  .msg-bubble { max-width: 75%; padding: 0.7rem 1rem; border-radius: 14px; font-size: 0.88rem; line-height: 1.4; }
+  .msg-bubble.parent { align-self: flex-end; background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 4px 14px rgba(124, 92, 224, 0.25); }
+  .msg-bubble.staff { align-self: flex-start; background: #fff; border: 1px solid var(--ht-border, #E5E1F5); border-bottom-left-radius: 4px; color: var(--ht-dark, #1E1B4B); }
+  .msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
+
+  .msg-form { display: flex; gap: 8px; }
+  .msg-form input { flex: 1; padding: 0.7rem 0.9rem; border: 1.5px solid var(--ht-border, #E5E1F5); border-radius: 10px; font-size: 0.9rem; font-family: inherit; background: #fff; color: var(--ht-dark, #1E1B4B); }
+  .msg-form input:focus { outline: none; border-color: #7C5CE0; box-shadow: 0 0 0 3px rgba(124, 92, 224, 0.1); }
+  .msg-form button { padding: 0.7rem 1.3rem; border: none; border-radius: 10px; background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3); }
+  .msg-form button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 92, 224, 0.45); }
 </style>
 </head>
-<body>
+<body class="hope-theme hope-portal-page">
   <div class="topbar">
     <div class="brand"><div class="notch"></div><div class="word">SchoolHub — Parent Portal</div></div>
     <button onclick="logout()">Log out</button>
@@ -138,18 +188,16 @@ async function init() {
 
     document.getElementById("studentInitial").textContent = (s.name || "?").charAt(0).toUpperCase();
     document.getElementById("studentName").textContent = s.name;
-    document.getElementById("studentMeta").textContent =
-      `Class ${s.class_name || "-"} · Roll No ${s.roll_number || "-"}`;
+    document.getElementById("studentMeta").textContent = `Class ${s.class_name || "-"} · Roll No ${s.roll_number || "-"}`;
 
     const tabs = [];
-    if (visibility.attendance) tabs.push(["attendance", "Attendance"]);
-    if (visibility.grades) tabs.push(["grades", "Grades"]);
-    if (visibility.fees) tabs.push(["fees", "Fees"]);
-    if (visibility.messages) tabs.push(["messages", "Messages"]);
+    if (visibility.attendance) tabs.push(["attendance", "✅ Attendance"]);
+    if (visibility.grades) tabs.push(["grades", "📈 Grades"]);
+    if (visibility.fees) tabs.push(["fees", "💰 Fees"]);
+    if (visibility.messages) tabs.push(["messages", "💬 Messages"]);
 
     if (tabs.length === 0) {
-      document.getElementById("tabBar").innerHTML =
-        `<div class="disabled-note">Your school hasn't enabled any portal sections yet. Please check back later.</div>`;
+      document.getElementById("tabBar").innerHTML = `<div class="disabled-note">Your school hasn't enabled any portal sections yet. Please check back later.</div>`;
       return;
     }
 
@@ -158,7 +206,6 @@ async function init() {
     ).join("");
 
     switchTab(tabs[0][0]);
-
     if (visibility.fees) loadFees(me.payment_info);
     if (visibility.attendance) loadAttendance();
     if (visibility.grades) loadGrades();
@@ -183,40 +230,32 @@ async function loadAttendance() {
     if (records.length === 0) { el.innerHTML = `<div class="empty">No attendance recorded yet.</div>`; return; }
     const presentCount = records.filter(r => r.is_present).length;
     el.innerHTML = `
-      <p style="color:var(--ink-500); font-size:0.88rem; margin-top:0;">Present ${presentCount} of ${records.length} recorded days</p>
+      <p style="color:var(--ht-gray,#6B7280); font-size:0.88rem; margin-top:0;">Present ${presentCount} of ${records.length} recorded days</p>
       <table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>
-        ${records.map(r => `<tr>
-          <td>${r.date}</td>
+        ${records.map(r => `<tr><td>${r.date}</td>
           <td><span class="pill ${r.is_present ? "present" : "absent"}">${r.is_present ? "Present" : "Absent"}</span></td>
-          <td>${r.remarks || "—"}</td>
-        </tr>`).join("")}
+          <td>${r.remarks || "—"}</td></tr>`).join("")}
       </tbody></table>`;
-  } catch (err) {
-    el.innerHTML = `<div class="disabled-note">${err.message}</div>`;
-  }
+  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
 }
 
 async function loadGrades() {
   const el = document.getElementById("gradesContent");
   try {
-    const [grades, testRecords] = await Promise.all([
-      api("/parent/grades"), api("/parent/test-records"),
-    ]);
+    const [grades, testRecords] = await Promise.all([api("/parent/grades"), api("/parent/test-records")]);
     let html = "";
     if (grades.length > 0) {
-      html += `<h3 style="font-size:0.9rem; margin-bottom:6px;">Grades</h3><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Date</th></tr></thead><tbody>
+      html += `<h3 style="font-size:0.9rem; margin-bottom:6px; color:var(--ht-primary-dark,#6244C7);">Grades</h3><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Date</th></tr></thead><tbody>
         ${grades.map(g => `<tr><td>${g.subject}</td><td>${g.marks_obtained}/${g.total_marks}</td><td>${g.percentage}%</td><td>${g.exam_date || "—"}</td></tr>`).join("")}
       </tbody></table>`;
     }
     if (testRecords.length > 0) {
-      html += `<h3 style="font-size:0.9rem; margin:16px 0 6px;">Test Records</h3><table><thead><tr><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th></tr></thead><tbody>
+      html += `<h3 style="font-size:0.9rem; margin:16px 0 6px; color:var(--ht-primary-dark,#6244C7);">Test Records</h3><table><thead><tr><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th></tr></thead><tbody>
         ${testRecords.map(t => `<tr><td>${t.term_type}</td><td>${t.period}</td><td>${t.subject}</td><td>${t.marks_obtained}/${t.total_marks} (${t.percentage}%)</td></tr>`).join("")}
       </tbody></table>`;
     }
     el.innerHTML = html || `<div class="empty">No grades recorded yet.</div>`;
-  } catch (err) {
-    el.innerHTML = `<div class="disabled-note">${err.message}</div>`;
-  }
+  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
 }
 
 async function loadFees(paymentInfo) {
@@ -224,26 +263,16 @@ async function loadFees(paymentInfo) {
   try {
     const fees = await api("/parent/fees");
     let html = "";
-    if (paymentInfo) {
-      html += `<div class="payment-box"><strong>How to pay:</strong>\n${paymentInfo}</div>`;
-    }
-    if (fees.length === 0) {
-      html += `<div class="empty">No fee records yet.</div>`;
-    } else {
+    if (paymentInfo) html += `<div class="payment-box"><strong>How to pay:</strong>\n${paymentInfo}</div>`;
+    if (fees.length === 0) html += `<div class="empty">No fee records yet.</div>`;
+    else {
       html += `<table><thead><tr><th>Month</th><th>Fee</th><th>Due</th><th>Paid</th><th>Status</th></tr></thead><tbody>
-        ${fees.map(f => `<tr>
-          <td>${f.month || "—"}</td>
-          <td>${f.fee_name}</td>
-          <td>Rs. ${f.due_amount}</td>
-          <td>Rs. ${f.paid_amount}</td>
-          <td><span class="pill ${f.status}">${f.status}</span></td>
-        </tr>`).join("")}
+        ${fees.map(f => `<tr><td>${f.month || "—"}</td><td>${f.fee_name}</td><td>Rs. ${f.due_amount}</td><td>Rs. ${f.paid_amount}</td>
+          <td><span class="pill ${f.status}">${f.status}</span></td></tr>`).join("")}
       </tbody></table>`;
     }
     el.innerHTML = html;
-  } catch (err) {
-    el.innerHTML = `<div class="disabled-note">${err.message}</div>`;
-  }
+  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
 }
 
 async function loadMessages() {
@@ -265,9 +294,7 @@ async function loadMessages() {
       </div>`;
     const list = document.getElementById("msgList");
     list.scrollTop = list.scrollHeight;
-  } catch (err) {
-    el.innerHTML = `<div class="disabled-note">${err.message}</div>`;
-  }
+  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
 }
 
 async function sendMessage() {
@@ -278,32 +305,22 @@ async function sendMessage() {
     await api(`/parent/messages?message=${encodeURIComponent(text)}`, { method: "POST" });
     input.value = "";
     await loadMessages();
-  } catch (err) {
-    alert(err.message);
-  }
+  } catch (err) { alert(err.message); }
 }
 
-// ==================== PORTAL BACKGROUND (with overlay intensity) ====================
 async function applyPortalBackground() {
   try {
     const result = await api("/settings/background-image");
     if (result.url) {
-      // Use overlay value from backend (default 82 if not set)
-      const overlayPercent = (result.overlay !== undefined && result.overlay !== null)
-        ? parseInt(result.overlay)
-        : 82;
+      const overlayPercent = (result.overlay !== undefined && result.overlay !== null) ? parseInt(result.overlay) : 82;
       const topOpacity = overlayPercent / 100;
       const bottomOpacity = Math.min(topOpacity + 0.08, 1);
-
-      document.body.style.backgroundImage =
-        `linear-gradient(rgba(251,250,247,${topOpacity}), rgba(251,250,247,${bottomOpacity})), url('${result.url}')`;
+      document.body.style.backgroundImage = `linear-gradient(rgba(247,245,255,${topOpacity}), rgba(247,245,255,${bottomOpacity})), url('${result.url}')`;
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundAttachment = "fixed";
       document.body.style.backgroundPosition = "center";
-    } else {
-      document.body.style.backgroundImage = "";
     }
-  } catch (e) { /* no background set — fine */ }
+  } catch (e) {}
 }
 applyPortalBackground();
 
@@ -315,5 +332,6 @@ init();
 <script src="js/skeleton.js"></script>
 <script src="js/empty-states.js"></script>
 <script src="js/success-anim.js"></script>
+<script src="js/hope-theme.js"></script>
 </body>
 </html>

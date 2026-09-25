@@ -5,51 +5,181 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Teacher Portal - SchoolHub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/animations.css">
 <link rel="stylesheet" href="css/dark-mode.css">
 <link rel="stylesheet" href="css/empty-states.css">
 <link rel="stylesheet" href="css/success-anim.css">
+<link rel="stylesheet" href="css/hope-theme.css">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
-  :root {
-    --teal-900: #0a5a54; --teal-700: #0c6e6b; --teal-500: #14958c; --teal-100: #e3f3f1;
-    --clay-500: #c87757; --ink-900: #1a2b29; --ink-500: #5c6b69;
-    --paper: #fbfaf7; --card: #ffffff; --line: #e6e8e5;
-    --success: #1a8c5c; --danger: #c4453b;
+  body.hope-theme.hope-portal-page {
+    background: #F7F5FF;
+    background-size: cover;
+    background-attachment: fixed;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink-900); background-size: cover; background-attachment: fixed; }
-  .topbar { background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%); color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(10,90,84,0.15); position: sticky; top: 0; z-index: 50; }
-  .topbar h1 { font-family: 'Poppins', sans-serif; font-size: 1.15rem; margin: 0; }
-  .topbar button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; transition: background 0.2s ease; }
-  .topbar button:hover { background: rgba(255,255,255,0.25); }
-  .container { max-width: 960px; margin: 1.5rem auto; padding: 0 1rem; }
-  .card { background: var(--card); border-radius: 14px; padding: 1.3rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 2px 12px rgba(10,90,84,0.06); border: 1px solid var(--line); transition: box-shadow 0.25s ease, transform 0.25s ease; }
-  .card:hover { box-shadow: 0 8px 24px rgba(10,90,84,0.10); }
-  .card h2 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; margin: 0 0 0.9rem; }
+  .topbar {
+    background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 24px rgba(124, 92, 224, 0.25);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    overflow: hidden;
+  }
+  .topbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
+    background-size: 200% 100%;
+    animation: htHeaderShine 5s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes htHeaderShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .topbar h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(90deg, #ffffff 0%, #FFD4AC 50%, #ffffff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: htTitleGradient 4s ease-in-out infinite;
+  }
+  @keyframes htTitleGradient { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+  .topbar button {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+  }
+  .topbar button:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+  }
+
+  .container { max-width: 960px; margin: 1.5rem auto; padding: 0 1rem; position: relative; z-index: 2; }
+
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 4px 20px rgba(124, 92, 224, 0.08);
+    border: 1px solid rgba(124, 92, 224, 0.08);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .card:hover { box-shadow: 0 8px 32px rgba(124, 92, 224, 0.12); }
+  .card h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    margin: 0 0 1rem;
+    color: var(--ht-primary-dark, #6244C7);
+  }
+
   .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .tab-btn { padding: 0.5rem 1rem; border: 1px solid var(--line); background: var(--card); border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--ink-500); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease; }
-  .tab-btn:hover { transform: translateY(-1px); border-color: var(--teal-500); color: var(--teal-700); }
-  .tab-btn.active { background: var(--teal-700); color: #fff; border-color: var(--teal-700); }
+  .tab-btn {
+    padding: 0.6rem 1.1rem;
+    border: 1.5px solid var(--ht-border, #E5E1F5);
+    background: #fff;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ht-gray, #6B7280);
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .tab-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--ht-primary, #7C5CE0);
+    color: var(--ht-primary, #7C5CE0);
+    background: var(--ht-primary-lighter, #EDE9FE);
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(124, 92, 224, 0.35);
+  }
+
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); }
-  th { color: var(--ink-500); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid rgba(124, 92, 224, 0.06); }
+  th {
+    color: var(--ht-primary-dark, #6244C7);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
   tbody tr { transition: background 0.15s ease; }
-  tbody tr:hover { background: var(--paper); }
-  select, input { padding: 0.5rem 0.7rem; border: 1.5px solid var(--line); border-radius: 8px; font-size: 0.88rem; font-family: inherit; }
-  select:focus, input:focus { outline: none; border-color: var(--teal-500); box-shadow: 0 0 0 3px var(--teal-100); }
+  tbody tr:hover { background: rgba(124, 92, 224, 0.03); }
+
+  select, input[type="text"], input[type="number"], input[type="date"] {
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid var(--ht-border, #E5E1F5);
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    background: #fff;
+    color: var(--ht-dark, #1E1B4B);
+    transition: all 0.15s;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--ht-primary, #7C5CE0);
+    box-shadow: 0 0 0 4px rgba(124, 92, 224, 0.12);
+  }
+
   .row-form { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-  .row-form button { padding: 0.5rem 1.1rem; border: none; border-radius: 8px; background: var(--teal-700); color: #fff; font-weight: 600; cursor: pointer; }
-  .row-form button:hover { background: var(--teal-900); }
-  .msg { font-size: 0.85rem; margin-top: 0.5rem; }
-  .msg.error { color: var(--danger); } .msg.ok { color: var(--success); }
-  .pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
-  .pill.present { background: #e7f5ee; color: var(--success); }
-  .pill.absent { background: #fbeae8; color: var(--danger); }
+  .row-form button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7));
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3);
+    font-family: inherit;
+  }
+  .row-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124, 92, 224, 0.45);
+  }
+
+  .msg { font-size: 0.85rem; margin-top: 0.5rem; font-weight: 500; }
+  .msg.error { color: #991B1B; }
+  .msg.ok { color: #065F46; }
+
+  .pill {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .pill.present { background: #D1FAE5; color: #065F46; }
+  .pill.absent { background: #FEE2E2; color: #991B1B; }
 </style>
 </head>
-<body>
+<body class="hope-theme hope-portal-page">
   <div class="topbar">
     <h1 id="headerTitle">Teacher Portal</h1>
     <button onclick="logout()">Log out</button>
@@ -61,10 +191,10 @@
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" data-tab="attendance">Attendance</button>
-      <button class="tab-btn" data-tab="grades">Grades</button>
-      <button class="tab-btn" data-tab="testrecords">Monthly/Annual Test Records</button>
-      <button class="tab-btn" data-tab="messages">Parent Messages</button>
+      <button class="tab-btn active" data-tab="attendance">✅ Attendance</button>
+      <button class="tab-btn" data-tab="grades">📈 Grades</button>
+      <button class="tab-btn" data-tab="testrecords">📝 Monthly/Annual Tests</button>
+      <button class="tab-btn" data-tab="messages">💬 Parent Messages</button>
     </div>
 
     <div class="card" id="tab-attendance">
@@ -111,7 +241,7 @@
           <option value="monthly">Monthly</option>
           <option value="annual">Annual</option>
         </select>
-        <input type="text" id="trPeriod" placeholder="Period (YYYY-MM or YYYY)" style="width:140px" />
+        <input type="text" id="trPeriod" placeholder="Period (YYYY-MM)" style="width:140px" />
         <input type="text" id="trSubject" placeholder="Subject" style="width:120px" />
         <input type="number" id="trMarks" placeholder="Marks" style="width:80px" />
         <input type="number" id="trTotal" placeholder="Total" value="100" style="width:80px" />
@@ -128,16 +258,16 @@
     <div class="card" id="tab-messages" style="display:none">
       <h2>Parent Messages</h2>
       <div style="display:grid; grid-template-columns: 220px 1fr; gap:16px; min-height:320px;">
-        <div id="msgThreadList" style="border-right:1px solid var(--line,#e6e8e5); padding-right:12px; overflow-y:auto; max-height:420px;">
-          <div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">Loading...</div>
+        <div id="msgThreadList" style="border-right:1px solid var(--ht-border,#E5E1F5); padding-right:12px; overflow-y:auto; max-height:420px;">
+          <div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">Loading...</div>
         </div>
         <div>
           <div id="msgConversation" style="min-height:280px; max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
-            <div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">Select a student to view messages.</div>
+            <div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">Select a student to view messages.</div>
           </div>
           <div id="msgReplyBox" style="display:none; gap:8px;">
             <input type="text" id="msgReplyInput" placeholder="Type a reply..." style="flex:1;" />
-            <button onclick="sendClassMessage()">Send</button>
+            <button onclick="sendClassMessage()" style="padding:0.6rem 1.2rem; border:none; border-radius:10px; background:linear-gradient(135deg, #7C5CE0, #6244C7); color:#fff; font-weight:700; cursor:pointer;">Send</button>
           </div>
         </div>
       </div>
@@ -146,8 +276,7 @@
 
 <script>
 const API_BASE = (window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null")
-    ? "http://127.0.0.1:8000"
-    : window.location.origin;
+    ? "http://127.0.0.1:8000" : window.location.origin;
 
 const token = localStorage.getItem("teacher_token");
 if (!token) window.location.href = "teacher-login.html";
@@ -165,7 +294,7 @@ async function authFetch(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    if (res.status === 401) { logout(); }
+    if (res.status === 401) logout();
     throw new Error(data.detail || "Request failed");
   }
   return data;
@@ -174,7 +303,8 @@ async function authFetch(path, options = {}) {
 function populateStudentSelects() {
   const opts = myStudents.map(s => `<option value="${s.id}">${s.roll_number} - ${s.name}</option>`).join("");
   ["attStudent", "gradeStudent", "trStudent"].forEach(id => {
-    document.getElementById(id).innerHTML = opts;
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
   });
 }
 
@@ -183,10 +313,8 @@ async function loadMyClass() {
   document.getElementById("headerTitle").textContent = `Teacher Portal — ${me.name}`;
   document.getElementById("classInfo").textContent =
     `Class: ${me.class_assigned}${me.subject ? " · Subject: " + me.subject : ""}`;
-
   myStudents = await authFetch("/teacher/students");
   populateStudentSelects();
-
   await loadAttendance();
   await loadGrades();
   await loadTestRecords();
@@ -204,30 +332,20 @@ async function markAttendance() {
     body.append("is_present", document.getElementById("attPresent").value);
     const remarks = document.getElementById("attRemarks").value;
     if (remarks) body.append("remarks", remarks);
-
-    await authFetch("/teacher/attendance", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-    });
+    await authFetch("/teacher/attendance", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
     msg.textContent = "Attendance saved."; msg.classList.add("ok");
     document.getElementById("attRemarks").value = "";
     await loadAttendance();
-  } catch (err) {
-    msg.textContent = err.message; msg.classList.add("error");
-  }
+  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
 }
 
 async function loadAttendance() {
   const records = await authFetch("/teacher/attendance");
   const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
   document.getElementById("attTable").innerHTML = records.slice(0, 30).map(r => `
-    <tr>
-      <td>${r.date}</td>
-      <td>${byId[r.student_id] || r.student_id}</td>
-      <td><span class="pill ${r.is_present ? "present" : "absent"}">${r.is_present ? "Present" : "Absent"}</span></td>
-      <td>${r.remarks || ""}</td>
-    </tr>`).join("");
+    <tr><td>${r.date}</td><td>${byId[r.student_id] || r.student_id}</td>
+    <td><span class="pill ${r.is_present ? "present" : "absent"}">${r.is_present ? "Present" : "Absent"}</span></td>
+    <td>${r.remarks || ""}</td></tr>`).join("");
 }
 
 async function addGrade() {
@@ -241,32 +359,20 @@ async function addGrade() {
     body.append("total_marks", document.getElementById("gradeTotal").value || "100");
     const examDate = document.getElementById("gradeExamDate").value;
     if (examDate) body.append("exam_date", examDate);
-
-    await authFetch("/teacher/grades", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-    });
+    await authFetch("/teacher/grades", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
     msg.textContent = "Grade saved."; msg.classList.add("ok");
     document.getElementById("gradeSubject").value = "";
     document.getElementById("gradeMarks").value = "";
     await loadGrades();
-  } catch (err) {
-    msg.textContent = err.message; msg.classList.add("error");
-  }
+  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
 }
 
 async function loadGrades() {
   const records = await authFetch("/teacher/grades");
   const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
   document.getElementById("gradeTable").innerHTML = records.slice(0, 30).map(r => `
-    <tr>
-      <td>${byId[r.student_id] || r.student_id}</td>
-      <td>${r.subject}</td>
-      <td>${r.marks_obtained}/${r.total_marks}</td>
-      <td>${r.percentage}%</td>
-      <td>${r.exam_date || "—"}</td>
-    </tr>`).join("");
+    <tr><td>${byId[r.student_id] || r.student_id}</td><td>${r.subject}</td>
+    <td>${r.marks_obtained}/${r.total_marks}</td><td>${r.percentage}%</td><td>${r.exam_date || "—"}</td></tr>`).join("");
 }
 
 async function addTestRecord() {
@@ -282,7 +388,6 @@ async function addTestRecord() {
     form.append("total_marks", document.getElementById("trTotal").value || "100");
     const imageFile = document.getElementById("trImage").files[0];
     if (imageFile) form.append("image", imageFile);
-
     await authFetch("/teacher/test-records", { method: "POST", body: form });
     msg.textContent = "Test record saved."; msg.classList.add("ok");
     document.getElementById("trPeriod").value = "";
@@ -290,32 +395,21 @@ async function addTestRecord() {
     document.getElementById("trMarks").value = "";
     document.getElementById("trImage").value = "";
     await loadTestRecords();
-  } catch (err) {
-    msg.textContent = err.message; msg.classList.add("error");
-  }
+  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
 }
 
 async function loadTestRecords() {
   const records = await authFetch("/teacher/test-records");
   const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
   document.getElementById("trTable").innerHTML = records.slice(0, 30).map(r => `
-    <tr>
-      <td>${byId[r.student_id] || r.student_id}</td>
-      <td>${r.term_type}</td>
-      <td>${r.period}</td>
-      <td>${r.subject}</td>
-      <td>${r.marks_obtained}/${r.total_marks}</td>
-      <td>${r.image_url ? `<button onclick="viewRecordImage(${r.id})">View</button>` : "—"}</td>
-    </tr>`).join("");
+    <tr><td>${byId[r.student_id] || r.student_id}</td><td>${r.term_type}</td><td>${r.period}</td>
+    <td>${r.subject}</td><td>${r.marks_obtained}/${r.total_marks}</td>
+    <td>${r.image_url ? `<button onclick="viewRecordImage(${r.id})" style="padding:0.3rem 0.7rem; border:none; border-radius:6px; background:var(--ht-primary,#7C5CE0); color:#fff; font-weight:600; cursor:pointer;">View</button>` : "—"}</td></tr>`).join("");
 }
 
 async function viewRecordImage(recordId) {
-  try {
-    const { url } = await authFetch(`/test-records/${recordId}/image-url`);
-    window.open(url, "_blank");
-  } catch (err) {
-    alert(err.message);
-  }
+  try { const { url } = await authFetch(`/test-records/${recordId}/image-url`); window.open(url, "_blank"); }
+  catch (err) { alert(err.message); }
 }
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -336,20 +430,19 @@ async function loadMessageThreads() {
   try {
     const threads = await authFetch("/teacher/messages");
     if (threads.length === 0) {
-      container.innerHTML = `<div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">No messages yet.</div>`;
+      container.innerHTML = `<div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">No messages yet.</div>`;
       return;
     }
     container.innerHTML = threads.map(t => `
       <div onclick="openMessageThread(${t.student_id}, '${t.student_name.replace(/'/g, "\\'")}')"
-           style="padding:8px 10px; border-radius:8px; cursor:pointer; margin-bottom:4px; ${activeMessageStudentId === t.student_id ? 'background:var(--teal-100,#e3f3f1);' : ''}">
-        <div style="font-weight:600; font-size:0.85rem;">${t.student_name}</div>
-        <div style="font-size:0.78rem; color:var(--ink-500,#5c6b69); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+           style="padding:10px 12px; border-radius:10px; cursor:pointer; margin-bottom:4px; ${activeMessageStudentId === t.student_id ? 'background:var(--ht-primary-lighter,#EDE9FE);' : ''}">
+        <div style="font-weight:600; font-size:0.85rem; color:var(--ht-dark,#1E1B4B);">${t.student_name}</div>
+        <div style="font-size:0.78rem; color:var(--ht-gray,#6B7280); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
           ${t.last_sender_role === "parent" ? "👨‍👩‍👧 " : "You: "}${t.last_message}
         </div>
-      </div>
-    `).join("");
+      </div>`).join("");
   } catch (error) {
-    container.innerHTML = `<div style="color:var(--danger,#c4453b); font-size:0.85rem;">${error.message}</div>`;
+    container.innerHTML = `<div style="color:#991B1B; font-size:0.85rem;">${error.message}</div>`;
   }
 }
 
@@ -357,22 +450,21 @@ async function openMessageThread(studentId, studentName) {
   activeMessageStudentId = studentId;
   await loadMessageThreads();
   const convo = document.getElementById("msgConversation");
-  convo.innerHTML = `<div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">Loading...</div>`;
+  convo.innerHTML = `<div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">Loading...</div>`;
   document.getElementById("msgReplyBox").style.display = "flex";
   try {
     const messages = await authFetch(`/teacher/messages/${studentId}`);
     convo.innerHTML = messages.length === 0
-      ? `<div style="color:var(--ink-500,#5c6b69); font-size:0.85rem;">No messages with ${studentName}'s parent yet.</div>`
+      ? `<div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">No messages with ${studentName}'s parent yet.</div>`
       : messages.map(m => `
-          <div style="align-self:${m.sender_role === "parent" ? "flex-start" : "flex-end"}; max-width:75%; padding:8px 12px; border-radius:10px; font-size:0.85rem;
-                      background:${m.sender_role === "parent" ? "var(--bg-secondary,#f1f5f9)" : "var(--teal-700,#0c6e6b)"};
-                      color:${m.sender_role === "parent" ? "inherit" : "#fff"};">
+          <div style="align-self:${m.sender_role === "parent" ? "flex-start" : "flex-end"}; max-width:75%; padding:10px 14px; border-radius:14px; font-size:0.85rem;
+                      background:${m.sender_role === "parent" ? "var(--ht-bg-secondary,#F7F5FF)" : "linear-gradient(135deg, #7C5CE0, #6244C7)"};
+                      color:${m.sender_role === "parent" ? "var(--ht-dark,#1E1B4B)" : "#fff"};">
             ${m.message}
-          </div>
-        `).join("");
+          </div>`).join("");
     convo.scrollTop = convo.scrollHeight;
   } catch (error) {
-    convo.innerHTML = `<div style="color:var(--danger,#c4453b); font-size:0.85rem;">${error.message}</div>`;
+    convo.innerHTML = `<div style="color:#991B1B; font-size:0.85rem;">${error.message}</div>`;
   }
 }
 
@@ -385,32 +477,22 @@ async function sendClassMessage() {
     input.value = "";
     const students = myStudents.find(s => s.id === activeMessageStudentId);
     await openMessageThread(activeMessageStudentId, students ? students.name : "");
-  } catch (error) {
-    alert(error.message);
-  }
+  } catch (error) { alert(error.message); }
 }
 
-// ==================== PORTAL BACKGROUND (with overlay intensity) ====================
 async function applyPortalBackground() {
   try {
     const result = await authFetch("/settings/background-image");
     if (result.url) {
-      // Use overlay value from backend (default 82 if not set)
-      const overlayPercent = (result.overlay !== undefined && result.overlay !== null)
-        ? parseInt(result.overlay)
-        : 82;
+      const overlayPercent = (result.overlay !== undefined && result.overlay !== null) ? parseInt(result.overlay) : 82;
       const topOpacity = overlayPercent / 100;
       const bottomOpacity = Math.min(topOpacity + 0.08, 1);
-
-      document.body.style.backgroundImage =
-        `linear-gradient(rgba(251,250,247,${topOpacity}), rgba(251,250,247,${bottomOpacity})), url('${result.url}')`;
+      document.body.style.backgroundImage = `linear-gradient(rgba(247,245,255,${topOpacity}), rgba(247,245,255,${bottomOpacity})), url('${result.url}')`;
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundAttachment = "fixed";
       document.body.style.backgroundPosition = "center";
-    } else {
-      document.body.style.backgroundImage = "";
     }
-  } catch (e) { /* no background set, or not yet configured — fine */ }
+  } catch (e) {}
 }
 applyPortalBackground();
 
@@ -418,7 +500,7 @@ loadMyClass().catch(err => {
   document.getElementById("classInfo").textContent = err.message;
 });
 
-// ==================== FLOATING AI WIDGET ====================
+// ==================== AI WIDGET ====================
 let aiWidgetOpen = false;
 let aiWidgetLoaded = false;
 
@@ -448,9 +530,7 @@ async function generateAIStudentSummary() {
       body: JSON.stringify({ language: "roman_urdu" }),
     });
     resultBox.textContent = result.summary;
-  } catch (err) {
-    resultBox.textContent = "Error: " + err.message;
-  }
+  } catch (err) { resultBox.textContent = "Error: " + err.message; }
 }
 </script>
 
@@ -459,9 +539,9 @@ async function generateAIStudentSummary() {
         <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
         <rect x="9" y="2" width="2" height="4" rx="1" fill="currentColor"/>
         <circle cx="10" cy="2" r="1.4" fill="currentColor"/>
-        <circle cx="9" cy="13.5" r="1.6" fill="#0c6e6b"/>
-        <circle cx="15" cy="13.5" r="1.6" fill="#0c6e6b"/>
-        <rect x="8.5" y="17" width="7" height="1.6" rx="0.8" fill="#0c6e6b"/>
+        <circle cx="9" cy="13.5" r="1.6" fill="#7C5CE0"/>
+        <circle cx="15" cy="13.5" r="1.6" fill="#7C5CE0"/>
+        <rect x="8.5" y="17" width="7" height="1.6" rx="0.8" fill="#7C5CE0"/>
         <rect x="1.5" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
         <rect x="20.3" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
     </svg>
@@ -486,7 +566,7 @@ async function generateAIStudentSummary() {
             <select id="aiStudentSelect" class="ai-widget-select"></select>
             <button class="ai-widget-btn" onclick="generateAIStudentSummary()">✨ Generate Summary</button>
         </div>
-        <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--paper,#fbfaf7); border-radius:10px; font-size:12.5px; line-height:1.6; white-space:pre-wrap;"></div>
+        <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--ht-bg-secondary,#F7F5FF); border-radius:10px; font-size:12.5px; line-height:1.6; white-space:pre-wrap; color:var(--ht-dark,#1E1B4B);"></div>
     </div>
 </div>
 
@@ -494,45 +574,49 @@ async function generateAIStudentSummary() {
     #aiFabBtn {
         position: fixed; right: 24px; bottom: 24px; width: 58px; height: 58px;
         border-radius: 50%; border: none;
-        background: linear-gradient(165deg, var(--teal-900,#0a5a54), var(--teal-700,#0c6e6b) 70%);
+        background: linear-gradient(135deg, #7C5CE0, #6244C7);
         color: #fff; display: flex; align-items: center; justify-content: center;
-        cursor: pointer; box-shadow: 0 8px 24px rgba(10,90,84,0.35); z-index: 1200;
-        transition: transform 0.2s ease; animation: aiFabFloat 3s ease-in-out infinite;
+        cursor: pointer; box-shadow: 0 8px 28px rgba(124, 92, 224, 0.4), 0 0 0 6px rgba(124, 92, 224, 0.1); z-index: 1200;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        animation: aiFabFloat 3s ease-in-out infinite;
     }
-    #aiFabBtn:hover { transform: scale(1.08); }
+    #aiFabBtn:hover { transform: scale(1.1); box-shadow: 0 12px 36px rgba(124, 92, 224, 0.55), 0 0 0 8px rgba(124, 92, 224, 0.15); }
     #aiFabPulse {
-        position: absolute; inset: 0; border-radius: 50%; background: var(--teal-700,#0c6e6b);
+        position: absolute; inset: 0; border-radius: 50%; background: #7C5CE0;
         opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite;
     }
-    @keyframes aiFabPulse { 0% { transform: scale(1); opacity: 0.5; } 70%, 100% { transform: scale(1.7); opacity: 0; } }
-    @keyframes aiFabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes aiFabPulse { 0% { transform: scale(1); opacity: 0.5; } 70%, 100% { transform: scale(1.8); opacity: 0; } }
+    @keyframes aiFabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     #aiWidgetPanel {
-        position: fixed; right: 24px; bottom: 96px; width: 320px; max-width: calc(100vw - 32px);
-        max-height: 70vh; max-height: 70dvh; background: #fff; border-radius: 18px;
-        box-shadow: 0 20px 50px rgba(10,90,84,0.25); border: 1px solid var(--line,#e6e8e5);
+        position: fixed; right: 24px; bottom: 96px; width: 340px; max-width: calc(100vw - 32px);
+        max-height: 70vh; background: #fff; border-radius: 20px;
+        box-shadow: 0 24px 60px rgba(79, 54, 168, 0.3); border: 1px solid rgba(124, 92, 224, 0.1);
         z-index: 1199; display: flex; flex-direction: column; overflow: hidden;
         transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none;
         transition: transform 0.22s ease, opacity 0.22s ease;
     }
     #aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
     #aiWidgetHeader {
-        background: linear-gradient(165deg, var(--teal-900,#0a5a54), var(--teal-700,#0c6e6b) 70%);
+        background: linear-gradient(135deg, #7C5CE0, #6244C7);
         color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
     }
-    #aiWidgetHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    #aiWidgetHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
     #aiWidgetBody { padding: 16px; overflow-y: auto; }
-    .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
-    .ai-widget-hint { font-size: 12px; color: var(--ink-500,#5c6b69); margin: 0 0 8px; }
-    .ai-widget-select { width: 100%; padding: 9px 10px; border: 1.5px solid var(--line,#e6e8e5); border-radius: 8px; font-size: 13px; font-family: inherit; margin-bottom: 8px; }
-    .ai-widget-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--teal-700,#0c6e6b); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
-    .ai-widget-btn:hover { background: var(--teal-900,#0a5a54); }
+    .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--ht-primary-dark, #6244C7); }
+    .ai-widget-hint { font-size: 12px; color: var(--ht-gray, #6B7280); margin: 0 0 8px; }
+    .ai-widget-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--ht-border, #E5E1F5); border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: #fff; color: var(--ht-dark, #1E1B4B); }
+    .ai-widget-select:focus { outline: none; border-color: #7C5CE0; box-shadow: 0 0 0 3px rgba(124, 92, 224, 0.1); }
+    .ai-widget-btn { width: 100%; padding: 10px; border: none; border-radius: 10px; background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(124, 92, 224, 0.3); }
+    .ai-widget-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124, 92, 224, 0.4); }
     @media (max-width: 480px) { #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); } #aiFabBtn { right: 16px; bottom: 16px; } }
 </style>
+
 <script src="js/branding.js"></script>
 <script src="js/animations.js"></script>
 <script src="js/dark-mode.js"></script>
 <script src="js/skeleton.js"></script>
 <script src="js/empty-states.js"></script>
 <script src="js/success-anim.js"></script>
+<script src="js/hope-theme.js"></script>
 </body>
 </html>
