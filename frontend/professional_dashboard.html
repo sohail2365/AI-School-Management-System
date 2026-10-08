@@ -775,124 +775,21 @@
         .sidebar-menu a i.lucide-replaced {
             margin-right: 0;
         }
-        /* ============ CLASS GRID (Class-wise Navigation) ============ */
-        .class-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
-        }
+            /* ============ CLASS GRID ============ */
+        .class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
         .class-card {
-            background: var(--bg-secondary);
-            border: 1.5px solid var(--border);
-            border-radius: 16px;
-            padding: 22px 18px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-secondary); border: 1.5px solid var(--border);
+            border-radius: 16px; padding: 22px 18px; cursor: pointer;
+            transition: all 0.25s ease; text-align: center; position: relative; overflow: hidden;
         }
-        .class-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 12px 32px rgba(124, 92, 224, 0.18);
-            background: var(--bg-primary);
-        }
-        .class-card-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 22px;
-            color: var(--primary-dark);
-            margin-bottom: 8px;
-        }
-        .class-card-count {
-            font-size: 13px;
-            color: var(--gray);
-            margin-bottom: 12px;
-        }
-        .class-card-stat {
-            font-size: 12px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            background: var(--primary-lighter);
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
+        .class-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 12px 32px rgba(124, 92, 224, 0.18); background: var(--bg-primary); }
+        .class-card-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--primary-dark); margin-bottom: 8px; }
+        .class-card-count { font-size: 13px; color: var(--gray); margin-bottom: 12px; }
+        .class-card-stat { font-size: 12px; padding: 5px 12px; border-radius: 20px; display: inline-block; background: var(--primary-lighter); color: var(--primary-dark); font-weight: 600; }
         .class-card.warning .class-card-stat { background: #FEF3C7; color: #92400E; }
         .class-card.success .class-card-stat { background: #D1FAE5; color: #065F46; }
         .class-card.danger  .class-card-stat { background: #FEE2E2; color: #991B1B; }
-        .class-card::before {
-            content: '';
-            position: absolute;
-            top: -30px; right: -30px;
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(124,92,224,0.12), transparent 70%);
-            pointer-events: none;
-        }
         body.dark-mode .class-card { background: #262042; border-color: #3D3660; }
-        body.dark-mode .class-card:hover { background: #2E2650; border-color: var(--primary); }
-        .view-header-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    
-        /* ============ CLASS GRID (Class-wise Navigation) ============ */
-        .class-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
-        }
-        .class-card {
-            background: var(--bg-secondary);
-            border: 1.5px solid var(--border);
-            border-radius: 16px;
-            padding: 22px 18px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .class-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 12px 32px rgba(124, 92, 224, 0.18);
-            background: var(--bg-primary);
-        }
-        .class-card-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 22px;
-            color: var(--primary-dark);
-            margin-bottom: 8px;
-        }
-        .class-card-count {
-            font-size: 13px;
-            color: var(--gray);
-            margin-bottom: 12px;
-        }
-        .class-card-stat {
-            font-size: 12px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            background: var(--primary-lighter);
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-        .class-card.warning .class-card-stat { background: #FEF3C7; color: #92400E; }
-        .class-card.success .class-card-stat { background: #D1FAE5; color: #065F46; }
-        .class-card.danger  .class-card-stat { background: #FEE2E2; color: #991B1B; }
-        .class-card::before {
-            content: '';
-            position: absolute;
-            top: -30px; right: -30px;
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(124,92,224,0.12), transparent 70%);
-            pointer-events: none;
-        }
-        body.dark-mode .class-card { background: #262042; border-color: #3D3660; }
-        body.dark-mode .class-card:hover { background: #2E2650; border-color: var(--primary); }
         .view-header-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 </style>
@@ -4287,388 +4184,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         }
         function openPrintWindow(title, bodyHtml) {
             const printWindow = window.open("", "_blank", "width=800,height=900");
-            printWindow.document.write(`<html><head><title>${title}</title><style>body { font-family: Arial, sans-serif; padding: 30px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 14px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }</style></head><body>${bodyHtml}
-    <!-- ==================== CLASS-WISE NAVIGATION (ADD-ON) ==================== -->
-    <script>
-    /* Yeh script file ke end mein hai — yeh original functions ko override karta hai.
-       Load order ke hisaab se YEH override kar dega purane loadStudents/loadFees/loadAttendance ko. */
-
-    // Global state
-    let currentStudentClass = null;
-    let currentFeeClass = null;
-    let currentAttendanceClass = null;
-
-    // ==================== STUDENTS ====================
-    async function loadStudents() {
-        if (currentStudentClass) {
-            await loadStudentsInClass(currentStudentClass);
-        } else {
-            showStudentClassGrid();
-            await loadStudentsClasses();
-        }
-    }
-
-    async function loadStudentsClasses() {
-        const container = document.getElementById("studentsClassCards");
-        if (!container) return;
-        try {
-            const classes = await apiRequest("/students/classes-summary");
-            renderStudentClassCards(classes);
-        } catch (error) {
-            console.error("Class summary failed, fallback to /students:", error);
-            try {
-                const data = await apiRequest("/students");
-                const uniq = [...new Set(data.map(s => s.class_name).filter(Boolean))]
-                    .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-                const classes = uniq.map(c => ({
-                    class_name: c,
-                    student_count: data.filter(s => s.class_name === c).length
-                }));
-                renderStudentClassCards(classes);
-            } catch (e) {
-                container.innerHTML = '<p style="color:var(--danger); text-align:center; padding:30px;">Could not load classes.</p>';
-            }
-        }
-    }
-
-    function renderStudentClassCards(classes) {
-        const container = document.getElementById("studentsClassCards");
-        if (!container) return;
-        if (!classes || classes.length === 0) {
-            container.innerHTML = '<div style="color:var(--gray); text-align:center; padding:40px;">No students yet. Click "Add Student" to get started.</div>';
-            return;
-        }
-        container.innerHTML = classes.map(c => `
-            <div class="class-card" onclick="openStudentClass('${(c.class_name || '').replace(/'/g, "\\'")}')">
-                <div class="class-card-title">Class ${c.class_name}</div>
-                <div class="class-card-count">${c.student_count} student${c.student_count !== 1 ? "s" : ""}</div>
-                <div class="class-card-stat">View →</div>
-            </div>
-        `).join("");
-    }
-
-    function showStudentClassGrid() {
-        const grid = document.getElementById("studentsClassGrid");
-        const detail = document.getElementById("studentsDetailView");
-        if (grid) grid.style.display = "block";
-        if (detail) detail.style.display = "none";
-    }
-
-    async function openStudentClass(className) {
-        currentStudentClass = className;
-        document.getElementById("studentsClassGrid").style.display = "none";
-        document.getElementById("studentsDetailView").style.display = "block";
-        document.getElementById("studentsDetailTitle").textContent = "Class " + className + " — Students";
-        await loadStudentsInClass(className);
-    }
-
-    function backToStudentClasses() {
-        currentStudentClass = null;
-        const inp = document.getElementById("studentSearchInput");
-        if (inp) inp.value = "";
-        if (typeof selectedStudentIds !== "undefined") {
-            selectedStudentIds.clear();
-            updateSelectedStudentCount();
-        }
-        showStudentClassGrid();
-    }
-
-    async function loadStudentsInClass(className, search = "") {
-        try {
-            const params = new URLSearchParams();
-            if (className) params.set("class", className);
-            if (search) params.set("search", search);
-            const data = await apiRequest("/students?" + params.toString());
-            students = data;
-            if (typeof selectedStudentIds !== "undefined") {
-                selectedStudentIds.clear();
-                updateSelectedStudentCount();
-            }
-            const table = document.getElementById("studentsTable");
-            const tableEl = table ? table.closest("table") : null;
-            if (data.length === 0) {
-                if (typeof showEmptyState === "function") {
-                    showEmptyState("studentsTable", "graduation-cap", "No students in this class", "Add a student to this class to get started.", "Add Student", "openAddStudentModal()");
-                }
-            } else {
-                if (typeof clearEmptyState === "function") clearEmptyState("studentsTable");
-                if (tableEl) tableEl.style.display = "";
-                table.innerHTML = data.map(s => '<tr><td><input type="checkbox" class="student-select-checkbox" value="' + s.id + '" onchange="toggleStudentSelection(' + s.id + ', this.checked)"></td><td>' + s.name + '</td><td>' + (s.father_name || "-") + '</td><td>' + (s.email || "-") + '</td><td>' + (s.phone || "-") + '</td><td>' + (s.class_name || "-") + '</td><td><span class="badge badge-success">Active</span></td><td><div class="action-buttons"><button class="btn btn-sm btn-secondary" onclick="openStudentProfile(' + s.id + ')">👁️ View</button><button class="btn btn-sm btn-secondary" onclick="editStudent(' + s.id + ')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteStudent(' + s.id + ')">Delete</button></div></td></tr>').join("");
-            }
-        } catch (error) { console.error("Error loading students in class:", error); }
-    }
-
-    function debounceFilterStudents() {
-        clearTimeout(studentFilterTimeout);
-        studentFilterTimeout = setTimeout(() => {
-            const search = document.getElementById("studentSearchInput").value.trim();
-            if (currentStudentClass) loadStudentsInClass(currentStudentClass, search);
-        }, 400);
-    }
-
-    function clearStudentFilters() {
-        const inp = document.getElementById("studentSearchInput");
-        if (inp) inp.value = "";
-        if (currentStudentClass) loadStudentsInClass(currentStudentClass, "");
-    }
-
-    // ==================== FEES ====================
-    async function loadFees() {
-        if (currentFeeClass) {
-            await loadFeesInClass(currentFeeClass);
-        } else {
-            showFeeClassGrid();
-            await loadFeeClasses();
-        }
-    }
-
-    async function loadFeeClasses() {
-        const container = document.getElementById("feesClassCards");
-        if (!container) return;
-        try {
-            const classes = await apiRequest("/fees/class-summary");
-            renderFeeClassCards(classes);
-        } catch (error) {
-            console.error("Fee class summary failed:", error);
-            container.innerHTML = '<p style="color:var(--danger); text-align:center; padding:30px;">Could not load classes.</p>';
-        }
-    }
-
-    function renderFeeClassCards(classes) {
-        const container = document.getElementById("feesClassCards");
-        if (!container) return;
-        if (!classes || classes.length === 0) {
-            container.innerHTML = '<div style="color:var(--gray); text-align:center; padding:40px;">No fee records yet. Generate fees for a class first.</div>';
-            return;
-        }
-        container.innerHTML = classes.map(c => {
-            const cardClass = c.total_due === 0 ? "success" : (c.collection_rate < 50 ? "danger" : "warning");
-            return `
-                <div class="class-card ${cardClass}" onclick="openFeeClass('${(c.class_name || '').replace(/'/g, "\\'")}')">
-                    <div class="class-card-title">Class ${c.class_name}</div>
-                    <div class="class-card-count">${c.student_count} student${c.student_count !== 1 ? "s" : ""}</div>
-                    <div class="class-card-stat">Due: Rs. ${Math.round(c.total_due).toLocaleString()}</div>
-                </div>
-            `;
-        }).join("");
-    }
-
-    function showFeeClassGrid() {
-        const grid = document.getElementById("feesClassGrid");
-        const detail = document.getElementById("feesDetailView");
-        if (grid) grid.style.display = "block";
-        if (detail) detail.style.display = "none";
-    }
-
-    async function openFeeClass(className) {
-        currentFeeClass = className;
-        window._currentFeeStatusFilter = "";
-        document.querySelectorAll(".fee-filter-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.status === ""));
-        document.getElementById("feesClassGrid").style.display = "none";
-        document.getElementById("feesDetailView").style.display = "block";
-        document.getElementById("feesDetailTitle").textContent = "Class " + className + " — Fees";
-        await loadFeesInClass(className);
-    }
-
-    function backToFeeClasses() {
-        currentFeeClass = null;
-        window._currentFeeStatusFilter = "";
-        showFeeClassGrid();
-        loadFeeClasses();
-    }
-
-    async function loadFeesInClass(className) {
-        try {
-            const statusFilter = window._currentFeeStatusFilter || "";
-            const params = new URLSearchParams();
-            params.set("class_name", className);
-            if (statusFilter) params.set("status", statusFilter);
-            const data = await apiRequest("/fees?" + params.toString());
-            const studentsData = await apiRequest("/students?class=" + encodeURIComponent(className));
-            cachedFeesForPayment = data;
-            cachedStudentsForFees = studentsData;
-            const table = document.getElementById("feesTable");
-            const tableEl = table ? table.closest("table") : null;
-            if (data.length === 0) {
-                if (typeof showEmptyState === "function") {
-                    showEmptyState("feesTable", "wallet", "No fee records in this class", "Generate fees for this class or add a fee manually.", "Add Fee", "openAddFeeModal()");
-                }
-            } else {
-                if (typeof clearEmptyState === "function") clearEmptyState("feesTable");
-                if (tableEl) tableEl.style.display = "";
-                table.innerHTML = data.map(f => {
-                    const student = studentsData.find(s => s.id === f.student_id);
-                    const isPaid = f.status === "paid";
-                    const hasPhone = student && student.phone;
-                    const badge = feeBadgeClass(f.status);
-                    const payBtn = isPaid ? "" : '<button class="btn btn-sm btn-primary" onclick="openPaymentModal(' + f.id + ')">💵 Pay</button>';
-                    const remindBtn = (!isPaid && hasPhone) ? '<button class="btn btn-sm btn-whatsapp" onclick="sendWhatsAppReminder(' + f.id + ')">📱 Remind</button>' : "";
-                    const printBtn = f.paid_amount > 0 ? '<button class="btn btn-sm btn-secondary" onclick="printFeeReceipt(' + f.id + ')">🧾</button>' : "";
-                    return '<tr><td>' + (student ? student.name : "Unknown") + '</td><td>' + (f.fee_name || "-") + '</td><td>Rs. ' + f.amount + '</td><td>' + (f.due_date || "-") + '</td><td><span class="badge ' + badge + '">' + f.status + '</span></td><td>Rs. ' + f.paid_amount + '</td><td><div class="action-buttons">' + payBtn + remindBtn + printBtn + '<button class="btn btn-sm btn-secondary" onclick="editFee(' + f.id + ')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteFee(' + f.id + ')">Delete</button></div></td></tr>';
-                }).join("");
-            }
-            const studentSelect = document.getElementById("feeStudent");
-            if (studentSelect) studentSelect.innerHTML = '<option>Select Student</option>' + studentsData.map(s => '<option value="' + s.id + '">' + s.name + '</option>').join("");
-        } catch (error) { console.error("Error loading fees in class:", error); }
-    }
-
-    // Override the original setFeeStatusFilter
-    window._originalSetFeeStatusFilter = window.setFeeStatusFilter;
-    window.setFeeStatusFilter = function(statusValue) {
-        window._currentFeeStatusFilter = statusValue;
-        document.querySelectorAll(".fee-filter-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.status === statusValue));
-        if (currentFeeClass) loadFeesInClass(currentFeeClass);
-    };
-
-    // ==================== ATTENDANCE ====================
-    async function loadAttendance() {
-        if (currentAttendanceClass) {
-            await loadAttendanceInClass(currentAttendanceClass);
-        } else {
-            showAttendanceClassGrid();
-            await loadAttendanceClasses();
-        }
-    }
-
-    async function loadAttendanceClasses() {
-        const container = document.getElementById("attendanceClassCards");
-        if (!container) return;
-        try {
-            const dateInput = document.getElementById("attendanceGridDate");
-            const params = dateInput && dateInput.value ? "?date=" + dateInput.value : "";
-            const classes = await apiRequest("/attendance/classes-summary" + params);
-            renderAttendanceClassCards(classes);
-        } catch (error) {
-            console.error("Attendance class summary failed:", error);
-            container.innerHTML = '<p style="color:var(--danger); text-align:center; padding:30px;">Could not load classes.</p>';
-        }
-    }
-
-    function renderAttendanceClassCards(classes) {
-        const container = document.getElementById("attendanceClassCards");
-        if (!container) return;
-        if (!classes || classes.length === 0) {
-            container.innerHTML = '<div style="color:var(--gray); text-align:center; padding:40px;">No classes yet.</div>';
-            return;
-        }
-        container.innerHTML = classes.map(c => {
-            let cardClass = "";
-            let statText = "";
-            if (c.marked_count === 0) {
-                cardClass = "warning";
-                statText = "Not marked yet";
-            } else if (c.attendance_rate >= 90) {
-                cardClass = "success";
-                statText = c.attendance_rate.toFixed(0) + "% present";
-            } else if (c.attendance_rate >= 70) {
-                cardClass = "warning";
-                statText = c.attendance_rate.toFixed(0) + "% present";
-            } else {
-                cardClass = "danger";
-                statText = c.attendance_rate.toFixed(0) + "% present";
-            }
-            return `
-                <div class="class-card ${cardClass}" onclick="openAttendanceClass('${(c.class_name || '').replace(/'/g, "\\'")}')">
-                    <div class="class-card-title">Class ${c.class_name}</div>
-                    <div class="class-card-count">${c.student_count} student${c.student_count !== 1 ? "s" : ""}</div>
-                    <div class="class-card-stat">${statText}</div>
-                </div>
-            `;
-        }).join("");
-    }
-
-    function showAttendanceClassGrid() {
-        const grid = document.getElementById("attendanceClassGrid");
-        const detail = document.getElementById("attendanceDetailView");
-        if (grid) grid.style.display = "block";
-        if (detail) detail.style.display = "none";
-    }
-
-    function setAttendanceGridToday() {
-        const today = new Date().toISOString().split("T")[0];
-        document.getElementById("attendanceGridDate").value = today;
-        loadAttendanceClasses();
-    }
-
-    async function openAttendanceClass(className) {
-        currentAttendanceClass = className;
-        window._currentAttendanceDateFilter = "";
-        const df = document.getElementById("attendanceDateFilter");
-        if (df) df.value = "";
-        document.getElementById("attendanceClassGrid").style.display = "none";
-        document.getElementById("attendanceDetailView").style.display = "block";
-        document.getElementById("attendanceDetailTitle").textContent = "Class " + className + " — Attendance";
-        await loadAttendanceInClass(className);
-    }
-
-    function backToAttendanceClasses() {
-        currentAttendanceClass = null;
-        window._currentAttendanceDateFilter = "";
-        showAttendanceClassGrid();
-        loadAttendanceClasses();
-    }
-
-    async function loadAttendanceInClass(className, dateFilter) {
-        try {
-            if (dateFilter === undefined) dateFilter = window._currentAttendanceDateFilter || "";
-            const studentsData = await apiRequest("/students?class=" + encodeURIComponent(className));
-            cachedStudentsForAttendance = studentsData;
-            const attStudent = document.getElementById("attendanceStudent");
-            if (attStudent) attStudent.innerHTML = '<option>Select Student</option>' + studentsData.map(s => '<option value="' + s.id + '">' + s.name + '</option>').join("");
-            const params = new URLSearchParams();
-            params.set("class_name", className);
-            if (dateFilter) params.set("date", dateFilter);
-            const records = await apiRequest("/attendance?" + params.toString());
-            cachedAttendanceRecords = records;
-            const table = document.getElementById("attendanceTable");
-            const tableEl = table ? table.closest("table") : null;
-            if (records.length === 0) {
-                if (typeof showEmptyState === "function") {
-                    showEmptyState("attendanceTable", "calendar-x", "No attendance in this class", "Mark attendance for students to see records here.", "Mark Attendance", "openMarkAttendanceModal()");
-                }
-            } else {
-                if (typeof clearEmptyState === "function") clearEmptyState("attendanceTable");
-                if (tableEl) tableEl.style.display = "";
-                table.innerHTML = records.map(r => {
-                    const student = studentsData.find(s => s.id === r.student_id);
-                    const badge = r.is_present ? "badge-success" : "badge-danger";
-                    const label = r.is_present ? "Present" : "Absent";
-                    return '<tr><td>' + (student ? student.name : "Unknown") + '</td><td>' + r.date + '</td><td><span class="badge ' + badge + '">' + label + '</span></td><td>' + (r.remarks || "-") + '</td><td><div class="action-buttons"><button class="btn btn-sm btn-secondary" onclick="editAttendance(' + r.id + ')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteAttendance(' + r.id + ')">Delete</button></div></td></tr>';
-                }).join("");
-            }
-        } catch (error) { console.error("Error loading attendance in class:", error); }
-    }
-
-    function filterAttendance() {
-        window._currentAttendanceDateFilter = document.getElementById("attendanceDateFilter").value;
-        if (currentAttendanceClass) loadAttendanceInClass(currentAttendanceClass, window._currentAttendanceDateFilter);
-    }
-
-    function setAttendanceToday() {
-        const today = new Date().toISOString().split("T")[0];
-        document.getElementById("attendanceDateFilter").value = today;
-        filterAttendance();
-    }
-
-    function clearAttendanceFilter() {
-        document.getElementById("attendanceDateFilter").value = "";
-        window._currentAttendanceDateFilter = "";
-        if (currentAttendanceClass) loadAttendanceInClass(currentAttendanceClass, "");
-    }
-
-    // ==================== LOAD VIEW DATA OVERRIDE ====================
-    // Reset class state when entering a view via sidebar
-    window._originalLoadViewData = window.loadViewData;
-    window.loadViewData = async function(viewName) {
-        if (viewName === "students") currentStudentClass = null;
-        if (viewName === "fees") { currentFeeClass = null; window._currentFeeStatusFilter = ""; }
-        if (viewName === "attendance") { currentAttendanceClass = null; window._currentAttendanceDateFilter = ""; }
-        return window._originalLoadViewData(viewName);
-    };
-
-    console.log("✅ Class-wise navigation loaded");
-    </script>
-</body></html>`);
+            printWindow.document.write(`<html><head><title>${title}</title><style>body { font-family: Arial, sans-serif; padding: 30px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 14px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }</style></head><body>${bodyHtml}</body></html>`);
             printWindow.document.close();
             printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
         }
@@ -4800,5 +4316,222 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
     <script src="js/empty-states.js"></script>
     <script src="js/success-anim.js"></script>
     <script src="js/profile-dropdown.js"></script>
+
+    <!-- CLASS-WISE NAVIGATION -->
+    <script>
+    let currentStudentClass = null;
+    let currentFeeClass = null;
+    let currentAttendanceClass = null;
+
+    async function loadStudents() {
+        if (currentStudentClass) await loadStudentsInClass(currentStudentClass);
+        else { showStudentClassGrid(); await loadStudentsClasses(); }
+    }
+    async function loadStudentsClasses() {
+        const c = document.getElementById("studentsClassCards");
+        if (!c) return;
+        try { renderStudentClassCards(await apiRequest("/students/classes-summary")); }
+        catch (e) { console.error(e); c.innerHTML = '<p style="color:var(--danger);text-align:center;padding:30px;">Could not load classes.</p>'; }
+    }
+    function renderStudentClassCards(classes) {
+        const c = document.getElementById("studentsClassCards");
+        if (!c) return;
+        if (!classes || !classes.length) { c.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px;">No students yet.</div>'; return; }
+        c.innerHTML = classes.map(x => '<div class="class-card" onclick="openStudentClass(\'' + (x.class_name||'').replace(/\x27/g, "\\'") + '\')"><div class="class-card-title">Class ' + x.class_name + '</div><div class="class-card-count">' + x.student_count + ' student' + (x.student_count !== 1 ? "s" : "") + '</div><div class="class-card-stat">View →</div></div>').join("");
+    }
+    function showStudentClassGrid() {
+        const g = document.getElementById("studentsClassGrid"), d = document.getElementById("studentsDetailView");
+        if (g) g.style.display = "block"; if (d) d.style.display = "none";
+    }
+    async function openStudentClass(cn) {
+        currentStudentClass = cn;
+        document.getElementById("studentsClassGrid").style.display = "none";
+        document.getElementById("studentsDetailView").style.display = "block";
+        document.getElementById("studentsDetailTitle").textContent = "Class " + cn + " — Students";
+        await loadStudentsInClass(cn);
+    }
+    function backToStudentClasses() {
+        currentStudentClass = null;
+        const i = document.getElementById("studentSearchInput"); if (i) i.value = "";
+        if (typeof selectedStudentIds !== "undefined") { selectedStudentIds.clear(); updateSelectedStudentCount(); }
+        showStudentClassGrid();
+    }
+    async function loadStudentsInClass(cn, search) {
+        try {
+            const p = new URLSearchParams(); p.set("class", cn); if (search) p.set("search", search);
+            const data = await apiRequest("/students?" + p.toString());
+            students = data;
+            if (typeof selectedStudentIds !== "undefined") { selectedStudentIds.clear(); updateSelectedStudentCount(); }
+            const t = document.getElementById("studentsTable");
+            const te = t ? t.closest("table") : null;
+            if (!data.length) { if (typeof showEmptyState === "function") showEmptyState("studentsTable","graduation-cap","No students","Add one.","Add Student","openAddStudentModal()"); }
+            else {
+                if (typeof clearEmptyState === "function") clearEmptyState("studentsTable");
+                if (te) te.style.display = "";
+                t.innerHTML = data.map(s => '<tr><td><input type="checkbox" class="student-select-checkbox" value="' + s.id + '" onchange="toggleStudentSelection(' + s.id + ',this.checked)"></td><td>' + s.name + '</td><td>' + (s.father_name||"-") + '</td><td>' + (s.email||"-") + '</td><td>' + (s.phone||"-") + '</td><td>' + (s.class_name||"-") + '</td><td><span class="badge badge-success">Active</span></td><td><div class="action-buttons"><button class="btn btn-sm btn-secondary" onclick="openStudentProfile(' + s.id + ')">👁️ View</button><button class="btn btn-sm btn-secondary" onclick="editStudent(' + s.id + ')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteStudent(' + s.id + ')">Delete</button></div></td></tr>').join("");
+            }
+        } catch (e) { console.error(e); }
+    }
+    function debounceFilterStudents() {
+        clearTimeout(studentFilterTimeout);
+        studentFilterTimeout = setTimeout(() => {
+            const s = document.getElementById("studentSearchInput").value.trim();
+            if (currentStudentClass) loadStudentsInClass(currentStudentClass, s);
+        }, 400);
+    }
+    function clearStudentFilters() {
+        const i = document.getElementById("studentSearchInput"); if (i) i.value = "";
+        if (currentStudentClass) loadStudentsInClass(currentStudentClass, "");
+    }
+
+    async function loadFees() {
+        if (currentFeeClass) await loadFeesInClass(currentFeeClass);
+        else { showFeeClassGrid(); await loadFeeClasses(); }
+    }
+    async function loadFeeClasses() {
+        const c = document.getElementById("feesClassCards"); if (!c) return;
+        try { renderFeeClassCards(await apiRequest("/fees/class-summary")); }
+        catch (e) { console.error(e); c.innerHTML = '<p style="color:var(--danger);text-align:center;padding:30px;">Could not load classes.</p>'; }
+    }
+    function renderFeeClassCards(cs) {
+        const c = document.getElementById("feesClassCards"); if (!c) return;
+        if (!cs || !cs.length) { c.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px;">No fee records.</div>'; return; }
+        c.innerHTML = cs.map(x => {
+            const cc = x.total_due === 0 ? "success" : (x.collection_rate < 50 ? "danger" : "warning");
+            return '<div class="class-card ' + cc + '" onclick="openFeeClass(\'' + (x.class_name||'').replace(/\x27/g, "\\'") + '\')"><div class="class-card-title">Class ' + x.class_name + '</div><div class="class-card-count">' + x.student_count + ' student' + (x.student_count !== 1 ? "s" : "") + '</div><div class="class-card-stat">Due: Rs. ' + Math.round(x.total_due).toLocaleString() + '</div></div>';
+        }).join("");
+    }
+    function showFeeClassGrid() {
+        const g = document.getElementById("feesClassGrid"), d = document.getElementById("feesDetailView");
+        if (g) g.style.display = "block"; if (d) d.style.display = "none";
+    }
+    async function openFeeClass(cn) {
+        currentFeeClass = cn; window._currentFeeStatusFilter = "";
+        document.querySelectorAll(".fee-filter-btn").forEach(b => b.classList.toggle("active", b.dataset.status === ""));
+        document.getElementById("feesClassGrid").style.display = "none";
+        document.getElementById("feesDetailView").style.display = "block";
+        document.getElementById("feesDetailTitle").textContent = "Class " + cn + " — Fees";
+        await loadFeesInClass(cn);
+    }
+    function backToFeeClasses() { currentFeeClass = null; window._currentFeeStatusFilter = ""; showFeeClassGrid(); loadFeeClasses(); }
+    async function loadFeesInClass(cn) {
+        try {
+            const sf = window._currentFeeStatusFilter || "";
+            const p = new URLSearchParams(); p.set("class_name", cn); if (sf) p.set("status", sf);
+            const data = await apiRequest("/fees?" + p.toString());
+            const sd = await apiRequest("/students?class=" + encodeURIComponent(cn));
+            cachedFeesForPayment = data; cachedStudentsForFees = sd;
+            const t = document.getElementById("feesTable"); const te = t ? t.closest("table") : null;
+            if (!data.length) { if (typeof showEmptyState === "function") showEmptyState("feesTable","wallet","No fees","Generate fees.","Add Fee","openAddFeeModal()"); }
+            else {
+                if (typeof clearEmptyState === "function") clearEmptyState("feesTable");
+                if (te) te.style.display = "";
+                t.innerHTML = data.map(f => {
+                    const s = sd.find(x => x.id === f.student_id);
+                    const ip = f.status === "paid"; const hp = s && s.phone; const b = feeBadgeClass(f.status);
+                    const pb = ip ? "" : '<button class="btn btn-sm btn-primary" onclick="openPaymentModal(' + f.id + ')">💵 Pay</button>';
+                    const rb = (!ip && hp) ? '<button class="btn btn-sm btn-whatsapp" onclick="sendWhatsAppReminder(' + f.id + ')">📱</button>' : "";
+                    const pr = f.paid_amount > 0 ? '<button class="btn btn-sm btn-secondary" onclick="printFeeReceipt(' + f.id + ')">🧾</button>' : "";
+                    return '<tr><td>' + (s?s.name:"Unknown") + '</td><td>' + (f.fee_name||"-") + '</td><td>Rs. ' + f.amount + '</td><td>' + (f.due_date||"-") + '</td><td><span class="badge ' + b + '">' + f.status + '</span></td><td>Rs. ' + f.paid_amount + '</td><td><div class="action-buttons">' + pb + rb + pr + '<button class="btn btn-sm btn-secondary" onclick="editFee(' + f.id + ')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteFee(' + f.id + ')">Delete</button></div></td></tr>';
+                }).join("");
+            }
+            const ss = document.getElementById("feeStudent");
+            if (ss) ss.innerHTML = '<option>Select Student</option>' + sd.map(s => '<option value="' + s.id + '">' + s.name + '</option>').join("");
+        } catch (e) { console.error(e); }
+    }
+    window._origSetFeeStatusFilter = window.setFeeStatusFilter;
+    window.setFeeStatusFilter = function(v) {
+        window._currentFeeStatusFilter = v;
+        document.querySelectorAll(".fee-filter-btn").forEach(b => b.classList.toggle("active", b.dataset.status === v));
+        if (currentFeeClass) loadFeesInClass(currentFeeClass);
+    };
+
+    async function loadAttendance() {
+        if (currentAttendanceClass) await loadAttendanceInClass(currentAttendanceClass);
+        else { showAttendanceClassGrid(); await loadAttendanceClasses(); }
+    }
+    async function loadAttendanceClasses() {
+        const c = document.getElementById("attendanceClassCards"); if (!c) return;
+        try {
+            const di = document.getElementById("attendanceGridDate");
+            const q = di && di.value ? "?date=" + di.value : "";
+            renderAttendanceClassCards(await apiRequest("/attendance/classes-summary" + q));
+        } catch (e) { console.error(e); c.innerHTML = '<p style="color:var(--danger);text-align:center;padding:30px;">Could not load classes.</p>'; }
+    }
+    function renderAttendanceClassCards(cs) {
+        const c = document.getElementById("attendanceClassCards"); if (!c) return;
+        if (!cs || !cs.length) { c.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px;">No classes yet.</div>'; return; }
+        c.innerHTML = cs.map(x => {
+            let cc = "", st = "";
+            if (x.marked_count === 0) { cc = "warning"; st = "Not marked yet"; }
+            else if (x.attendance_rate >= 90) { cc = "success"; st = x.attendance_rate.toFixed(0) + "% present"; }
+            else if (x.attendance_rate >= 70) { cc = "warning"; st = x.attendance_rate.toFixed(0) + "% present"; }
+            else { cc = "danger"; st = x.attendance_rate.toFixed(0) + "% present"; }
+            return '<div class="class-card ' + cc + '" onclick="openAttendanceClass(\'' + (x.class_name||'').replace(/\x27/g, "\\'") + '\')"><div class="class-card-title">Class ' + x.class_name + '</div><div class="class-card-count">' + x.student_count + ' student' + (x.student_count !== 1 ? "s" : "") + '</div><div class="class-card-stat">' + st + '</div></div>';
+        }).join("");
+    }
+    function showAttendanceClassGrid() {
+        const g = document.getElementById("attendanceClassGrid"), d = document.getElementById("attendanceDetailView");
+        if (g) g.style.display = "block"; if (d) d.style.display = "none";
+    }
+    function setAttendanceGridToday() {
+        document.getElementById("attendanceGridDate").value = new Date().toISOString().split("T")[0];
+        loadAttendanceClasses();
+    }
+    async function openAttendanceClass(cn) {
+        currentAttendanceClass = cn; window._currentAttendanceDateFilter = "";
+        const df = document.getElementById("attendanceDateFilter"); if (df) df.value = "";
+        document.getElementById("attendanceClassGrid").style.display = "none";
+        document.getElementById("attendanceDetailView").style.display = "block";
+        document.getElementById("attendanceDetailTitle").textContent = "Class " + cn + " — Attendance";
+        await loadAttendanceInClass(cn);
+    }
+    function backToAttendanceClasses() { currentAttendanceClass = null; window._currentAttendanceDateFilter = ""; showAttendanceClassGrid(); loadAttendanceClasses(); }
+    async function loadAttendanceInClass(cn, df) {
+        try {
+            if (df === undefined) df = window._currentAttendanceDateFilter || "";
+            const sd = await apiRequest("/students?class=" + encodeURIComponent(cn));
+            cachedStudentsForAttendance = sd;
+            const as = document.getElementById("attendanceStudent");
+            if (as) as.innerHTML = '<option>Select Student</option>' + sd.map(s => '<option value="' + s.id + '">' + s.name + '</option>').join("");
+            const p = new URLSearchParams(); p.set("class_name", cn); if (df) p.set("date", df);
+            const recs = await apiRequest("/attendance?" + p.toString());
+            cachedAttendanceRecords = recs;
+            const t = document.getElementById("attendanceTable"); const te = t ? t.closest("table") : null;
+            if (!recs.length) { if (typeof showEmptyState === "function") showEmptyState("attendanceTable","calendar-x","No attendance","Mark it.","Mark Attendance","openMarkAttendanceModal()"); }
+            else {
+                if (typeof clearEmptyState === "function") clearEmptyState("attendanceTable");
+                if (te) te.style.display = "";
+                t.innerHTML = recs.map(r => {
+                    const s = sd.find(x => x.id === r.student_id);
+                    const b = r.is_present ? "badge-success" : "badge-danger"; const l = r.is_present ? "Present" : "Absent";
+                    return '<tr><td>' + (s?s.name:"Unknown") + '</td><td>' + r.date + '</td><td><span class="badge ' + b + '">' + l + '</span></td><td>' + (r.remarks||"-") + '</td><td><div class="action-buttons"><button class="btn btn-sm btn-secondary" onclick="editAttendance(' + r.id + ')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteAttendance(' + r.id + ')">Delete</button></div></td></tr>';
+                }).join("");
+            }
+        } catch (e) { console.error(e); }
+    }
+    function filterAttendance() {
+        window._currentAttendanceDateFilter = document.getElementById("attendanceDateFilter").value;
+        if (currentAttendanceClass) loadAttendanceInClass(currentAttendanceClass, window._currentAttendanceDateFilter);
+    }
+    function setAttendanceToday() {
+        document.getElementById("attendanceDateFilter").value = new Date().toISOString().split("T")[0];
+        filterAttendance();
+    }
+    function clearAttendanceFilter() {
+        document.getElementById("attendanceDateFilter").value = "";
+        window._currentAttendanceDateFilter = "";
+        if (currentAttendanceClass) loadAttendanceInClass(currentAttendanceClass, "");
+    }
+
+    window._origLoadViewData = window.loadViewData;
+    window.loadViewData = async function(v) {
+        if (v === "students") currentStudentClass = null;
+        if (v === "fees") { currentFeeClass = null; window._currentFeeStatusFilter = ""; }
+        if (v === "attendance") { currentAttendanceClass = null; window._currentAttendanceDateFilter = ""; }
+        return window._origLoadViewData(v);
+    };
+    console.log("✅ Class-wise nav loaded");
+    </script>
 </body>
 </html>
