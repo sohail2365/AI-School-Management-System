@@ -94,7 +94,7 @@ def _call_groq(
             json={
                 "model": settings.GROQ_MODEL,
                 "messages": messages,
-                "temperature": 0.3,
+                "temperature": 0.1,
                 "max_tokens": max_tokens,
             },
             timeout=45,

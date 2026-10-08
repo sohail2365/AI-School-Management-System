@@ -41,11 +41,10 @@ def _recalculate_fee(fee: Fee) -> None:
         fee.due_amount = 0.0
 
 
-# ✅ NEW: List all fees for the school (optionally filtered by status).
-# Does not change any existing endpoint — purely additive.
 @router.get("", response_model=list[FeeOut])
 def list_fees(
     status: str | None = None,
+    class_name: str | None = None,
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
@@ -56,6 +55,14 @@ def list_fees(
         except ValueError:
             raise HTTPException(status_code=422, detail="Invalid status. Use pending, partial or paid")
         query = query.filter(Fee.status == status_enum)
+    if class_name:
+        sids = [r.id for r in db.query(Student.id).filter(
+            Student.school_id == token["school_id"],
+            Student.class_name == class_name,
+        ).all()]
+        if not sids:
+            return []
+        query = query.filter(Fee.student_id.in_(sids))
     return query.order_by(Fee.id.desc()).all()
 
 

@@ -84,13 +84,89 @@ def attendance_register(
         "students": rows,
     }
 
+# ==================== CLASS-WISE NAVIGATION ====================
+# ✅ NEW: Class-wise attendance summary for class grid view.
 
-# ✅ NEW: List all attendance records for the school (optional date / student filters).
-# Purely additive — does not change any existing endpoint.
+@router.get("/classes-summary")
+def attendance_classes_summary(
+    date: dt_date | None = None,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+
+    import re
+    from sqlalchemy import func
+
+    target_date = date or dt_date.today()
+
+    class_rows = (
+        db.query(
+            Student.class_name,
+            func.count(Student.id).label("student_count"),
+        )
+        .filter(Student.school_id == token["school_id"])
+        .group_by(Student.class_name)
+        .all()
+    )
+
+    attendance_rows = (
+        db.query(Attendance)
+        .filter(
+            Attendance.school_id == token["school_id"],
+            Attendance.date == target_date,
+        )
+        .all()
+    )
+
+    student_ids = {a.student_id for a in attendance_rows}
+    students_map = {}
+    if student_ids:
+        students_q = (
+            db.query(Student.id, Student.class_name)
+            .filter(
+                Student.school_id == token["school_id"],
+                Student.id.in_(student_ids),
+            )
+            .all()
+        )
+        students_map = {sid: cname for sid, cname in students_q}
+
+    per_class = {}
+    for a in attendance_rows:
+        cls = students_map.get(a.student_id)
+        if cls is None:
+            continue
+        if cls not in per_class:
+            per_class[cls] = {"marked": 0, "present": 0}
+        per_class[cls]["marked"] += 1
+        if a.is_present:
+            per_class[cls]["present"] += 1
+
+    def sort_key(cls_name):
+        parts = re.split(r"(\d+)", cls_name or "")
+        return [int(p) if p.isdigit() else p.lower() for p in parts if p]
+
+    result = []
+    for row in sorted(class_rows, key=lambda r: sort_key(r.class_name)):
+        stats = per_class.get(row.class_name, {"marked": 0, "present": 0})
+        marked = stats["marked"]
+        present = stats["present"]
+        result.append({
+            "class_name": row.class_name,
+            "student_count": row.student_count,
+            "marked_count": marked,
+            "present_count": present,
+            "absent_count": marked - present,
+            "attendance_rate": round((present / marked) * 100, 2) if marked else 0.0,
+        })
+
+    return result
+
 @router.get("", response_model=list[AttendanceOut])
 def list_attendance(
     date: dt_date | None = None,
     student_id: int | None = None,
+    class_name: str | None = None,
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
@@ -99,8 +175,15 @@ def list_attendance(
         query = query.filter(Attendance.date == date)
     if student_id:
         query = query.filter(Attendance.student_id == student_id)
+    if class_name:
+        sids = [r.id for r in db.query(Student.id).filter(
+            Student.school_id == token["school_id"],
+            Student.class_name == class_name,
+        ).all()]
+        if not sids:
+            return []
+        query = query.filter(Attendance.student_id.in_(sids))
     return query.order_by(Attendance.date.desc(), Attendance.id.desc()).all()
-
 
 @router.get("/date/{date}", response_model=list[AttendanceOut])
 def get_attendance_by_date(

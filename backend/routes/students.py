@@ -166,6 +166,41 @@ def get_student(
         raise HTTPException(status_code=404, detail="Student not found")
     return student
 
+# ==================== CLASS-WISE NAVIGATION ====================
+@router.get("/classes-summary")
+def students_classes_summary(
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns: [{ class_name: "1", student_count: 25 }, ...]
+    Sorted naturally so Class 2 comes after Class 1 (not Class 10).
+    """
+    import re
+    from sqlalchemy import func
+
+    result = (
+        db.query(
+            Student.class_name,
+            func.count(Student.id).label("student_count"),
+        )
+        .filter(Student.school_id == token["school_id"])
+        .group_by(Student.class_name)
+        .all()
+    )
+
+    def sort_key(row):
+        name = row.class_name or ""
+        parts = re.split(r"(\d+)", name)
+        return [int(p) if p.isdigit() else p.lower() for p in parts if p]
+
+    sorted_rows = sorted(result, key=sort_key)
+
+    return [
+        {"class_name": r.class_name, "student_count": r.student_count}
+        for r in sorted_rows
+    ]
+
 
 @router.get("/{student_id}/profile")
 def get_student_profile(
