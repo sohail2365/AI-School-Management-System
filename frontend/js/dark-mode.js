@@ -1,68 +1,95 @@
 /* ============================================================
-   SCHOOLHUB — DARK MODE TOGGLE
+   SCHOOLHUB — DARK MODE SYNC (smart, no duplicate buttons)
    Har HTML file mein add karein (</body> se pehle):
    <script src="js/dark-mode.js"></script>
+
+   - Dashboard jaisi pages jinki apna FAB hai (#darkModeFabBtn):
+     koi naya button nahi banega, sirf theme sync hogi.
+   - Baaki pages: apna toggle button automatically banega.
+   - Sab pages same storage key use karte hain → theme consistent.
    ============================================================ */
 
 (function() {
-  const STORAGE_KEY = 'schoolhub_theme';
+  // ✅ Unified storage key — dashboard ke toggleDarkMode() se match karta hai
+  const STORAGE_KEY = 'schoolhub_dark_mode';
 
-  function getPreferredTheme() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'dark' || stored === 'light') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    if (theme === 'dark') {
+  /* ---------- APPLY THEME ---------- */
+  function applyTheme(enabled) {
+    if (enabled) {
       document.body.classList.add('dark-mode');
     } else {
       document.body.classList.remove('dark-mode');
     }
-    updateIcon(theme);
-  }
 
-  function updateIcon(theme) {
-    const btn = document.getElementById('darkModeToggle');
-    if (!btn) return;
-    const icon = btn.querySelector('[data-lucide]');
-    if (icon) {
-      icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-      if (window.lucide) window.lucide.createIcons();
+    // Dashboard FAB icon sync (agar page par mojood hai)
+    const fabIcon = document.getElementById('darkModeFabIcon');
+    if (fabIcon) fabIcon.textContent = enabled ? '☀️' : '🌙';
+
+    // Auto-generated button icon sync (baaki pages ke liye)
+    const autoBtn = document.getElementById('darkModeToggle');
+    if (autoBtn) {
+      const icon = autoBtn.querySelector('[data-lucide]');
+      if (icon) {
+        icon.setAttribute('data-lucide', enabled ? 'sun' : 'moon');
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          try { window.lucide.createIcons(); } catch (e) {}
+        }
+      }
+      autoBtn.setAttribute(
+        'title',
+        enabled ? 'Switch to light mode' : 'Switch to dark mode'
+      );
     }
-    btn.setAttribute('title', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
   }
 
+  /* ---------- TOGGLE ---------- */
   function toggleTheme() {
-    const current = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    localStorage.setItem(STORAGE_KEY, next);
+    const isDark = document.body.classList.contains('dark-mode');
+    const next = !isDark;
+    localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
     applyTheme(next);
   }
 
-  function createToggleButton() {
+  /* ---------- CREATE AUTO BUTTON (sirf jab zaroorat ho) ---------- */
+  function createToggleButtonIfNeeded() {
+    // Dashboard / pages with native FAB → skip
+    if (document.getElementById('darkModeFabBtn')) return;
+    // Agar pehle se koi button mojood hai → skip
     if (document.getElementById('darkModeToggle')) return;
+
     const btn = document.createElement('button');
     btn.id = 'darkModeToggle';
     btn.className = 'dark-mode-toggle';
     btn.setAttribute('aria-label', 'Toggle dark mode');
-    btn.innerHTML = `<i data-lucide="${document.body.classList.contains('dark-mode') ? 'sun' : 'moon'}" style="width:20px;height:20px;"></i>`;
+
+    const isDark = document.body.classList.contains('dark-mode');
+    btn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" style="width:20px;height:20px;"></i>`;
     btn.addEventListener('click', toggleTheme);
+
     document.body.appendChild(btn);
-    if (window.lucide) window.lucide.createIcons();
-  }
 
-  const initial = getPreferredTheme();
-  if (initial === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-
-  function init() {
-    if (document.body) {
-      document.body.classList.toggle('dark-mode', initial === 'dark');
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      try { window.lucide.createIcons(); } catch (e) {}
     }
-    createToggleButton();
+  }
+
+  /* ---------- INIT ---------- */
+  function init() {
+    // Priority: localStorage → system preference
+    const saved = localStorage.getItem(STORAGE_KEY);
+    let enabled;
+
+    if (saved === '1') {
+      enabled = true;
+    } else if (saved === '0') {
+      enabled = false;
+    } else {
+      enabled = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      localStorage.setItem(STORAGE_KEY, enabled ? '1' : '0');
+    }
+
+    applyTheme(enabled);
+    createToggleButtonIfNeeded();
   }
 
   if (document.readyState === 'loading') {
