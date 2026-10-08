@@ -85,25 +85,21 @@ def attendance_register(
     }
 
 # ==================== CLASS-WISE NAVIGATION ====================
-# ✅ NEW: Class-wise attendance summary for class grid view.
-
+# ==================== CLASS-WISE NAVIGATION ====================
 @router.get("/classes-summary")
 def attendance_classes_summary(
     date: dt_date | None = None,
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
-
+    """Per-class attendance snapshot for a given date (defaults to today)."""
     import re
     from sqlalchemy import func
 
     target_date = date or dt_date.today()
 
     class_rows = (
-        db.query(
-            Student.class_name,
-            func.count(Student.id).label("student_count"),
-        )
+        db.query(Student.class_name, func.count(Student.id).label("student_count"))
         .filter(Student.school_id == token["school_id"])
         .group_by(Student.class_name)
         .all()
@@ -121,7 +117,7 @@ def attendance_classes_summary(
     student_ids = {a.student_id for a in attendance_rows}
     students_map = {}
     if student_ids:
-        students_q = (
+        pairs = (
             db.query(Student.id, Student.class_name)
             .filter(
                 Student.school_id == token["school_id"],
@@ -129,25 +125,24 @@ def attendance_classes_summary(
             )
             .all()
         )
-        students_map = {sid: cname for sid, cname in students_q}
+        students_map = {sid: cname for sid, cname in pairs}
 
     per_class = {}
     for a in attendance_rows:
         cls = students_map.get(a.student_id)
         if cls is None:
             continue
-        if cls not in per_class:
-            per_class[cls] = {"marked": 0, "present": 0}
-        per_class[cls]["marked"] += 1
+        entry = per_class.setdefault(cls, {"marked": 0, "present": 0})
+        entry["marked"] += 1
         if a.is_present:
-            per_class[cls]["present"] += 1
+            entry["present"] += 1
 
-    def sort_key(cls_name):
-        parts = re.split(r"(\d+)", cls_name or "")
+    def _sort_key(name):
+        parts = re.split(r"(\d+)", name or "")
         return [int(p) if p.isdigit() else p.lower() for p in parts if p]
 
     result = []
-    for row in sorted(class_rows, key=lambda r: sort_key(r.class_name)):
+    for row in sorted(class_rows, key=lambda r: _sort_key(r.class_name)):
         stats = per_class.get(row.class_name, {"marked": 0, "present": 0})
         marked = stats["marked"]
         present = stats["present"]
@@ -159,7 +154,6 @@ def attendance_classes_summary(
             "absent_count": marked - present,
             "attendance_rate": round((present / marked) * 100, 2) if marked else 0.0,
         })
-
     return result
 
 @router.get("", response_model=list[AttendanceOut])
