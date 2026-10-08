@@ -732,6 +732,24 @@
         body.dark-mode .fee-filter-btn, body.dark-mode .staff-tab-btn, body.dark-mode .salary-filter-btn { background: #262042; color: #9B95B8; }
         body.dark-mode .calc-btn { background: #262042; color: #E5E2F5; }
         body.dark-mode .ai-chat-bubble.assistant { background: #262042; color: #E5E2F5; border-color: #3D3660; }
+
+        /* ============ SIDEBAR ICON AUTO-REPLACE FIX ============ */
+        /* animations.js sidebar icon ke andar <i> inject karta hai — usko spacing na de */
+        .sidebar-menu a .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+        }
+        .sidebar-menu a .icon i.lucide-replaced {
+            margin-right: 0;
+            width: 18px;
+            height: 18px;
+        }
+        .sidebar-menu a i.lucide-replaced {
+            margin-right: 0;
+        }
     </style>
 </head>
 <body>
@@ -1833,6 +1851,35 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         }
 
         function getToken() { return localStorage.getItem("access_token"); }
+        function isTokenExpired(token) {
+            try {
+                const parts = token.split(".");
+                if (parts.length !== 3) return true;
+                const payload = JSON.parse(
+                    atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
+                );
+                if (!payload.exp) return false;
+                return (payload.exp * 1000) < (Date.now() + 5000);
+            } catch (e) {
+                return true;
+            }
+        }
+
+        // Friendly redirect helper used by both 401 handler and init() check.
+        function forceLogout(reason) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_role");
+            localStorage.removeItem("user_full_name");
+            localStorage.removeItem("user_email");
+            localStorage.removeItem("school_id");
+            localStorage.removeItem("school_name");
+            try {
+                if (typeof showToast === "function") {
+                    showToast(reason || "Session expired. Please sign in again.", "error", 2000);
+                }
+            } catch (e) {}
+            setTimeout(() => { window.location.href = "login.html"; }, 1200);
+        }
         function parseErrorDetail(data) {
             if (!data) return "Request failed";
             const detail = data.detail;
@@ -1842,12 +1889,31 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             try { return JSON.stringify(detail); } catch (e) { return "Request failed"; }
         }
 
+        // ============================================================
+        // ✅ FIXED apiRequest — orphaned duplicate code removed
+        // ============================================================
         async function apiRequest(path, options = {}) {
             const headers = { ...options.headers || {} };
             const token = getToken();
             if (token) headers.Authorization = `Bearer ${token}`;
-            if (!headers['Content-Type'] && options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
-            const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+            if (!headers['Content-Type'] && options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+            }
+
+            let response;
+            try {
+                response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+            } catch (networkErr) {
+                showAlert("Network error. Please check your connection.", "error");
+                throw networkErr;
+            }
+
+            // ✅ TOKEN EXPIRY HANDLER — 401 se logout + redirect
+            if (response.status === 401) {
+                forceLogout("Your session has expired. Please sign in again.");
+                throw new Error("Session expired");
+            }
+
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
                 const message = parseErrorDetail(data);
@@ -3842,6 +3908,16 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
 
                 const token = getToken();
                 if (!token) { window.location.href = "index.html"; return; }
+                if (isTokenExpired(token)) {
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("user_role");
+                    localStorage.removeItem("user_full_name");
+                    localStorage.removeItem("user_email");
+                    localStorage.removeItem("school_id");
+                    localStorage.removeItem("school_name");
+                    window.location.href = "login.html";
+                    return;
+                }
 
                 const roleRaw = (localStorage.getItem("user_role") || "").toLowerCase();
                 if (roleRaw !== "admin") {
