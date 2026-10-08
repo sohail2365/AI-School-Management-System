@@ -210,17 +210,33 @@
         }
         .sidebar-menu a.active .icon { transform: scale(1.1); }
         .logout-btn {
-            background: rgba(255, 255, 255, 0.12) !important;
-            color: #fff !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+            background: rgba(239, 68, 68, 0.15) !important;
+            color: #FECACA !important;
+            border: 1.5px solid rgba(239, 68, 68, 0.4) !important;
             border-radius: 12px !important;
             padding: 11px 18px !important;
-            transition: all 0.2s ease !important;
+            transition: all 0.25s ease !important;
+            font-weight: 600 !important;
+            position: relative !important;
+            overflow: hidden !important;
         }
         .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.22) !important;
+            background: linear-gradient(135deg, #EF4444, #DC2626) !important;
+            color: #fff !important;
+            border-color: transparent !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5) !important;
+        }
+        .logout-btn:active {
+            transform: translateY(0) scale(0.97) !important;
+        }
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         /* ============ MAIN CONTENT ============ */
@@ -796,8 +812,10 @@
                 <li><a class="menu-link" data-view="tools"><span class="icon">🛠️</span> Tools</a></li>
                 <li><a class="menu-link" data-view="settings"><span class="icon">⚙️</span> Settings</a></li>
             </ul>
-            <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
-                <button class="btn logout-btn" onclick="logout()" style="width: 100%;">🚪 Logout</button>
+            <div class="sidebar-footer">
+                <button class="btn logout-btn" onclick="logout()">
+                    <i data-lucide="log-out" style="width:18px;height:18px;"></i> Logout
+                </button>
             </div>
         </aside>
 
