@@ -150,22 +150,6 @@ def list_students(
 
     return query.order_by(Student.id.desc()).all()
 
-
-@router.get("/{student_id}", response_model=StudentOut)
-def get_student(
-    student_id: int,
-    token: dict = Depends(require_roles(["admin", "teacher", "parent", "student"])),
-    db: Session = Depends(get_db),
-):
-    student = (
-        db.query(Student)
-        .filter(Student.id == student_id, Student.school_id == token["school_id"])
-        .first()
-    )
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
-    return student
-
 # ==================== CLASS-WISE NAVIGATION ====================
 @router.get("/classes-summary")
 def students_classes_summary(
@@ -192,6 +176,21 @@ def students_classes_summary(
         {"class_name": r.class_name, "student_count": r.student_count}
         for r in rows
     ]
+
+@router.get("/{student_id}", response_model=StudentOut)
+def get_student(
+    student_id: int,
+    token: dict = Depends(require_roles(["admin", "teacher", "parent", "student"])),
+    db: Session = Depends(get_db),
+):
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return student
 
 @router.get("/{student_id}/profile")
 def get_student_profile(
