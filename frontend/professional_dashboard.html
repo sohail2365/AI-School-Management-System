@@ -1909,7 +1909,15 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             <div class="modal-header" id="announcementModalTitle">Add Announcement</div>
             <div class="form-grid">
                 <div class="form-group"><label>Title</label><input type="text" id="announcementTitle" placeholder="Announcement title"></div>
-                <div class="form-group"><label>Message</label><textarea id="announcementMessage" placeholder="Enter announcement message" rows="5" style="resize: vertical;"></textarea></div>
+                <div class="form-group">
+                    <label>Audience</label>
+                    <select id="announcementAudience">
+                        <option value="both">👥 Everyone (Teachers + Parents)</option>
+                        <option value="teachers">🧑‍🏫 Teachers Only</option>
+                        <option value="parents">👨‍👩‍👧 Parents Only</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;"><label>Message</label><textarea id="announcementMessage" placeholder="Enter announcement message" rows="5" style="resize: vertical;"></textarea></div>
             </div>
             <div class="btn-group">
                 <button class="btn btn-primary" id="announcementSaveBtn" onclick="saveAnnouncement()">Post Announcement</button>
@@ -2966,19 +2974,48 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     return;
                 }
                 if (typeof clearEmptyState === 'function') clearEmptyState('announcementsList');
-                list.innerHTML = data.map(a => `<div style="border: 1px solid var(--border); padding: 20px; border-radius: 14px; background: var(--bg-secondary);"><h4 style="margin-bottom: 10px; color: var(--primary);">${a.title}</h4><p style="color: var(--gray); margin-bottom: 15px;">${a.content}</p><div style="display: flex; justify-content: space-between; align-items: center; flex-wrap:wrap; gap:8px;"><small style="color: #999;">Created: ${new Date(a.created_at).toLocaleDateString()}</small><div class="action-buttons"><button class="btn btn-sm btn-whatsapp" onclick="openWhatsappBulkForAnnouncement(${a.id})">📱 WhatsApp</button><button class="btn btn-sm btn-secondary" onclick="editAnnouncement(${a.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(${a.id})">Delete</button></div></div></div>`).join("");
+                list.innerHTML = data.map(a => {
+                    const aud = a.audience || "both";
+                    const badgeText = aud === "teachers" ? "🧑‍🏫 Teachers" : aud === "parents" ? "👨‍👩‍👧 Parents" : "👥 Everyone";
+                    const badgeClass = aud === "teachers" ? "badge-info" : aud === "parents" ? "badge-warning" : "badge-success";
+                    return `<div style="border: 1px solid var(--border); padding: 20px; border-radius: 14px; background: var(--bg-secondary);">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+                            <h4 style="color: var(--primary);">${a.title}</h4>
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <p style="color: var(--gray); margin-bottom: 15px;">${a.content}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap:wrap; gap:8px;">
+                            <small style="color: #999;">Created: ${new Date(a.created_at).toLocaleDateString()}</small>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-whatsapp" onclick="openWhatsappBulkForAnnouncement(${a.id})">📱 WhatsApp</button>
+                                <button class="btn btn-sm btn-secondary" onclick="editAnnouncement(${a.id})">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(${a.id})">Delete</button>
+                            </div>
+                        </div>
+                    </div>`;
+        }).join("");
             } catch (error) { console.error("Error loading announcements:", error); }
         }
         async function saveAnnouncement() {
             try {
                 const editingId = document.getElementById("addAnnouncementModal").dataset.editingId;
-                const payload = { title: document.getElementById("announcementTitle").value, content: document.getElementById("announcementMessage").value };
+                const payload = { 
+                    title: document.getElementById("announcementTitle").value, 
+                    content: document.getElementById("announcementMessage").value,
+                    audience: document.getElementById("announcementAudience").value  // ✅ NEW
+                };
                 if (!payload.title || !payload.content) { showAlert("Please fill all fields", "error"); return; }
-                if (editingId) { await apiRequest(`/announcements/${editingId}`, { method: "PUT", body: JSON.stringify(payload) }); showAlert("Announcement updated successfully"); }
-                else { await apiRequest("/announcements", { method: "POST", body: JSON.stringify(payload) }); showAlert("Announcement posted successfully"); }
+                if (editingId) { 
+                    await apiRequest(`/announcements/${editingId}`, { method: "PUT", body: JSON.stringify(payload) }); 
+                    showAlert("Announcement updated successfully"); 
+                } else { 
+                    await apiRequest("/announcements", { method: "POST", body: JSON.stringify(payload) }); 
+                    showAlert("Announcement posted successfully"); 
+                }
                 closeModal("addAnnouncementModal");
                 document.getElementById("announcementTitle").value = "";
                 document.getElementById("announcementMessage").value = "";
+                document.getElementById("announcementAudience").value = "both";
                 await loadAnnouncements();
             } catch (error) { console.error("Error saving announcement:", error); }
         }
@@ -2993,6 +3030,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.getElementById("announcementSaveBtn").textContent = "Post Announcement";
             document.getElementById("announcementTitle").value = "";
             document.getElementById("announcementMessage").value = "";
+            document.getElementById("announcementAudience").value = "both";
             openModal("addAnnouncementModal");
         }
         function editAnnouncement(id) {
@@ -3003,6 +3041,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.getElementById("announcementSaveBtn").textContent = "Update Announcement";
             document.getElementById("announcementTitle").value = announcement.title || "";
             document.getElementById("announcementMessage").value = announcement.content || "";
+            document.getElementById("announcementAudience").value = announcement.audience || "both";
             openModal("addAnnouncementModal");
         }
         async function openWhatsappBulkForAnnouncement(id) {

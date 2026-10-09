@@ -173,6 +173,9 @@ async def startup():
             "background_image_enabled": "background_image_enabled BOOLEAN NOT NULL DEFAULT TRUE",
             "background_overlay": "background_overlay INTEGER NOT NULL DEFAULT 82",
         })
+        _ensure_columns(inspector, existing_tables, "announcements", {
+            "audience": "audience VARCHAR(20) NOT NULL DEFAULT 'both'",
+        })
         _ensure_columns(inspector, existing_tables, "staff", {
             "role": "role VARCHAR(20) NOT NULL DEFAULT 'teacher'",
             "user_id": "user_id INTEGER",

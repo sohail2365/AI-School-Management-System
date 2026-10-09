@@ -53,7 +53,7 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
     position: relative; z-index: 1;
 }
 
-/* ============ SIDEBAR ============ */
+/* SIDEBAR */
 .sidebar {
     width: 260px;
     background: linear-gradient(165deg, #6D4DC7 0%, #7C5CE0 55%, #8B7FE8 100%);
@@ -140,13 +140,11 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
 .logout-btn:hover { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; border-color: transparent; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239,68,68,0.5); }
 .logout-btn i[data-lucide] { width: 16px; height: 16px; }
 
-/* ============ MAIN CONTENT ============ */
 .main-content {
     margin-left: 260px; flex: 1; display: flex; flex-direction: column;
     overflow-y: auto; background: #F7F5FF; position: relative; z-index: 2;
 }
 
-/* ============ TOP HEADER ============ */
 .top-header {
     background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
     padding: 16px 26px; display: flex; justify-content: space-between; align-items: center;
@@ -203,13 +201,11 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
 .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(30,27,75,0.6); backdrop-filter: blur(4px); z-index: 99; }
 .sidebar-overlay.show { display: block; }
 
-/* ============ CONTENT ============ */
 .content { padding: 24px 26px; flex: 1; }
 .view { display: none; }
 .view.active { display: block; animation: viewFadeIn 0.35s ease; }
 @keyframes viewFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Cards */
 .card {
     background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(124,92,224,0.08);
     overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(124,92,224,0.08);
@@ -225,7 +221,6 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
 .card-title { font-size: 16px; font-weight: 700; color: var(--dark); }
 .card-body { padding: 20px 22px; }
 
-/* Metrics */
 .metrics-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px; margin-bottom: 22px;
@@ -257,7 +252,6 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 
-/* Buttons */
 .btn {
     padding: 10px 20px; border: none; border-radius: 12px; font-weight: 600;
     cursor: pointer; transition: all 0.2s ease; font-size: 13.5px;
@@ -277,7 +271,6 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
 .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 10px; }
 .btn i[data-lucide] { width: 15px; height: 15px; }
 
-/* Forms */
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label { font-weight: 600; color: var(--dark); font-size: 12.5px; }
@@ -291,7 +284,6 @@ h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
     box-shadow: 0 0 0 4px rgba(124,92,224,0.12);
 }
 
-/* Tables */
 .table-responsive { overflow-x: auto; border-radius: 12px; }
 table { width: 100%; border-collapse: collapse; }
 table thead { background: linear-gradient(135deg, rgba(124,92,224,0.06), rgba(245,165,92,0.04)); border-bottom: 1.5px solid rgba(124,92,224,0.1); }
@@ -307,14 +299,12 @@ table tbody tr:nth-child(5) { animation-delay: 0.10s; }
 table tbody tr:hover { background: rgba(124,92,224,0.03); }
 table tbody tr:last-child td { border-bottom: none; }
 
-/* Badges */
 .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
 .badge-success { background: #D1FAE5; color: #065F46; }
 .badge-warning { background: #FEF3C7; color: #92400E; }
 .badge-danger { background: #FEE2E2; color: #991B1B; }
 .badge-info { background: #DBEAFE; color: #1E40AF; }
 
-/* Messages */
 .msg-thread-list { border-right: 1px solid var(--border); padding-right: 12px; overflow-y: auto; max-height: 420px; }
 .msg-thread { padding: 10px 12px; border-radius: 10px; cursor: pointer; margin-bottom: 4px; transition: background 0.15s; }
 .msg-thread:hover { background: var(--primary-lighter); }
@@ -323,7 +313,6 @@ table tbody tr:last-child td { border-bottom: none; }
 .msg-bubble.parent { align-self: flex-start; background: var(--bg-secondary); color: var(--dark); }
 .msg-bubble.staff { align-self: flex-end; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
 
-/* Modal */
 .modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(30,27,75,0.55); backdrop-filter: blur(6px); }
 .modal.show { display: flex; align-items: center; justify-content: center; padding: 20px; }
 .modal-content {
@@ -343,7 +332,6 @@ table tbody tr:last-child td { border-bottom: none; }
 .modal-close:hover { color: #fff; background: var(--danger); transform: rotate(90deg); }
 @keyframes slideUp { from{transform:translateY(24px) scale(0.96);opacity:0;} to{transform:translateY(0) scale(1);opacity:1;} }
 
-/* Calculator */
 #calcPanel {
     position: fixed; right: 24px; top: 76px; width: 300px; max-width: calc(100vw - 32px);
     max-height: calc(100vh - 100px); background: var(--bg-primary); border-radius: 20px;
@@ -366,7 +354,6 @@ table tbody tr:last-child td { border-bottom: none; }
 .calc-btn.calc-fn { background: var(--accent-lighter); color: var(--accent-dark); }
 .calc-btn.calc-eq { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; grid-column: span 4; }
 
-/* Toast */
 .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
 .toast {
     min-width: 260px; padding: 12px 18px; background: #fff; border-radius: 12px;
@@ -381,7 +368,6 @@ table tbody tr:last-child td { border-bottom: none; }
 .toast.hide { animation: toastOut 0.3s ease forwards; }
 @keyframes toastOut { to { opacity: 0; transform: translateX(40px) scale(0.9); } }
 
-/* AI FAB */
 #aiFabBtn {
     position: fixed; right: 22px; bottom: 22px; width: 56px; height: 56px;
     border-radius: 50%; border: none;
@@ -413,7 +399,6 @@ table tbody tr:last-child td { border-bottom: none; }
 .ai-widget-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: var(--bg-primary); color: var(--dark); }
 .ai-widget-btn { width: 100%; padding: 10px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
 
-/* Dark mode */
 body.dark-mode {
     --dark: #E5E2F5; --gray: #9B95B8; --border: #2E2A4A; --border-strong: #3D3660;
     --bg-primary: #1E1B36; --bg-secondary: #262042; --primary-lighter: #2E2650; --accent-lighter: #3A2E20;
@@ -472,6 +457,7 @@ body.dark-mode .msg-bubble.parent { background: #262042; }
                 <li><a class="menu-link" data-view="students"><i data-lucide="users"></i> My Students</a></li>
                 <li><a class="menu-link" data-view="reports"><i data-lucide="bar-chart-3"></i> Class Reports</a></li>
                 <li><a class="menu-link" data-view="messages"><i data-lucide="message-circle"></i> Parent Messages</a></li>
+                <li><a class="menu-link" data-view="announcements"><i data-lucide="megaphone"></i> Announcements</a></li>
                 <li><a class="menu-link" data-view="settings"><i data-lucide="settings"></i> Settings</a></li>
             </ul>
             <div class="sidebar-footer">
@@ -645,6 +631,18 @@ body.dark-mode .msg-bubble.parent { background: #262042; }
                     </div>
                 </div>
 
+                <!-- ANNOUNCEMENTS -->
+                <div class="view" id="announcementsView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">📢 Announcements</h3></div>
+                        <div class="card-body">
+                            <div id="teacherAnnouncementsList" style="display:flex; flex-direction:column; gap:14px;">
+                                <div style="color:var(--gray); text-align:center; padding:30px;">Loading…</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- SETTINGS -->
                 <div class="view" id="settingsView">
                     <div class="card">
@@ -724,7 +722,7 @@ body.dark-mode .msg-bubble.parent { background: #262042; }
             <p class="ai-widget-hint">Apni class ka student choose karein.</p>
             <select id="aiStudentSelect" class="ai-widget-select"></select>
             <button class="ai-widget-btn" onclick="generateAIStudentSummary()">✨ Generate Summary</button>
-            <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--bg-secondary); border-radius:10px; font-size:12.5px; line-height:1.6; white-space:pre-wrap;"></div>
+            <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--bg-secondary); border-radius:10px; font-size:12.5px; line-height:1.7;"></div>
         </div>
     </div>
 
@@ -745,7 +743,6 @@ const API_BASE = (window.location.protocol === "file:" || !window.location.origi
     ? "http://127.0.0.1:8000" : window.location.origin;
 const token = localStorage.getItem("teacher_token");
 if (!token) window.location.href = "teacher-login.html";
-// Set role so bulk-attendance.js knows this is a teacher (no unlock button)
 localStorage.setItem("user_role", "teacher");
 
 let myStudents = [];
@@ -765,7 +762,6 @@ async function authFetch(path, options = {}) {
     }
     return data;
 }
-// Alias used by js/bulk-attendance.js
 window.apiRequest = authFetch;
 
 /* ==================== TOAST ==================== */
@@ -785,6 +781,33 @@ function showToast(message, type = "info", duration = 3000) {
     setTimeout(() => { toast.classList.add("hide"); setTimeout(() => toast.remove(), 300); }, duration);
 }
 
+/* ==================== MARKDOWN RENDERER (AI response ke liye) ==================== */
+function renderMarkdown(text) {
+    if (!text) return "";
+    let html = String(text)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    // Code blocks
+    html = html.replace(/```([\s\S]*?)```/g, '<pre style="background:var(--bg-primary); padding:10px; border-radius:8px; overflow-x:auto; font-family:monospace; font-size:0.82rem; margin:8px 0;">$1</pre>');
+    // Inline code
+    html = html.replace(/`([^`\n]+)`/g, '<code style="background:var(--bg-primary); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.82rem;">$1</code>');
+    // Headings
+    html = html.replace(/^### (.+)$/gm, '<strong style="font-size:1rem; color:var(--primary-dark); display:block; margin:8px 0 4px;">$1</strong>');
+    html = html.replace(/^## (.+)$/gm, '<strong style="font-size:1.05rem; color:var(--primary-dark); display:block; margin:10px 0 5px;">$1</strong>');
+    html = html.replace(/^# (.+)$/gm, '<strong style="font-size:1.1rem; color:var(--primary-dark); display:block; margin:10px 0 5px;">$1</strong>');
+    // Bold
+    html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    // Italic
+    html = html.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+    // Bullet lists
+    html = html.replace(/^[\-\*] (.+)$/gm, '<div style="display:flex; gap:6px; margin:3px 0;"><span style="color:var(--primary); flex-shrink:0;">•</span><span>$1</span></div>');
+    // Numbered lists
+    html = html.replace(/^(\d+)\. (.+)$/gm, '<div style="display:flex; gap:6px; margin:3px 0;"><span style="color:var(--primary); font-weight:700; flex-shrink:0;">$1.</span><span>$2</span></div>');
+    // Line breaks
+    html = html.replace(/\n/g, '<br>');
+    return html;
+}
+
 /* ==================== NAVIGATION ==================== */
 function switchView(viewName) {
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
@@ -799,7 +822,8 @@ function switchView(viewName) {
     const titles = {
         dashboard: "Dashboard", attendance: "Attendance", grades: "Grades",
         testrecords: "Test Records", students: "My Students",
-        reports: "Class Reports", messages: "Parent Messages", settings: "Settings"
+        reports: "Class Reports", messages: "Parent Messages",
+        announcements: "Announcements", settings: "Settings"
     };
     const pageTitle = document.getElementById("pageTitle");
     pageTitle.textContent = titles[viewName] || "Dashboard";
@@ -810,6 +834,7 @@ function switchView(viewName) {
     if (viewName === "messages") loadMessageThreads();
     if (viewName === "reports") loadClassReports();
     if (viewName === "students") renderMyStudents();
+    if (viewName === "announcements") loadTeacherAnnouncements();
     if (viewName === "settings") renderSettings();
 }
 function toggleSidebar() {
@@ -1006,32 +1031,24 @@ function renderMyStudents() {
 async function loadClassReports() {
     const tbody = document.getElementById("topStudentsBody");
     const canvas = document.getElementById("classPerfChart");
-    
     try {
         const [grades, attendance] = await Promise.all([
             authFetch("/teacher/grades"),
             authFetch("/teacher/attendance")
         ]);
-        
-        // Group grades by student
         const byStudent = {};
         grades.forEach(g => {
             if (!byStudent[g.student_id]) byStudent[g.student_id] = { total: 0, count: 0 };
             byStudent[g.student_id].total += (g.percentage || 0);
             byStudent[g.student_id].count += 1;
         });
-        
-        // Group attendance by student
         const attByStudent = {};
         attendance.forEach(a => {
             if (!attByStudent[a.student_id]) attByStudent[a.student_id] = { total: 0, present: 0 };
             attByStudent[a.student_id].total += 1;
             if (a.is_present) attByStudent[a.student_id].present += 1;
         });
-        
-        // ✅ FIX: Include students with EITHER grades OR attendance
         const allIds = new Set([...Object.keys(byStudent), ...Object.keys(attByStudent)]);
-        
         const ranked = Array.from(allIds).map(sid => {
             const s = myStudents.find(x => String(x.id) === String(sid));
             if (!s) return null;
@@ -1040,11 +1057,7 @@ async function loadClassReports() {
             const avg = gd.count ? +(gd.total / gd.count).toFixed(1) : 0;
             const attPct = att.total ? Math.round((att.present / att.total) * 100) : 0;
             return { name: s.name, avg, att: attPct, hasGrades: gd.count > 0 };
-        }).filter(Boolean)
-          .sort((a, b) => b.avg - a.avg || b.att - a.att)
-          .slice(0, 15);
-        
-        // Render table
+        }).filter(Boolean).sort((a, b) => b.avg - a.avg || b.att - a.att).slice(0, 15);
         if (tbody) {
             tbody.innerHTML = ranked.length
                 ? ranked.map((r, i) => `<tr>
@@ -1055,35 +1068,20 @@ async function loadClassReports() {
                 </tr>`).join("")
                 : `<tr><td colspan="4" style="text-align:center;color:var(--gray);">Koi students nahi</td></tr>`;
         }
-        
-        // Render chart
         if (!canvas) return;
-        
         if (typeof Chart === "undefined") {
             const parent = canvas.parentElement;
             if (parent) parent.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--gray);">📊 Chart library load nahi hui. Ctrl+Shift+R karein.</div>';
             return;
         }
-        
-        if (window._perfChart) {
-            try { window._perfChart.destroy(); } catch(e) {}
-            window._perfChart = null;
-        }
-        
+        if (window._perfChart) { try { window._perfChart.destroy(); } catch(e) {} window._perfChart = null; }
         await new Promise(r => setTimeout(r, 50));
-        
-        // ✅ FIX: Chart uses BOTH grades (if available) and attendance as fallback
         const chartStudents = ranked.slice(0, 10);
         const chartLabels = chartStudents.length ? chartStudents.map(r => r.name.split(" ")[0]) : ["No Data"];
-        
-        // If any student has grades, show avg%; else show attendance%
         const anyGrades = chartStudents.some(r => r.hasGrades);
-        const chartValues = chartStudents.length 
-            ? chartStudents.map(r => anyGrades ? r.avg : r.att)
-            : [0];
+        const chartValues = chartStudents.length ? chartStudents.map(r => anyGrades ? r.avg : r.att) : [0];
         const chartLabel = anyGrades ? "Average %" : "Attendance %";
         const chartColor = anyGrades ? "#7C5CE0" : "#10B981";
-        
         try {
             window._perfChart = new Chart(canvas, {
                 type: "bar",
@@ -1106,14 +1104,40 @@ async function loadClassReports() {
                     }
                 }
             });
-        } catch (chartErr) {
-            console.error("[Class Reports] Chart error:", chartErr);
-        }
+        } catch (chartErr) { console.error("[Class Reports] Chart error:", chartErr); }
     } catch (e) {
         console.error("[Class Reports] Failed:", e);
         if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--danger);">${e.message}</td></tr>`;
     }
 }
+
+/* ==================== ANNOUNCEMENTS ==================== */
+async function loadTeacherAnnouncements() {
+    const container = document.getElementById("teacherAnnouncementsList");
+    if (!container) return;
+    try {
+        const list = await authFetch("/announcements/teacher/list");
+        if (!list || !list.length) {
+            container.innerHTML = `<div style="color:var(--gray); text-align:center; padding:30px;">Abhi koi announcement nahi hai.</div>`;
+            return;
+        }
+        container.innerHTML = list.map(a => `
+            <div style="border:1px solid var(--border); padding:18px; border-radius:14px; background:var(--bg-secondary);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+                    <h4 style="color:var(--primary); margin:0;">${a.title}</h4>
+                    <span class="badge ${a.audience === 'teachers' ? 'badge-info' : a.audience === 'parents' ? 'badge-warning' : 'badge-success'}">
+                        ${a.audience === 'teachers' ? '🧑‍🏫 Teachers' : a.audience === 'parents' ? '👨‍👩‍👧 Parents' : '👥 Everyone'}
+                    </span>
+                </div>
+                <p style="color:var(--dark); margin-bottom:10px; line-height:1.6; white-space:pre-wrap;">${a.content}</p>
+                <small style="color:var(--gray);">📅 ${new Date(a.created_at).toLocaleDateString()}</small>
+            </div>
+        `).join("");
+    } catch (e) {
+        container.innerHTML = `<div style="color:var(--danger); text-align:center; padding:20px;">${e.message}</div>`;
+    }
+}
+
 /* ==================== SETTINGS ==================== */
 function renderSettings() {
     if (!teacherInfo) return;
@@ -1204,7 +1228,6 @@ function toggleNotifications() {
     const p = document.getElementById("notifPanel");
     const isVisible = p.style.display === "block";
     if (!isVisible) {
-        // Populate notifications before showing
         const content = document.getElementById("notifContent");
         if (content) {
             const today = new Date().toISOString().split("T")[0];
@@ -1241,11 +1264,18 @@ async function generateAIStudentSummary() {
     const sid = sel.value;
     if (!sid) return;
     const box = document.getElementById("aiWidgetResult");
-    box.style.display = "block"; box.textContent = "Generating…";
+    box.style.display = "block"; 
+    box.textContent = "Generating…";
     try {
-        const r = await authFetch(`/ai/student-summary/${sid}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ language: "roman_urdu" }) });
-        box.textContent = r.summary || "No summary.";
-    } catch (e) { box.textContent = "Error: " + e.message; }
+        const r = await authFetch(`/ai/student-summary/${sid}`, { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ language: "roman_urdu" }) 
+        });
+        box.innerHTML = renderMarkdown(r.summary || "No summary.");
+    } catch (e) { 
+        box.textContent = "Error: " + e.message; 
+    }
 }
 
 /* ==================== PORTAL BACKGROUND ==================== */
@@ -1265,24 +1295,16 @@ async function applyPortalBackground() {
 
 /* ==================== INIT ==================== */
 window.addEventListener("DOMContentLoaded", async () => {
-    // Dark mode from storage
     applyDarkMode(localStorage.getItem("schoolhub_dark_mode") === "1");
-    // Menu links
     document.querySelectorAll(".menu-link").forEach(link => {
         link.addEventListener("click", () => switchView(link.dataset.view));
     });
-    // Set today's date
     const attDate = document.getElementById("attDate");
     if (attDate) attDate.valueAsDate = new Date();
-    // Icons
     if (window.lucide) lucide.createIcons();
-    // Clock
     startLiveClock();
-    // Portal background
     applyPortalBackground();
-    // Load class
     await loadMyClass();
-    // Re-create icons after dynamic content
     if (window.lucide) lucide.createIcons();
     showToast("Welcome back!", "success", 2000);
     window.addEventListener('bulk-attendance-submitted', async (e) => {
