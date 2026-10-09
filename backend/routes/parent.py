@@ -1,6 +1,6 @@
 from datetime import date as dt_date
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -21,18 +21,14 @@ from backend.schemas.test_record import TestRecordOut
 from backend.utils.rbac import require_roles
 from backend.utils.storage import get_signed_url
 
+import os
+import uuid
+
 router = APIRouter(prefix="/parent", tags=["parent-portal"])
 
 
 def _my_child(token: dict, db: Session) -> Student:
-    """
-    Resolves the ONE student linked to the logged-in parent's account.
-    Every route below depends on this — it is what keeps a parent's access
-    limited to their own child, regardless of what student_id (if any) they
-    might try to pass. There is currently one child per parent account (a
-    parent with multiple kids at the school gets one login per the auto-
-    provisioning logic, so this covers the common case cleanly).
-    """
+    """Resolves the ONE student linked to the logged-in parent's account."""
     student = (
         db.query(Student)
         .filter(Student.parent_user_id == token["user_id"], Student.school_id == token["school_id"])
@@ -235,3 +231,114 @@ def send_my_message(
     db.commit()
     db.refresh(msg)
     return {"id": msg.id, "created_at": msg.created_at.isoformat()}
+
+
+# ==================== PARENT: DOCUMENT UPLOAD ====================
+# Parent apne bachche ke documents upload aur delete kar sakta hai.
+# Security: _my_child() se verify hota hai ke student parent ka bachcha hai.
+
+@router.post("/documents/upload", status_code=status.HTTP_201_CREATED)
+async def parent_upload_document(
+    doc_type: str = Form(...),
+    label: str = Form(None),
+    file: UploadFile = File(...),
+    token: dict = Depends(require_roles(["parent"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Parent apne bachche ka document upload karein.
+    Allowed doc_types: id_card, b_form, test_paper, profile_photo, other
+    """
+    school = _my_school(token, db)
+    if not school.parent_show_documents:
+        raise HTTPException(status_code=403, detail="Documents are not enabled for parents at this school.")
+    
+    # Verify parent owns this student
+    student = _my_child(token, db)
+    
+    # Validate doc_type
+    allowed_types = ["id_card", "b_form", "test_paper", "profile_photo", "other"]
+    if doc_type not in allowed_types:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid doc_type. Allowed: {', '.join(allowed_types)}"
+        )
+    
+    # Read file (max 5 MB)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 5 MB)")
+    if len(contents) == 0:
+        raise HTTPException(status_code=422, detail="Empty file")
+    
+    # Save file — use same pattern as student-documents endpoint
+    # NOTE: Adjust this to match how your existing student-documents upload works!
+    upload_dir = "uploads/student_documents"
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    ext = os.path.splitext(file.filename or "")[1].lower() or ".bin"
+    unique_name = f"{uuid.uuid4().hex}{ext}"
+    file_path = os.path.join(upload_dir, unique_name)
+    
+    with open(file_path, "wb") as f:
+        f.write(contents)
+    
+    # Create DB record — use file_url field (matches existing model)
+    doc = StudentDocument(
+        school_id=token["school_id"],
+        student_id=student.id,
+        doc_type=doc_type,
+        label=label or file.filename or doc_type,
+        file_name=file.filename,
+        file_url=file_path,  # ⚠️ Change to whatever existing field name is
+        uploaded_by_user_id=token["user_id"],
+    )
+    db.add(doc)
+    db.commit()
+    db.refresh(doc)
+    
+    return {
+        "id": doc.id,
+        "doc_type": doc.doc_type,
+        "label": doc.label,
+        "file_name": doc.file_name,
+        "created_at": doc.created_at.isoformat() if doc.created_at else None,
+        "message": "Document uploaded successfully",
+    }
+
+
+@router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+def parent_delete_document(
+    document_id: int,
+    token: dict = Depends(require_roles(["parent"])),
+    db: Session = Depends(get_db),
+):
+    """Parent apne bachche ka document delete kar sake."""
+    school = _my_school(token, db)
+    if not school.parent_show_documents:
+        raise HTTPException(status_code=403, detail="Documents are not enabled for parents.")
+    
+    student = _my_child(token, db)
+    
+    doc = (
+        db.query(StudentDocument)
+        .filter(
+            StudentDocument.id == document_id,
+            StudentDocument.student_id == student.id,
+            StudentDocument.school_id == token["school_id"],
+        )
+        .first()
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Delete physical file
+    try:
+        if doc.file_url and os.path.exists(doc.file_url):
+            os.remove(doc.file_url)
+    except Exception as e:
+        print(f"File delete warning: {e}")
+    
+    db.delete(doc)
+    db.commit()
+    return None

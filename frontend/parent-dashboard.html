@@ -3,148 +3,528 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Parent Portal — SchoolHub</title>
+<title>Parent Portal - SchoolHub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/animations.css">
 <link rel="stylesheet" href="css/dark-mode.css">
 <link rel="stylesheet" href="css/empty-states.css">
 <link rel="stylesheet" href="css/success-anim.css">
-<link rel="stylesheet" href="css/hope-theme.css">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
-  body.hope-theme.hope-portal-page { background: #F7F5FF; color: var(--ht-dark, #1E1B4B); }
-  .topbar {
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --primary: #7C5CE0; --primary-dark: #6244C7; --primary-deep: #4F36A8;
+    --primary-lighter: #EDE9FE;
+    --accent: #F5A55C; --accent-lighter: #FFF1E0; --accent-dark: #E58E3F;
+    --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --info: #3B82F6;
+    --dark: #1E1B4B; --gray: #6B7280;
+    --border: #E5E1F5; --border-strong: #D5CDF0;
+    --bg-primary: #FFFFFF; --bg-secondary: #F7F5FF;
+}
+html, body { height: 100%; }
+body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    background: #F7F5FF; color: var(--dark); min-height: 100vh; position: relative;
+}
+h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
+
+.bg-pattern {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    background: linear-gradient(135deg, #8B7FE8 0%, #7C5CE0 50%, #6D4DC7 100%);
+}
+.bg-pattern::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08) 0%, transparent 25%),
+        radial-gradient(circle at 85% 80%, rgba(245,165,92,0.12) 0%, transparent 30%);
+    animation: bgPulse 12s ease-in-out infinite;
+}
+.bg-pattern::after {
+    content: ''; position: absolute; inset: -50%;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px; transform: rotate(15deg); opacity: 0.35;
+}
+@keyframes bgPulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.1);opacity:0.85;} }
+
+.app-container {
+    display: flex; height: 100vh; height: 100dvh; overflow: hidden;
+    position: relative; z-index: 1;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(165deg, #6D4DC7 0%, #7C5CE0 55%, #8B7FE8 100%);
+    color: white; padding: 24px 0 0;
+    box-shadow: 8px 0 40px rgba(79, 54, 168, 0.35);
+    position: fixed; left: 0; top: 0; height: 100vh; height: 100dvh;
+    z-index: 100; display: flex; flex-direction: column;
+}
+.sidebar::before {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--accent) 0%, transparent 50%, var(--accent) 100%);
+    opacity: 0.6;
+}
+.sidebar-logo {
+    padding: 0 20px 22px; border-bottom: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 18px; text-align: center; flex-shrink: 0;
+}
+.logo { display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: 'Poppins', sans-serif; }
+.logo-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFF8F0, #FFE6C7);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(245,165,92,0.4), 0 0 0 6px rgba(255,255,255,0.08);
+    animation: logoPulse 3s ease-in-out infinite;
+}
+.logo-icon svg { width: 30px; height: 30px; }
+@keyframes logoPulse { 0%,100%{box-shadow:0 8px 24px rgba(245,165,92,0.4),0 0 0 6px rgba(255,255,255,0.08);} 50%{box-shadow:0 8px 32px rgba(245,165,92,0.65),0 0 0 10px rgba(255,255,255,0.12);} }
+.logo-text-1, .logo-text-2 { font-size: 14px; font-weight: 800; letter-spacing: 2px; line-height: 1.1; }
+.logo-text-2 { color: var(--accent); }
+.logo-tagline {
+    font-size: 9px; font-weight: 600; letter-spacing: 1px; color: var(--accent);
+    background: rgba(245,165,92,0.15); padding: 3px 10px; border-radius: 20px; margin-top: 4px;
+}
+.parent-badge {
+    font-size: 10.5px; color: rgba(255,255,255,0.75); margin-top: 8px;
+    padding: 4px 10px; background: rgba(255,255,255,0.08); border-radius: 20px; display: inline-block;
+}
+.sidebar-menu { list-style: none; padding: 0 12px; flex: 1; overflow-y: auto; min-height: 0; }
+.sidebar-menu li { margin: 3px 0; }
+.sidebar-menu a {
+    display: flex; align-items: center; gap: 12px; padding: 11px 16px;
+    color: rgba(255,255,255,0.85); text-decoration: none; border-radius: 12px;
+    transition: all 0.25s ease; cursor: pointer; font-weight: 500; font-size: 14px;
+}
+.sidebar-menu a:hover { background: rgba(255,255,255,0.12); color: #fff; transform: translateX(4px); }
+.sidebar-menu a:hover i[data-lucide] { transform: scale(1.18) rotate(-6deg); }
+.sidebar-menu a i[data-lucide] { width: 18px; height: 18px; transition: transform 0.25s ease; flex-shrink: 0; }
+.sidebar-menu a.active {
+    background: linear-gradient(135deg, var(--accent) 0%, #FFB978 100%);
+    color: #fff; box-shadow: 0 8px 24px rgba(245,165,92,0.45); font-weight: 600;
+    transform: translateX(4px);
+}
+.sidebar-menu a.active i[data-lucide] { transform: scale(1.1); }
+.sidebar-footer {
+    padding: 14px 20px 18px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    background: linear-gradient(165deg, transparent 0%, rgba(109,77,199,0.3) 100%);
+    flex-shrink: 0;
+}
+.dark-mode-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; margin-bottom: 10px; border-radius: 10px;
+    background: rgba(255,255,255,0.08); cursor: pointer;
+    transition: background 0.2s;
+}
+.dark-mode-row:hover { background: rgba(255,255,255,0.15); }
+.dark-mode-row span { color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.dark-mode-row i[data-lucide] { width: 16px; height: 16px; }
+.dm-toggle { width: 40px; height: 22px; position: relative; background: rgba(255,255,255,0.2); border-radius: 20px; transition: background 0.2s; }
+.dm-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%; background: #fff;
+    transition: transform 0.25s;
+}
+.dm-toggle.on { background: #FFB978; }
+.dm-toggle.on::after { transform: translateX(18px); }
+.logout-btn {
+    background: rgba(239,68,68,0.15); color: #FECACA;
+    border: 1.5px solid rgba(239,68,68,0.4); border-radius: 12px;
+    padding: 10px 16px; transition: all 0.25s ease; font-weight: 600;
+    width: 100%; justify-content: center; cursor: pointer; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+}
+.logout-btn:hover { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; border-color: transparent; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239,68,68,0.5); }
+.logout-btn i[data-lucide] { width: 16px; height: 16px; }
+
+.main-content {
+    margin-left: 260px; flex: 1; display: flex; flex-direction: column;
+    overflow-y: auto; background: #F7F5FF; position: relative; z-index: 2;
+}
+
+.top-header {
     background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
-    color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 4px 24px rgba(124, 92, 224, 0.25);
-    position: sticky; top: 0; z-index: 50; overflow: hidden;
-  }
-  .topbar::before {
+    padding: 16px 26px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 24px rgba(124,92,224,0.2); position: relative; overflow: hidden;
+    flex-wrap: wrap; gap: 12px;
+}
+.top-header::before {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
-    background-size: 200% 100%; animation: htHeaderShine 5s linear infinite; pointer-events: none;
-  }
-  @keyframes htHeaderShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .topbar .brand { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
-  .topbar .notch { width: 8px; height: 24px; border-radius: 4px; background: var(--ht-accent, #F5A55C); }
-  .topbar .word {
-    font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 17px;
-    background: linear-gradient(90deg, #ffffff 0%, #FFD4AC 50%, #ffffff 100%);
-    background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    animation: htTitleGradient 4s ease-in-out infinite;
-  }
-  @keyframes htTitleGradient { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
-  .topbar button {
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;
-    padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
-    position: relative; z-index: 1; transition: all 0.2s; backdrop-filter: blur(10px);
-  }
-  .topbar button:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+    background-size: 200% 100%; animation: headerShine 5s linear infinite; pointer-events: none;
+}
+@keyframes headerShine { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+.header-title {
+    font-size: 22px; font-weight: 700; font-family: 'Poppins', sans-serif;
+    background: linear-gradient(90deg, #fff 0%, #FFD4AC 50%, #fff 100%);
+    background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; animation: titleGradient 4s ease-in-out infinite;
+    position: relative;
+}
+@keyframes titleGradient { 0%,100%{background-position:0% center;} 50%{background-position:100% center;} }
+#liveClock {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; border-radius: 20px; padding: 5px 12px;
+    font-size: 0.78rem; font-weight: 600; backdrop-filter: blur(10px);
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.user-section { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
+.header-icon-btn {
+    background: rgba(255,255,255,0.15); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 12px;
+    padding: 0.5rem 0.8rem; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    font-family: inherit; backdrop-filter: blur(10px); position: relative;
+}
+.header-icon-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+.header-icon-btn i[data-lucide] { width: 16px; height: 16px; }
+.user-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #FFB978);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    font-weight: 800; font-size: 15px; font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 12px rgba(245,165,92,0.4), 0 0 0 3px rgba(255,255,255,0.2);
+}
+.user-info { display: flex; flex-direction: column; }
+.user-name { font-weight: 700; color: #fff; font-size: 0.88rem; }
+.user-role { font-size: 11px; color: rgba(255,255,255,0.75); }
+.hamburger-btn {
+    display: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    font-size: 20px; cursor: pointer; padding: 6px 12px; color: #fff; margin-right: 10px;
+    border-radius: 10px; transition: background 0.2s;
+}
+.hamburger-btn:hover { background: rgba(255,255,255,0.25); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(30,27,75,0.6); backdrop-filter: blur(4px); z-index: 99; }
+.sidebar-overlay.show { display: block; }
 
-  .container { max-width: 920px; margin: 1.5rem auto; padding: 0 1rem 3rem; position: relative; z-index: 2; }
+.content { padding: 24px 26px; flex: 1; }
+.view { display: none; }
+.view.active { display: block; animation: viewFadeIn 0.35s ease; }
+@keyframes viewFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  .card {
-    background: #fff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem;
-    box-shadow: 0 4px 20px rgba(124, 92, 224, 0.08); border: 1px solid rgba(124, 92, 224, 0.08);
-    transition: box-shadow 0.25s ease;
-  }
-  .card:hover { box-shadow: 0 8px 32px rgba(124, 92, 224, 0.12); }
-  .card h2 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; margin: 0 0 1rem; color: var(--ht-primary-dark, #6244C7); }
+.card {
+    background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(124,92,224,0.08);
+    overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(124,92,224,0.08);
+    transition: box-shadow 0.3s ease;
+}
+.card:hover { box-shadow: 0 8px 32px rgba(124,92,224,0.12); }
+.card-header {
+    background: linear-gradient(135deg, rgba(124,92,224,0.04), rgba(245,165,92,0.04));
+    padding: 16px 22px; border-bottom: 1px solid rgba(124,92,224,0.08);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+}
+.card-title { font-size: 16px; font-weight: 700; color: var(--dark); }
+.card-body { padding: 20px 22px; }
 
-  .student-hero { display: flex; align-items: center; gap: 14px; }
-  .student-avatar {
-    width: 60px; height: 60px; border-radius: 50%;
-    background: linear-gradient(135deg, #FFF8F0, #FFE6C7);
-    color: var(--ht-primary-dark, #6244C7);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 22px; flex-shrink: 0;
-    box-shadow: 0 6px 20px rgba(245, 165, 92, 0.35);
-  }
-  .student-hero h1 { font-family: 'Poppins', sans-serif; font-size: 1.25rem; margin: 0; color: var(--ht-dark, #1E1B4B); }
-  .student-hero .meta { color: var(--ht-gray, #6B7280); font-size: 0.88rem; margin-top: 4px; }
+.metrics-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 22px;
+}
+.metric-card {
+    background: #fff; padding: 20px 22px; border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(124,92,224,0.08); border: 1px solid rgba(124,92,224,0.08);
+    transition: all 0.3s ease; position: relative; overflow: hidden;
+    animation: cardStagger 0.5s cubic-bezier(0.16,1,0.3,1) backwards;
+}
+.metric-card:nth-child(1) { animation-delay: 0.05s; }
+.metric-card:nth-child(2) { animation-delay: 0.10s; }
+.metric-card:nth-child(3) { animation-delay: 0.15s; }
+.metric-card:nth-child(4) { animation-delay: 0.20s; }
+@keyframes cardStagger { from{opacity:0;transform:translateY(20px) scale(0.98);} to{opacity:1;transform:translateY(0) scale(1);} }
+.metric-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 18px 18px 0 0;
+}
+.metric-card.success::before { background: linear-gradient(90deg, var(--success), #34D399); }
+.metric-card.warning::before { background: linear-gradient(90deg, var(--accent), #FFB978); }
+.metric-card.danger::before { background: linear-gradient(90deg, var(--danger), #DC2626); }
+.metric-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(124,92,224,0.18); }
+.metric-label { font-size: 12px; color: var(--gray); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.metric-value {
+    font-size: 28px; font-weight: 800; font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
 
-  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .tab-btn {
-    padding: 0.6rem 1.1rem; border: 1.5px solid var(--ht-border, #E5E1F5); background: #fff;
-    border-radius: 12px; cursor: pointer; font-size: 0.88rem; font-weight: 600;
-    color: var(--ht-gray, #6B7280); transition: all 0.2s ease; font-family: inherit;
-  }
-  .tab-btn:hover { transform: translateY(-2px); border-color: var(--ht-primary, #7C5CE0); color: var(--ht-primary, #7C5CE0); background: var(--ht-primary-lighter, #EDE9FE); }
-  .tab-btn.active { background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7)); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(124, 92, 224, 0.35); }
+.btn {
+    padding: 10px 20px; border: none; border-radius: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s ease; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+    position: relative; overflow: hidden;
+}
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 14px rgba(124,92,224,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,92,224,0.45); }
+.btn-secondary { background: var(--bg-secondary); color: var(--primary-dark); border: 1.5px solid var(--border-strong); }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lighter); transform: translateY(-2px); }
+.btn-danger { background: linear-gradient(135deg, var(--danger), #DC2626); color: #fff; }
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239,68,68,0.45); }
+.btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 10px; }
+.btn i[data-lucide] { width: 15px; height: 15px; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid rgba(124, 92, 224, 0.06); }
-  th { color: var(--ht-primary-dark, #6244C7); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-weight: 600; color: var(--dark); font-size: 12.5px; }
+.form-group input, .form-group select, .form-group textarea {
+    padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: inherit; font-size: 13.5px; background: var(--bg-primary);
+    color: var(--dark); transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124,92,224,0.12);
+}
 
-  .pill { display: inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
-  .pill.present, .pill.paid { background: #D1FAE5; color: #065F46; }
-  .pill.absent, .pill.unpaid { background: #FEE2E2; color: #991B1B; }
-  .pill.partial { background: #FEF3C7; color: #92400E; }
+.table-responsive { overflow-x: auto; border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; }
+table thead { background: linear-gradient(135deg, rgba(124,92,224,0.06), rgba(245,165,92,0.04)); border-bottom: 1.5px solid rgba(124,92,224,0.1); }
+table th { padding: 12px 14px; text-align: left; font-weight: 700; color: var(--primary-dark); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+table td { padding: 12px 14px; border-bottom: 1px solid rgba(124,92,224,0.06); font-size: 13.5px; }
+table tbody tr { transition: background 0.15s ease; }
+table tbody tr:hover { background: rgba(124,92,224,0.03); }
+table tbody tr:last-child td { border-bottom: none; }
 
-  .empty { color: var(--ht-gray, #6B7280); padding: 1rem 0; font-size: 0.9rem; }
-  .disabled-note { color: var(--ht-gray, #6B7280); font-size: 0.88rem; background: var(--ht-bg-secondary, #F7F5FF); padding: 0.9rem 1rem; border-radius: 10px; border: 1px dashed var(--ht-border, #E5E1F5); }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-success { background: #D1FAE5; color: #065F46; }
+.badge-warning { background: #FEF3C7; color: #92400E; }
+.badge-danger { background: #FEE2E2; color: #991B1B; }
+.badge-info { background: #DBEAFE; color: #1E40AF; }
 
-  .payment-box {
-    background: linear-gradient(135deg, var(--ht-primary-lighter, #EDE9FE), var(--ht-accent-lighter, #FFF1E0));
-    border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+.payment-box {
+    background: linear-gradient(135deg, var(--primary-lighter), var(--accent-lighter));
+    border-radius: 14px; padding: 14px 18px; margin-bottom: 16px;
     white-space: pre-line; font-size: 0.9rem; line-height: 1.6;
-    border-left: 4px solid var(--ht-accent, #F5A55C);
-    color: var(--ht-dark, #1E1B4B);
-  }
+    border-left: 4px solid var(--accent); color: var(--dark);
+}
 
-  .msg-list { max-height: 340px; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
-  .msg-bubble { max-width: 75%; padding: 0.7rem 1rem; border-radius: 14px; font-size: 0.88rem; line-height: 1.4; }
-  .msg-bubble.parent { align-self: flex-end; background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 4px 14px rgba(124, 92, 224, 0.25); }
-  .msg-bubble.staff { align-self: flex-start; background: #fff; border: 1px solid var(--ht-border, #E5E1F5); border-bottom-left-radius: 4px; color: var(--ht-dark, #1E1B4B); }
-  .msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
+/* Messages */
+.msg-list { max-height: 360px; overflow-y: auto; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; padding: 4px; }
+.msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.5; word-break: break-word; }
+.msg-bubble.parent { align-self: flex-end; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border-bottom-right-radius: 4px; }
+.msg-bubble.staff { align-self: flex-start; background: var(--bg-secondary); color: var(--dark); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+.msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
+.msg-form { display: flex; gap: 8px; }
+.msg-form input { flex: 1; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-family: inherit; font-size: 13.5px; background: var(--bg-primary); color: var(--dark); }
+.msg-form input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,92,224,0.12); }
 
-  .msg-form { display: flex; gap: 8px; }
-  .msg-form input { flex: 1; padding: 0.7rem 0.9rem; border: 1.5px solid var(--ht-border, #E5E1F5); border-radius: 10px; font-size: 0.9rem; font-family: inherit; background: #fff; color: var(--ht-dark, #1E1B4B); }
-  .msg-form input:focus { outline: none; border-color: #7C5CE0; box-shadow: 0 0 0 3px rgba(124, 92, 224, 0.1); }
-  .msg-form button { padding: 0.7rem 1.3rem; border: none; border-radius: 10px; background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3); }
-  .msg-form button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 92, 224, 0.45); }
+/* Document cards */
+.doc-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: var(--bg-secondary); border-radius: 12px;
+    border: 1px solid var(--border); margin-bottom: 8px;
+    flex-wrap: wrap; gap: 10px;
+}
+.doc-type-badge {
+    background: var(--primary-lighter); color: var(--primary-dark);
+    padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+    margin-right: 10px;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center; padding: 40px 20px; color: var(--gray);
+}
+.empty-state i[data-lucide] { width: 48px; height: 48px; opacity: 0.4; margin-bottom: 12px; }
+
+body.dark-mode {
+    --dark: #E5E2F5; --gray: #9B95B8; --border: #2E2A4A; --border-strong: #3D3660;
+    --bg-primary: #1E1B36; --bg-secondary: #262042; --primary-lighter: #2E2650; --accent-lighter: #3A2E20;
+    background: #141028; color: #E5E2F5;
+}
+body.dark-mode .main-content { background: #141028; }
+body.dark-mode .card, body.dark-mode .metric-card { background: #1E1B36; border-color: #2E2A4A; }
+body.dark-mode .card-header { background: linear-gradient(135deg, rgba(124,92,224,0.08), rgba(245,165,92,0.06)); }
+body.dark-mode table thead { background: rgba(124,92,224,0.08); }
+body.dark-mode table td { border-bottom-color: rgba(124,92,224,0.08); }
+body.dark-mode .form-group input, body.dark-mode .form-group select, body.dark-mode .form-group textarea { background: #141028; color: #E5E2F5; border-color: #2E2A4A; }
+body.dark-mode .btn-secondary { background: #262042; color: #E5E2F5; border-color: #3D3660; }
+body.dark-mode .msg-bubble.staff { background: #262042; color: #E5E2F5; }
+
+@media (max-width: 900px) {
+    .hamburger-btn { display: inline-block; }
+    .sidebar { transform: translateX(-100%); transition: transform 0.3s; z-index: 101; }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .header-title { font-size: 18px; }
+    .user-info { display: none; }
+    .content { padding: 18px 14px; }
+    .top-header { padding: 12px 16px; }
+}
 </style>
 </head>
-<body class="hope-theme hope-portal-page">
-  <div class="topbar">
-    <div class="brand"><div class="notch"></div><div class="word">SchoolHub — Parent Portal</div></div>
-    <button onclick="logout()">Log out</button>
-  </div>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3v2M10 5h4M9 8a3 3 0 016 0v3a4 4 0 01-1 2.65V15h-4v-1.35A4 4 0 019 11V8z" stroke="#7C5CE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 18h6M10 20h4" stroke="#F5A55C" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div><span class="logo-text-1">SCHOOL</span> <span class="logo-text-2">HUB</span></div>
+                        <div class="logo-tagline">PARENT PORTAL</div>
+                    </div>
+                    <div class="parent-badge" id="sidebarParentName">Loading…</div>
+                </div>
+            </div>
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <li><a class="menu-link active" data-view="dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                <li><a class="menu-link" data-view="attendance"><i data-lucide="check-circle-2"></i> Attendance</a></li>
+                <li><a class="menu-link" data-view="grades"><i data-lucide="trending-up"></i> Grades</a></li>
+                <li><a class="menu-link" data-view="fees"><i data-lucide="wallet"></i> Fees</a></li>
+                <li><a class="menu-link" data-view="documents"><i data-lucide="file-text"></i> Documents</a></li>
+                <li><a class="menu-link" data-view="messages"><i data-lucide="message-circle"></i> Messages</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="dark-mode-row" onclick="toggleDarkMode()">
+                    <span><i data-lucide="moon"></i> Dark Mode</span>
+                    <div class="dm-toggle" id="dmToggle"></div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i data-lucide="log-out"></i> Logout
+                </button>
+            </div>
+        </aside>
 
-  <div class="container">
-    <div class="card">
-      <div class="student-hero">
-        <div class="student-avatar" id="studentInitial">?</div>
-        <div>
-          <h1 id="studentName">Loading…</h1>
-          <div class="meta" id="studentMeta"></div>
+        <div class="main-content">
+            <div class="top-header">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                    <div id="liveClock"><span>🕐</span><span id="liveClockTime">--:--:--</span></div>
+                </div>
+                <div class="user-section">
+                    <button class="header-icon-btn" onclick="toggleNotifications()" title="Notifications">
+                        <i data-lucide="bell"></i>
+                    </button>
+                    <div class="user-avatar" id="userAvatar">P</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Parent</div>
+                        <div class="user-role" id="userRole">Parent</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- DASHBOARD -->
+                <div class="view active" id="dashboardView">
+                    <div class="metrics-grid">
+                        <div class="metric-card"><div class="metric-label">My Child</div><div class="metric-value" id="mChild">—</div></div>
+                        <div class="metric-card success"><div class="metric-label">Attendance %</div><div class="metric-value" id="mAttendance">0%</div></div>
+                        <div class="metric-card warning"><div class="metric-label">Average Grade</div><div class="metric-value" id="mAvg">0%</div></div>
+                        <div class="metric-card danger"><div class="metric-label">Fees Due</div><div class="metric-value" id="mFeesDue">Rs. 0</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">👤 Student Profile</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="student-hero" style="display:flex; align-items:center; gap:14px;">
+                                <div class="student-avatar" id="studentInitial" style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,#FFF8F0,#FFE6C7); color:var(--primary-dark); display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-weight:800; font-size:22px; box-shadow:0 6px 20px rgba(245,165,92,0.35);">?</div>
+                                <div>
+                                    <h1 id="studentName" style="font-family:'Poppins',sans-serif; font-size:1.25rem; margin:0;">Loading…</h1>
+                                    <div id="studentMeta" style="color:var(--gray); font-size:0.88rem; margin-top:4px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ATTENDANCE -->
+                <div class="view" id="attendanceView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">✅ Attendance</h3></div>
+                        <div class="card-body">
+                            <div id="attendanceContent"><div class="empty-state">Loading…</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRADES -->
+                <div class="view" id="gradesView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">📈 Grades & Test Records</h3></div>
+                        <div class="card-body">
+                            <div id="gradesContent"><div class="empty-state">Loading…</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FEES -->
+                <div class="view" id="feesView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">💰 Fees</h3></div>
+                        <div class="card-body">
+                            <div id="feesContent"><div class="empty-state">Loading…</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOCUMENTS -->
+                <div class="view" id="documentsView">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🪪 Documents</h3>
+                            <button class="btn btn-primary" onclick="openUploadModal()"><i data-lucide="upload"></i> Upload Document</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="documentsContent"><div class="empty-state">Loading…</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MESSAGES -->
+                <div class="view" id="messagesView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">💬 Messages</h3></div>
+                        <div class="card-body">
+                            <div id="messagesContent"><div class="empty-state">Loading…</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <div class="tabs" id="tabBar"></div>
-
-    <div class="card" id="tab-attendance" style="display:none">
-      <h2>Attendance</h2>
-      <div id="attendanceContent"><div class="empty">Loading…</div></div>
+    <!-- UPLOAD MODAL -->
+    <div class="modal" id="uploadModal" style="display:none; position:fixed; inset:0; background:rgba(30,27,75,0.55); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:var(--bg-primary); border-radius:22px; max-width:500px; width:100%; padding:26px 28px; position:relative; box-shadow:0 24px 64px rgba(79,54,168,0.3);">
+            <button onclick="closeUploadModal()" style="position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%; border:none; background:var(--bg-secondary); color:var(--gray); cursor:pointer; font-size:16px;">✕</button>
+            <h3 style="font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; margin-bottom:16px; padding-bottom:12px; border-bottom:1.5px solid var(--border); color:var(--primary-dark);">📤 Upload Document</h3>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label>Document Type *</label>
+                <select id="uploadDocType">
+                    <option value="id_card">🪪 ID Card</option>
+                    <option value="b_form">📄 B-Form</option>
+                    <option value="test_paper">📝 Test Paper</option>
+                    <option value="profile_photo">📸 Profile Photo</option>
+                    <option value="other">📎 Other</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label>Label (optional)</label>
+                <input type="text" id="uploadLabel" placeholder="e.g. 2024 B-Form">
+            </div>
+            <div class="form-group" style="margin-bottom:18px;">
+                <label>File * (max 5 MB)</label>
+                <input type="file" id="uploadFile" accept="image/*,application/pdf">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-primary" id="uploadBtn" onclick="submitUpload()" style="flex:1;">📤 Upload</button>
+                <button class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+            </div>
+        </div>
     </div>
-
-    <div class="card" id="tab-grades" style="display:none">
-      <h2>Grades &amp; Test Records</h2>
-      <div id="gradesContent"><div class="empty">Loading…</div></div>
-    </div>
-
-    <div class="card" id="tab-fees" style="display:none">
-      <h2>Fees</h2>
-      <div id="feesContent"><div class="empty">Loading…</div></div>
-    </div>
-
-    <div class="card" id="tab-messages" style="display:none">
-      <h2>Messages</h2>
-      <div id="messagesContent"><div class="empty">Loading…</div></div>
-    </div>
-  </div>
 
 <script>
 const API_BASE = (window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null")
@@ -152,186 +532,410 @@ const API_BASE = (window.location.protocol === "file:" || !window.location.origi
 
 const token = localStorage.getItem("parent_token");
 if (!token) window.location.href = "parent-login.html";
+localStorage.setItem("user_role", "parent");
 
 let visibility = {};
+let myChild = null;
 
-function logout() {
-  localStorage.removeItem("parent_token");
-  window.location.href = "parent-login.html";
-}
-
+/* ==================== API HELPER ==================== */
 async function api(path, options = {}) {
-  const headers = { ...(options.headers || {}), Authorization: `Bearer ${token}` };
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    if (res.status === 401) logout();
-    throw new Error(data.detail || "Request failed");
-  }
-  return data;
-}
-
-function timeAgo(iso) {
-  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
-async function init() {
-  try {
-    const me = await api("/parent/me");
-    visibility = me.visibility;
-    const s = me.student;
-
-    document.getElementById("studentInitial").textContent = (s.name || "?").charAt(0).toUpperCase();
-    document.getElementById("studentName").textContent = s.name;
-    document.getElementById("studentMeta").textContent = `Class ${s.class_name || "-"} · Roll No ${s.roll_number || "-"}`;
-
-    const tabs = [];
-    if (visibility.attendance) tabs.push(["attendance", "✅ Attendance"]);
-    if (visibility.grades) tabs.push(["grades", "📈 Grades"]);
-    if (visibility.fees) tabs.push(["fees", "💰 Fees"]);
-    if (visibility.messages) tabs.push(["messages", "💬 Messages"]);
-
-    if (tabs.length === 0) {
-      document.getElementById("tabBar").innerHTML = `<div class="disabled-note">Your school hasn't enabled any portal sections yet. Please check back later.</div>`;
-      return;
+    const headers = { ...(options.headers || {}), Authorization: `Bearer ${token}` };
+    if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
     }
-
-    document.getElementById("tabBar").innerHTML = tabs.map(([id, label], i) =>
-      `<button class="tab-btn ${i === 0 ? "active" : ""}" data-tab="${id}" onclick="switchTab('${id}')">${label}</button>`
-    ).join("");
-
-    switchTab(tabs[0][0]);
-    if (visibility.fees) loadFees(me.payment_info);
-    if (visibility.attendance) loadAttendance();
-    if (visibility.grades) loadGrades();
-    if (visibility.messages) loadMessages();
-  } catch (err) {
-    document.getElementById("studentName").textContent = err.message;
-  }
+    const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        if (res.status === 401) { logout(); throw new Error("Session expired"); }
+        throw new Error(data.detail || "Request failed");
+    }
+    return data;
 }
 
-function switchTab(tab) {
-  ["attendance", "grades", "fees", "messages"].forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    if (el) el.style.display = t === tab ? "block" : "none";
-  });
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+/* ==================== TOAST ==================== */
+function showToast(message, type = "info", duration = 3000) {
+    let container = document.querySelector(".toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.className = "toast-container";
+        container.style.cssText = "position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;";
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement("div");
+    toast.style.cssText = "min-width:260px; padding:12px 18px; background:#fff; border-radius:12px; box-shadow:0 12px 32px rgba(10,90,84,0.18); border-left:4px solid " + (type === "success" ? "#10B981" : type === "error" ? "#EF4444" : "#3B82F6") + "; display:flex; align-items:center; gap:10px; font-size:0.9rem; font-weight:500;";
+    toast.innerHTML = `<i data-lucide="${type === "success" ? "check-circle-2" : type === "error" ? "alert-circle" : "info"}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateX(40px)"; setTimeout(() => toast.remove(), 300); }, duration);
 }
 
+/* ==================== NAVIGATION ==================== */
+function switchView(viewName) {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    const target = document.getElementById(viewName + "View");
+    if (target) target.classList.add("active");
+    document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+    const activeLink = document.querySelector(`[data-view="${viewName}"]`);
+    if (activeLink) activeLink.classList.add("active");
+    closeSidebar();
+    const contentEl = document.querySelector(".content");
+    if (contentEl) contentEl.scrollTop = 0;
+    const titles = {
+        dashboard: "Dashboard", attendance: "Attendance", grades: "Grades",
+        fees: "Fees", documents: "Documents", messages: "Messages"
+    };
+    const pageTitle = document.getElementById("pageTitle");
+    pageTitle.textContent = titles[viewName] || "Dashboard";
+    pageTitle.style.animation = "none";
+    void pageTitle.offsetWidth;
+    pageTitle.style.animation = "titleGradient 4s ease-in-out infinite";
+    // Lazy load
+    if (viewName === "documents") loadDocuments();
+    if (viewName === "messages") loadMessages();
+}
+
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("sidebarOverlay").classList.toggle("show");
+}
+function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebarOverlay").classList.remove("show");
+}
+function logout() {
+    localStorage.removeItem("parent_token");
+    localStorage.removeItem("user_role");
+    window.location.href = "parent-login.html";
+}
+
+/* ==================== DARK MODE ==================== */
+function applyDarkMode(enabled) {
+    document.body.classList.toggle("dark-mode", enabled);
+    const t = document.getElementById("dmToggle");
+    if (t) t.classList.toggle("on", enabled);
+    localStorage.setItem("schoolhub_dark_mode", enabled ? "1" : "0");
+}
+function toggleDarkMode() {
+    applyDarkMode(!document.body.classList.contains("dark-mode"));
+}
+
+/* ==================== CLOCK ==================== */
+function startLiveClock() {
+    const el = document.getElementById("liveClockTime");
+    if (!el) return;
+    const tick = () => { el.textContent = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true}); };
+    tick(); setInterval(tick, 1000);
+}
+
+/* ==================== NOTIFICATIONS ==================== */
+function toggleNotifications() {
+    showToast("No new notifications", "info");
+}
+
+/* ==================== LOAD MY CHILD ==================== */
+async function loadMyChild() {
+    try {
+        const me = await api("/parent/me");
+        visibility = me.visibility || {};
+        myChild = me.student;
+
+        document.getElementById("sidebarParentName").textContent = "Parent of " + (myChild.name || "");
+        document.getElementById("userName").textContent = "Parent";
+        document.getElementById("userAvatar").textContent = "P";
+
+        document.getElementById("studentInitial").textContent = (myChild.name || "?").charAt(0).toUpperCase();
+        document.getElementById("studentName").textContent = myChild.name;
+        document.getElementById("studentMeta").textContent = `Class ${myChild.class_name || "-"} · Roll No ${myChild.roll_number || "-"}`;
+        document.getElementById("mChild").textContent = myChild.name.split(" ")[0] || "—";
+
+        // Hide menu items not enabled by school
+        if (!visibility.attendance) document.querySelector('[data-view="attendance"]')?.parentElement?.remove();
+        if (!visibility.grades) document.querySelector('[data-view="grades"]')?.parentElement?.remove();
+        if (!visibility.fees) document.querySelector('[data-view="fees"]')?.parentElement?.remove();
+        if (!visibility.documents) document.querySelector('[data-view="documents"]')?.parentElement?.remove();
+        if (!visibility.messages) document.querySelector('[data-view="messages"]')?.parentElement?.remove();
+
+        // Load dashboard metrics
+        renderDashboardMetrics(me.payment_info);
+    } catch (err) {
+        showToast("Load failed: " + err.message, "error");
+    }
+}
+
+async function renderDashboardMetrics(paymentInfo) {
+    try {
+        // Attendance
+        if (visibility.attendance) {
+            try {
+                const att = await api("/parent/attendance");
+                const present = att.filter(r => r.is_present).length;
+                const rate = att.length ? Math.round((present / att.length) * 100) : 0;
+                document.getElementById("mAttendance").textContent = rate + "%";
+            } catch (e) {}
+            loadAttendance();
+        }
+
+        // Grades
+        if (visibility.grades) {
+            try {
+                const grades = await api("/parent/grades");
+                const avg = grades.length ? (grades.reduce((s, g) => s + (g.percentage || 0), 0) / grades.length).toFixed(1) : 0;
+                document.getElementById("mAvg").textContent = avg + "%";
+            } catch (e) {}
+            loadGrades();
+        }
+
+        // Fees
+        if (visibility.fees) {
+            try {
+                const fees = await api("/parent/fees");
+                const due = fees.reduce((s, f) => s + (f.due_amount || 0), 0);
+                document.getElementById("mFeesDue").textContent = "Rs. " + Math.round(due).toLocaleString();
+            } catch (e) {}
+            loadFees(paymentInfo);
+        }
+    } catch (e) { console.error(e); }
+}
+
+/* ==================== ATTENDANCE ==================== */
 async function loadAttendance() {
-  const el = document.getElementById("attendanceContent");
-  try {
-    const records = await api("/parent/attendance");
-    if (records.length === 0) { el.innerHTML = `<div class="empty">No attendance recorded yet.</div>`; return; }
-    const presentCount = records.filter(r => r.is_present).length;
-    el.innerHTML = `
-      <p style="color:var(--ht-gray,#6B7280); font-size:0.88rem; margin-top:0;">Present ${presentCount} of ${records.length} recorded days</p>
-      <table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>
-        ${records.map(r => `<tr><td>${r.date}</td>
-          <td><span class="pill ${r.is_present ? "present" : "absent"}">${r.is_present ? "Present" : "Absent"}</span></td>
-          <td>${r.remarks || "—"}</td></tr>`).join("")}
-      </tbody></table>`;
-  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
+    const el = document.getElementById("attendanceContent");
+    if (!el) return;
+    try {
+        const records = await api("/parent/attendance");
+        if (records.length === 0) {
+            el.innerHTML = `<div class="empty-state"><p>No attendance recorded yet.</p></div>`;
+            return;
+        }
+        const presentCount = records.filter(r => r.is_present).length;
+        el.innerHTML = `
+            <p style="color:var(--gray); font-size:0.88rem; margin-bottom:12px;">Present ${presentCount} of ${records.length} recorded days</p>
+            <div class="table-responsive"><table>
+                <thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead>
+                <tbody>${records.map(r => `<tr>
+                    <td>${r.date}</td>
+                    <td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td>
+                    <td>${r.remarks || "—"}</td>
+                </tr>`).join("")}</tbody>
+            </table></div>`;
+    } catch (err) {
+        el.innerHTML = `<div class="empty-state">${err.message}</div>`;
+    }
 }
 
+/* ==================== GRADES ==================== */
 async function loadGrades() {
-  const el = document.getElementById("gradesContent");
-  try {
-    const [grades, testRecords] = await Promise.all([api("/parent/grades"), api("/parent/test-records")]);
-    let html = "";
-    if (grades.length > 0) {
-      html += `<h3 style="font-size:0.9rem; margin-bottom:6px; color:var(--ht-primary-dark,#6244C7);">Grades</h3><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Date</th></tr></thead><tbody>
-        ${grades.map(g => `<tr><td>${g.subject}</td><td>${g.marks_obtained}/${g.total_marks}</td><td>${g.percentage}%</td><td>${g.exam_date || "—"}</td></tr>`).join("")}
-      </tbody></table>`;
+    const el = document.getElementById("gradesContent");
+    if (!el) return;
+    try {
+        const [grades, tests] = await Promise.all([
+            api("/parent/grades").catch(() => []),
+            api("/parent/test-records").catch(() => [])
+        ]);
+        let html = "";
+        if (grades.length > 0) {
+            html += `<h3 style="font-size:0.9rem; margin-bottom:8px; color:var(--primary-dark);">📊 Grades</h3>
+                <div class="table-responsive"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Exam Date</th></tr></thead>
+                <tbody>${grades.map(g => `<tr>
+                    <td>${g.subject}</td>
+                    <td>${g.marks_obtained}/${g.total_marks}</td>
+                    <td><strong>${g.percentage}%</strong></td>
+                    <td>${g.exam_date || "—"}</td>
+                </tr>`).join("")}</tbody></table></div>`;
+        }
+        if (tests.length > 0) {
+            html += `<h3 style="font-size:0.9rem; margin:18px 0 8px; color:var(--primary-dark);">📝 Test Records</h3>
+                <div class="table-responsive"><table><thead><tr><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th></tr></thead>
+                <tbody>${tests.map(t => `<tr>
+                    <td>${t.term_type}</td><td>${t.period}</td><td>${t.subject}</td>
+                    <td>${t.marks_obtained}/${t.total_marks} (${t.percentage}%)</td>
+                </tr>`).join("")}</tbody></table></div>`;
+        }
+        el.innerHTML = html || `<div class="empty-state">No grades recorded yet.</div>`;
+    } catch (err) {
+        el.innerHTML = `<div class="empty-state">${err.message}</div>`;
     }
-    if (testRecords.length > 0) {
-      html += `<h3 style="font-size:0.9rem; margin:16px 0 6px; color:var(--ht-primary-dark,#6244C7);">Test Records</h3><table><thead><tr><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th></tr></thead><tbody>
-        ${testRecords.map(t => `<tr><td>${t.term_type}</td><td>${t.period}</td><td>${t.subject}</td><td>${t.marks_obtained}/${t.total_marks} (${t.percentage}%)</td></tr>`).join("")}
-      </tbody></table>`;
-    }
-    el.innerHTML = html || `<div class="empty">No grades recorded yet.</div>`;
-  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
 }
 
+/* ==================== FEES ==================== */
 async function loadFees(paymentInfo) {
-  const el = document.getElementById("feesContent");
-  try {
-    const fees = await api("/parent/fees");
-    let html = "";
-    if (paymentInfo) html += `<div class="payment-box"><strong>How to pay:</strong>\n${paymentInfo}</div>`;
-    if (fees.length === 0) html += `<div class="empty">No fee records yet.</div>`;
-    else {
-      html += `<table><thead><tr><th>Month</th><th>Fee</th><th>Due</th><th>Paid</th><th>Status</th></tr></thead><tbody>
-        ${fees.map(f => `<tr><td>${f.month || "—"}</td><td>${f.fee_name}</td><td>Rs. ${f.due_amount}</td><td>Rs. ${f.paid_amount}</td>
-          <td><span class="pill ${f.status}">${f.status}</span></td></tr>`).join("")}
-      </tbody></table>`;
+    const el = document.getElementById("feesContent");
+    if (!el) return;
+    try {
+        const fees = await api("/parent/fees");
+        let html = "";
+        if (paymentInfo) html += `<div class="payment-box"><strong>💳 How to pay:</strong>\n${paymentInfo}</div>`;
+        if (fees.length === 0) html += `<div class="empty-state">No fee records yet.</div>`;
+        else {
+            html += `<div class="table-responsive"><table>
+                <thead><tr><th>Month</th><th>Fee</th><th>Due</th><th>Paid</th><th>Status</th></tr></thead>
+                <tbody>${fees.map(f => `<tr>
+                    <td>${f.month || "—"}</td>
+                    <td>${f.fee_name || "—"}</td>
+                    <td>Rs. ${f.due_amount}</td>
+                    <td>Rs. ${f.paid_amount}</td>
+                    <td><span class="badge ${f.status === "paid" ? "badge-success" : f.status === "partial" ? "badge-warning" : "badge-danger"}">${f.status}</span></td>
+                </tr>`).join("")}</tbody>
+            </table></div>`;
+        }
+        el.innerHTML = html;
+    } catch (err) {
+        el.innerHTML = `<div class="empty-state">${err.message}</div>`;
     }
-    el.innerHTML = html;
-  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
 }
 
+/* ==================== DOCUMENTS ==================== */
+async function loadDocuments() {
+    const el = document.getElementById("documentsContent");
+    if (!el) return;
+    el.innerHTML = `<div class="empty-state">Loading…</div>`;
+    try {
+        const docs = await api("/parent/documents");
+        if (docs.length === 0) {
+            el.innerHTML = `<div class="empty-state"><p>No documents uploaded yet.</p><p style="font-size:0.85rem; margin-top:8px;">Click "Upload Document" to get started.</p></div>`;
+            return;
+        }
+        const labels = { id_card: "ID Card", b_form: "B-Form", test_paper: "Test Paper", profile_photo: "Profile Photo", other: "Other" };
+        el.innerHTML = docs.map(d => `
+            <div class="doc-item">
+                <div>
+                    <span class="doc-type-badge">${labels[d.doc_type] || d.doc_type}</span>
+                    <span style="font-size:0.88rem; color:var(--gray);">${d.label || d.file_name || ""}</span>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="viewDoc(${d.id})">👁️ View</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteDoc(${d.id})">🗑️ Delete</button>
+                </div>
+            </div>
+        `).join("");
+    } catch (err) {
+        el.innerHTML = `<div class="empty-state">${err.message}</div>`;
+    }
+}
+
+async function viewDoc(documentId) {
+    try {
+        const { url } = await api(`/parent/documents/${documentId}/url`);
+        window.open(url, "_blank");
+    } catch (err) { showToast("Could not open: " + err.message, "error"); }
+}
+
+async function deleteDoc(documentId) {
+    if (!confirm("Delete this document? This cannot be undone.")) return;
+    try {
+        await api(`/parent/documents/${documentId}`, { method: "DELETE" });
+        showToast("Document deleted", "success");
+        await loadDocuments();
+    } catch (err) { showToast("Delete failed: " + err.message, "error"); }
+}
+
+/* ==================== UPLOAD MODAL ==================== */
+function openUploadModal() {
+    document.getElementById("uploadModal").style.display = "flex";
+    document.getElementById("uploadDocType").value = "id_card";
+    document.getElementById("uploadLabel").value = "";
+    document.getElementById("uploadFile").value = "";
+}
+function closeUploadModal() {
+    document.getElementById("uploadModal").style.display = "none";
+}
+async function submitUpload() {
+    const docType = document.getElementById("uploadDocType").value;
+    const label = document.getElementById("uploadLabel").value.trim();
+    const fileInput = document.getElementById("uploadFile");
+    const file = fileInput.files[0];
+    if (!file) { showToast("Please select a file", "error"); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast("File too large (max 5 MB)", "error"); return; }
+
+    const btn = document.getElementById("uploadBtn");
+    btn.disabled = true; btn.textContent = "Uploading...";
+    try {
+        const form = new FormData();
+        form.append("doc_type", docType);
+        if (label) form.append("label", label);
+        form.append("file", file);
+        await api("/parent/documents/upload", { method: "POST", body: form });
+        showToast("Document uploaded!", "success");
+        closeUploadModal();
+        await loadDocuments();
+    } catch (err) {
+        showToast("Upload failed: " + err.message, "error");
+    } finally {
+        btn.disabled = false; btn.textContent = "📤 Upload";
+    }
+}
+
+/* ==================== MESSAGES ==================== */
 async function loadMessages() {
-  const el = document.getElementById("messagesContent");
-  try {
-    const messages = await api("/parent/messages");
-    el.innerHTML = `
-      <div class="msg-list" id="msgList">
-        ${messages.length === 0 ? '<div class="empty">No messages yet — say hello to your school!</div>' :
-          messages.map(m => `
-            <div class="msg-bubble ${m.sender_role === "parent" ? "parent" : "staff"}">
-              ${m.message}
-              <div class="msg-time">${timeAgo(m.created_at)}</div>
-            </div>`).join("")}
-      </div>
-      <div class="msg-form">
-        <input type="text" id="msgInput" placeholder="Type a message to the school..." />
-        <button onclick="sendMessage()">Send</button>
-      </div>`;
-    const list = document.getElementById("msgList");
-    list.scrollTop = list.scrollHeight;
-  } catch (err) { el.innerHTML = `<div class="disabled-note">${err.message}</div>`; }
+    const el = document.getElementById("messagesContent");
+    if (!el) return;
+    try {
+        const messages = await api("/parent/messages");
+        el.innerHTML = `
+            <div class="msg-list" id="msgList">
+                ${messages.length === 0 ? '<div class="empty-state">No messages yet — say hello to your school!</div>' :
+                    messages.map(m => `
+                        <div class="msg-bubble ${m.sender_role === "parent" ? "parent" : "staff"}">
+                            ${m.message}
+                            <div class="msg-time">${new Date(m.created_at).toLocaleString()}</div>
+                        </div>`).join("")}
+            </div>
+            <div class="msg-form">
+                <input type="text" id="msgInput" placeholder="Type a message to the school..." onkeydown="if(event.key==='Enter')sendMessage()" />
+                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>`;
+        const list = document.getElementById("msgList");
+        if (list) list.scrollTop = list.scrollHeight;
+    } catch (err) {
+        el.innerHTML = `<div class="empty-state">${err.message}</div>`;
+    }
 }
 
 async function sendMessage() {
-  const input = document.getElementById("msgInput");
-  const text = input.value.trim();
-  if (!text) return;
-  try {
-    await api(`/parent/messages?message=${encodeURIComponent(text)}`, { method: "POST" });
-    input.value = "";
-    await loadMessages();
-  } catch (err) { alert(err.message); }
+    const input = document.getElementById("msgInput");
+    const text = input.value.trim();
+    if (!text) return;
+    try {
+        await api(`/parent/messages?message=${encodeURIComponent(text)}`, { method: "POST" });
+        input.value = "";
+        await loadMessages();
+    } catch (err) { showToast(err.message, "error"); }
 }
 
+/* ==================== PORTAL BACKGROUND ==================== */
 async function applyPortalBackground() {
-  try {
-    const result = await api("/settings/background-image");
-    if (result.url) {
-      const overlayPercent = (result.overlay !== undefined && result.overlay !== null) ? parseInt(result.overlay) : 82;
-      const topOpacity = overlayPercent / 100;
-      const bottomOpacity = Math.min(topOpacity + 0.08, 1);
-      document.body.style.backgroundImage = `linear-gradient(rgba(247,245,255,${topOpacity}), rgba(247,245,255,${bottomOpacity})), url('${result.url}')`;
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundAttachment = "fixed";
-      document.body.style.backgroundPosition = "center";
-    }
-  } catch (e) {}
+    try {
+        const r = await api("/settings/background-image");
+        if (r.url) {
+            const ov = (r.overlay !== undefined && r.overlay !== null) ? parseInt(r.overlay) : 82;
+            const top = ov / 100, bot = Math.min(top + 0.08, 1);
+            document.body.style.backgroundImage = `linear-gradient(rgba(247,245,255,${top}), rgba(247,245,255,${bot})), url('${r.url}')`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundAttachment = "fixed";
+            document.body.style.backgroundPosition = "center";
+        }
+    } catch (e) {}
 }
-applyPortalBackground();
 
-init();
+/* ==================== INIT ==================== */
+window.addEventListener("DOMContentLoaded", async () => {
+    applyDarkMode(localStorage.getItem("schoolhub_dark_mode") === "1");
+    document.querySelectorAll(".menu-link").forEach(link => {
+        link.addEventListener("click", () => switchView(link.dataset.view));
+    });
+    if (window.lucide) lucide.createIcons();
+    startLiveClock();
+    applyPortalBackground();
+    await loadMyChild();
+    if (window.lucide) lucide.createIcons();
+    showToast("Welcome back!", "success", 2000);
+});
 </script>
+
 <script src="js/branding.js"></script>
 <script src="js/animations.js"></script>
-<script src="js/dark-mode.js"></script>
 <script src="js/skeleton.js"></script>
 <script src="js/empty-states.js"></script>
 <script src="js/success-anim.js"></script>
-<script src="js/hope-theme.js"></script>
 </body>
 </html>
