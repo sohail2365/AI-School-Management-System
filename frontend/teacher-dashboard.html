@@ -10,607 +10,1193 @@
 <link rel="stylesheet" href="css/dark-mode.css">
 <link rel="stylesheet" href="css/empty-states.css">
 <link rel="stylesheet" href="css/success-anim.css">
-<link rel="stylesheet" href="css/hope-theme.css">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
-  body.hope-theme.hope-portal-page {
-    background: #F7F5FF;
-    background-size: cover;
-    background-attachment: fixed;
-  }
-  .topbar {
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --primary: #7C5CE0; --primary-dark: #6244C7; --primary-deep: #4F36A8;
+    --primary-lighter: #EDE9FE;
+    --accent: #F5A55C; --accent-lighter: #FFF1E0; --accent-dark: #E58E3F;
+    --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --info: #3B82F6;
+    --dark: #1E1B4B; --gray: #6B7280;
+    --border: #E5E1F5; --border-strong: #D5CDF0;
+    --bg-primary: #FFFFFF; --bg-secondary: #F7F5FF;
+}
+html, body { height: 100%; }
+body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    background: #F7F5FF; color: var(--dark); min-height: 100vh; position: relative;
+}
+h1, h2, h3, .card-title { font-family: 'Poppins', sans-serif; }
+
+.bg-pattern {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    background: linear-gradient(135deg, #8B7FE8 0%, #7C5CE0 50%, #6D4DC7 100%);
+}
+.bg-pattern::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08) 0%, transparent 25%),
+        radial-gradient(circle at 85% 80%, rgba(245,165,92,0.12) 0%, transparent 30%);
+    animation: bgPulse 12s ease-in-out infinite;
+}
+.bg-pattern::after {
+    content: ''; position: absolute; inset: -50%;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px; transform: rotate(15deg); opacity: 0.35;
+}
+@keyframes bgPulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.1);opacity:0.85;} }
+
+.app-container {
+    display: flex; height: 100vh; height: 100dvh; overflow: hidden;
+    position: relative; z-index: 1;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(165deg, #6D4DC7 0%, #7C5CE0 55%, #8B7FE8 100%);
+    color: white; padding: 24px 0 0;
+    box-shadow: 8px 0 40px rgba(79, 54, 168, 0.35);
+    position: fixed; left: 0; top: 0; height: 100vh; height: 100dvh;
+    z-index: 100; display: flex; flex-direction: column;
+}
+.sidebar::before {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--accent) 0%, transparent 50%, var(--accent) 100%);
+    opacity: 0.6;
+}
+.sidebar-logo {
+    padding: 0 20px 22px; border-bottom: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 18px; text-align: center; flex-shrink: 0;
+}
+.logo { display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: 'Poppins', sans-serif; }
+.logo-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFF8F0, #FFE6C7);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(245,165,92,0.4), 0 0 0 6px rgba(255,255,255,0.08);
+    animation: logoPulse 3s ease-in-out infinite;
+}
+.logo-icon svg { width: 30px; height: 30px; }
+@keyframes logoPulse { 0%,100%{box-shadow:0 8px 24px rgba(245,165,92,0.4),0 0 0 6px rgba(255,255,255,0.08);} 50%{box-shadow:0 8px 32px rgba(245,165,92,0.65),0 0 0 10px rgba(255,255,255,0.12);} }
+.logo-text-1, .logo-text-2 { font-size: 14px; font-weight: 800; letter-spacing: 2px; line-height: 1.1; }
+.logo-text-2 { color: var(--accent); }
+.logo-tagline {
+    font-size: 9px; font-weight: 600; letter-spacing: 1px; color: var(--accent);
+    background: rgba(245,165,92,0.15); padding: 3px 10px; border-radius: 20px; margin-top: 4px;
+}
+.teacher-badge {
+    font-size: 10.5px; color: rgba(255,255,255,0.75); margin-top: 8px;
+    padding: 4px 10px; background: rgba(255,255,255,0.08); border-radius: 20px; display: inline-block;
+}
+.sidebar-menu { list-style: none; padding: 0 12px; flex: 1; overflow-y: auto; min-height: 0; }
+.sidebar-menu li { margin: 3px 0; }
+.sidebar-menu a {
+    display: flex; align-items: center; gap: 12px; padding: 11px 16px;
+    color: rgba(255,255,255,0.85); text-decoration: none; border-radius: 12px;
+    transition: all 0.25s ease; cursor: pointer; font-weight: 500; font-size: 14px;
+}
+.sidebar-menu a:hover { background: rgba(255,255,255,0.12); color: #fff; transform: translateX(4px); }
+.sidebar-menu a:hover i[data-lucide] { transform: scale(1.18) rotate(-6deg); }
+.sidebar-menu a i[data-lucide] { width: 18px; height: 18px; transition: transform 0.25s ease; flex-shrink: 0; }
+.sidebar-menu a.active {
+    background: linear-gradient(135deg, var(--accent) 0%, #FFB978 100%);
+    color: #fff; box-shadow: 0 8px 24px rgba(245,165,92,0.45); font-weight: 600;
+    transform: translateX(4px);
+}
+.sidebar-menu a.active i[data-lucide] { transform: scale(1.1); }
+.sidebar-footer {
+    padding: 14px 20px 18px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    background: linear-gradient(165deg, transparent 0%, rgba(109,77,199,0.3) 100%);
+    flex-shrink: 0;
+}
+.dark-mode-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; margin-bottom: 10px; border-radius: 10px;
+    background: rgba(255,255,255,0.08); cursor: pointer;
+    transition: background 0.2s;
+}
+.dark-mode-row:hover { background: rgba(255,255,255,0.15); }
+.dark-mode-row span { color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.dark-mode-row i[data-lucide] { width: 16px; height: 16px; }
+.dm-toggle { width: 40px; height: 22px; position: relative; background: rgba(255,255,255,0.2); border-radius: 20px; transition: background 0.2s; }
+.dm-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%; background: #fff;
+    transition: transform 0.25s;
+}
+.dm-toggle.on { background: #FFB978; }
+.dm-toggle.on::after { transform: translateX(18px); }
+.logout-btn {
+    background: rgba(239,68,68,0.15); color: #FECACA;
+    border: 1.5px solid rgba(239,68,68,0.4); border-radius: 12px;
+    padding: 10px 16px; transition: all 0.25s ease; font-weight: 600;
+    width: 100%; justify-content: center; cursor: pointer; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+}
+.logout-btn:hover { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; border-color: transparent; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239,68,68,0.5); }
+.logout-btn i[data-lucide] { width: 16px; height: 16px; }
+
+/* ============ MAIN CONTENT ============ */
+.main-content {
+    margin-left: 260px; flex: 1; display: flex; flex-direction: column;
+    overflow-y: auto; background: #F7F5FF; position: relative; z-index: 2;
+}
+
+/* ============ TOP HEADER ============ */
+.top-header {
     background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
-    color: #fff;
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 24px rgba(124, 92, 224, 0.25);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    overflow: hidden;
-  }
-  .topbar::before {
-    content: '';
-    position: absolute;
-    inset: 0;
+    padding: 16px 26px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 24px rgba(124,92,224,0.2); position: relative; overflow: hidden;
+    flex-wrap: wrap; gap: 12px;
+}
+.top-header::before {
+    content: ''; position: absolute; inset: 0;
     background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
-    background-size: 200% 100%;
-    animation: htHeaderShine 5s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes htHeaderShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .topbar h1 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.15rem;
-    margin: 0;
+    background-size: 200% 100%; animation: headerShine 5s linear infinite; pointer-events: none;
+}
+@keyframes headerShine { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+.header-title {
+    font-size: 22px; font-weight: 700; font-family: 'Poppins', sans-serif;
+    background: linear-gradient(90deg, #fff 0%, #FFD4AC 50%, #fff 100%);
+    background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; animation: titleGradient 4s ease-in-out infinite;
     position: relative;
-    z-index: 1;
-    background: linear-gradient(90deg, #ffffff 0%, #FFD4AC 50%, #ffffff 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: htTitleGradient 4s ease-in-out infinite;
-  }
-  @keyframes htTitleGradient { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
-  .topbar button {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 600;
-    position: relative;
-    z-index: 1;
-    backdrop-filter: blur(10px);
-  }
-  .topbar button:hover {
-    background: rgba(255,255,255,0.25);
-    transform: translateY(-2px);
-  }
+}
+@keyframes titleGradient { 0%,100%{background-position:0% center;} 50%{background-position:100% center;} }
+#liveClock {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; border-radius: 20px; padding: 5px 12px;
+    font-size: 0.78rem; font-weight: 600; backdrop-filter: blur(10px);
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.user-section { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
+.header-icon-btn {
+    background: rgba(255,255,255,0.15); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 12px;
+    padding: 0.5rem 0.8rem; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    font-family: inherit; backdrop-filter: blur(10px); position: relative;
+}
+.header-icon-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+.header-icon-btn i[data-lucide] { width: 16px; height: 16px; }
+.header-icon-btn .badge-dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #F59E0B; border-radius: 50%; border: 2px solid #7C5CE0; }
+.user-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #FFB978);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    font-weight: 800; font-size: 15px; font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 12px rgba(245,165,92,0.4), 0 0 0 3px rgba(255,255,255,0.2);
+}
+.user-info { display: flex; flex-direction: column; }
+.user-name { font-weight: 700; color: #fff; font-size: 0.88rem; }
+.user-role { font-size: 11px; color: rgba(255,255,255,0.75); }
+.hamburger-btn {
+    display: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    font-size: 20px; cursor: pointer; padding: 6px 12px; color: #fff; margin-right: 10px;
+    border-radius: 10px; transition: background 0.2s;
+}
+.hamburger-btn:hover { background: rgba(255,255,255,0.25); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(30,27,75,0.6); backdrop-filter: blur(4px); z-index: 99; }
+.sidebar-overlay.show { display: block; }
 
-  .container { max-width: 960px; margin: 1.5rem auto; padding: 0 1rem; position: relative; z-index: 2; }
+/* ============ CONTENT ============ */
+.content { padding: 24px 26px; flex: 1; }
+.view { display: none; }
+.view.active { display: block; animation: viewFadeIn 0.35s ease; }
+@keyframes viewFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  .card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 1.2rem;
-    box-shadow: 0 4px 20px rgba(124, 92, 224, 0.08);
-    border: 1px solid rgba(124, 92, 224, 0.08);
-    transition: box-shadow 0.25s ease, transform 0.25s ease;
-  }
-  .card:hover { box-shadow: 0 8px 32px rgba(124, 92, 224, 0.12); }
-  .card h2 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.05rem;
-    margin: 0 0 1rem;
-    color: var(--ht-primary-dark, #6244C7);
-  }
+/* Cards */
+.card {
+    background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(124,92,224,0.08);
+    overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(124,92,224,0.08);
+    transition: box-shadow 0.3s ease;
+}
+.card:hover { box-shadow: 0 8px 32px rgba(124,92,224,0.12); }
+.card-header {
+    background: linear-gradient(135deg, rgba(124,92,224,0.04), rgba(245,165,92,0.04));
+    padding: 16px 22px; border-bottom: 1px solid rgba(124,92,224,0.08);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+}
+.card-title { font-size: 16px; font-weight: 700; color: var(--dark); }
+.card-body { padding: 20px 22px; }
 
-  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .tab-btn {
-    padding: 0.6rem 1.1rem;
-    border: 1.5px solid var(--ht-border, #E5E1F5);
-    background: #fff;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--ht-gray, #6B7280);
-    transition: all 0.2s ease;
-    font-family: inherit;
-  }
-  .tab-btn:hover {
-    transform: translateY(-2px);
-    border-color: var(--ht-primary, #7C5CE0);
-    color: var(--ht-primary, #7C5CE0);
-    background: var(--ht-primary-lighter, #EDE9FE);
-  }
-  .tab-btn.active {
-    background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7));
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 4px 14px rgba(124, 92, 224, 0.35);
-  }
+/* Metrics */
+.metrics-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 22px;
+}
+.metric-card {
+    background: #fff; padding: 20px 22px; border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(124,92,224,0.08); border: 1px solid rgba(124,92,224,0.08);
+    transition: all 0.3s ease; position: relative; overflow: hidden;
+    animation: cardStagger 0.5s cubic-bezier(0.16,1,0.3,1) backwards;
+}
+.metric-card:nth-child(1) { animation-delay: 0.05s; }
+.metric-card:nth-child(2) { animation-delay: 0.10s; }
+.metric-card:nth-child(3) { animation-delay: 0.15s; }
+.metric-card:nth-child(4) { animation-delay: 0.20s; }
+@keyframes cardStagger { from{opacity:0;transform:translateY(20px) scale(0.98);} to{opacity:1;transform:translateY(0) scale(1);} }
+.metric-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 18px 18px 0 0;
+}
+.metric-card.success::before { background: linear-gradient(90deg, var(--success), #34D399); }
+.metric-card.warning::before { background: linear-gradient(90deg, var(--accent), #FFB978); }
+.metric-card.danger::before { background: linear-gradient(90deg, var(--danger), #DC2626); }
+.metric-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(124,92,224,0.18); }
+.metric-label { font-size: 12px; color: var(--gray); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.metric-value {
+    font-size: 28px; font-weight: 800; font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
 
-  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid rgba(124, 92, 224, 0.06); }
-  th {
-    color: var(--ht-primary-dark, #6244C7);
-    font-weight: 700;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  tbody tr { transition: background 0.15s ease; }
-  tbody tr:hover { background: rgba(124, 92, 224, 0.03); }
+/* Buttons */
+.btn {
+    padding: 10px 20px; border: none; border-radius: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s ease; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+    position: relative; overflow: hidden;
+}
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 14px rgba(124,92,224,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,92,224,0.45); }
+.btn-secondary { background: var(--bg-secondary); color: var(--primary-dark); border: 1.5px solid var(--border-strong); }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lighter); transform: translateY(-2px); }
+.btn-danger { background: linear-gradient(135deg, var(--danger), #DC2626); color: #fff; }
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239,68,68,0.45); }
+.btn-success { background: linear-gradient(135deg, var(--success), #059669); color: #fff; }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.45); }
+.btn-warning { background: linear-gradient(135deg, var(--warning), #D97706); color: #fff; }
+.btn-warning:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245,158,11,0.45); }
+.btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 10px; }
+.btn i[data-lucide] { width: 15px; height: 15px; }
 
-  select, input[type="text"], input[type="number"], input[type="date"] {
-    padding: 0.6rem 0.8rem;
-    border: 1.5px solid var(--ht-border, #E5E1F5);
-    border-radius: 10px;
-    font-size: 0.88rem;
-    font-family: inherit;
-    background: #fff;
-    color: var(--ht-dark, #1E1B4B);
-    transition: all 0.15s;
-  }
-  select:focus, input:focus {
-    outline: none;
-    border-color: var(--ht-primary, #7C5CE0);
-    box-shadow: 0 0 0 4px rgba(124, 92, 224, 0.12);
-  }
+/* Forms */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-weight: 600; color: var(--dark); font-size: 12.5px; }
+.form-group input, .form-group select, .form-group textarea {
+    padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: inherit; font-size: 13.5px; background: var(--bg-primary);
+    color: var(--dark); transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124,92,224,0.12);
+}
 
-  .row-form { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-  .row-form button {
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--ht-primary, #7C5CE0), var(--ht-primary-dark, #6244C7));
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3);
-    font-family: inherit;
-  }
-  .row-form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(124, 92, 224, 0.45);
-  }
+/* Tables */
+.table-responsive { overflow-x: auto; border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; }
+table thead { background: linear-gradient(135deg, rgba(124,92,224,0.06), rgba(245,165,92,0.04)); border-bottom: 1.5px solid rgba(124,92,224,0.1); }
+table th { padding: 12px 14px; text-align: left; font-weight: 700; color: var(--primary-dark); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+table td { padding: 12px 14px; border-bottom: 1px solid rgba(124,92,224,0.06); font-size: 13.5px; }
+table tbody tr { transition: background 0.15s ease; animation: rowIn 0.35s ease backwards; }
+table tbody tr:nth-child(1) { animation-delay: 0.02s; }
+table tbody tr:nth-child(2) { animation-delay: 0.04s; }
+table tbody tr:nth-child(3) { animation-delay: 0.06s; }
+table tbody tr:nth-child(4) { animation-delay: 0.08s; }
+table tbody tr:nth-child(5) { animation-delay: 0.10s; }
+@keyframes rowIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+table tbody tr:hover { background: rgba(124,92,224,0.03); }
+table tbody tr:last-child td { border-bottom: none; }
 
-  .msg { font-size: 0.85rem; margin-top: 0.5rem; font-weight: 500; }
-  .msg.error { color: #991B1B; }
-  .msg.ok { color: #065F46; }
+/* Badges */
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-success { background: #D1FAE5; color: #065F46; }
+.badge-warning { background: #FEF3C7; color: #92400E; }
+.badge-danger { background: #FEE2E2; color: #991B1B; }
+.badge-info { background: #DBEAFE; color: #1E40AF; }
 
-  .pill {
-    display: inline-block;
-    padding: 0.25rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-  .pill.present { background: #D1FAE5; color: #065F46; }
-  .pill.absent { background: #FEE2E2; color: #991B1B; }
+/* Messages */
+.msg-thread-list { border-right: 1px solid var(--border); padding-right: 12px; overflow-y: auto; max-height: 420px; }
+.msg-thread { padding: 10px 12px; border-radius: 10px; cursor: pointer; margin-bottom: 4px; transition: background 0.15s; }
+.msg-thread:hover { background: var(--primary-lighter); }
+.msg-thread.active { background: var(--primary-lighter); }
+.msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.5; word-break: break-word; }
+.msg-bubble.parent { align-self: flex-start; background: var(--bg-secondary); color: var(--dark); }
+.msg-bubble.staff { align-self: flex-end; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
+
+/* Modal */
+.modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(30,27,75,0.55); backdrop-filter: blur(6px); }
+.modal.show { display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-content {
+    background: var(--bg-primary); padding: 24px 28px; border-radius: 22px;
+    max-width: 500px; width: 100%; max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(79,54,168,0.3);
+    animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1); position: relative;
+}
+.modal-content.modal-wide { max-width: 720px; }
+.modal-header { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid var(--border); color: var(--primary-dark); }
+.modal-close {
+    position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    font-size: 16px; cursor: pointer; color: var(--gray); background: var(--bg-secondary);
+    transition: all 0.15s; font-weight: 600; border: none;
+}
+.modal-close:hover { color: #fff; background: var(--danger); transform: rotate(90deg); }
+@keyframes slideUp { from{transform:translateY(24px) scale(0.96);opacity:0;} to{transform:translateY(0) scale(1);opacity:1;} }
+
+/* Calculator */
+#calcPanel {
+    position: fixed; right: 24px; top: 76px; width: 300px; max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 100px); background: var(--bg-primary); border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(79,54,168,0.3); z-index: 1199;
+    display: flex; flex-direction: column; overflow: hidden;
+    transform: translateY(-12px) scale(0.97); opacity: 0; pointer-events: none;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+#calcPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+#calcHeader { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+#calcBody { padding: 14px; overflow-y: auto; }
+.calc-display { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; text-align: right; }
+.calc-expression { font-size: 12px; color: var(--gray); min-height: 16px; word-break: break-all; font-family: monospace; }
+.calc-result { font-size: 22px; font-weight: 800; color: var(--primary-dark); font-family: 'Poppins', monospace; margin-top: 4px; word-break: break-all; }
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.calc-btn { padding: 12px 0; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; background: var(--bg-secondary); color: var(--dark); font-family: inherit; transition: background 0.15s, transform 0.1s; }
+.calc-btn:hover { background: var(--primary-lighter); }
+.calc-btn:active { transform: scale(0.96); }
+.calc-btn.calc-op { background: var(--primary-lighter); color: var(--primary-dark); }
+.calc-btn.calc-fn { background: var(--accent-lighter); color: var(--accent-dark); }
+.calc-btn.calc-eq { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; grid-column: span 4; }
+
+/* Toast */
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+    min-width: 260px; padding: 12px 18px; background: #fff; border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(10,90,84,0.18); border-left: 4px solid var(--primary);
+    display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 500;
+    color: var(--dark); animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toast.success { border-left-color: var(--success); }
+.toast.error { border-left-color: var(--danger); }
+.toast.info { border-left-color: var(--info); }
+@keyframes toastIn { from{opacity:0;transform:translateX(40px) scale(0.9);} to{opacity:1;transform:translateX(0) scale(1);} }
+.toast.hide { animation: toastOut 0.3s ease forwards; }
+@keyframes toastOut { to { opacity: 0; transform: translateX(40px) scale(0.9); } }
+
+/* AI FAB */
+#aiFabBtn {
+    position: fixed; right: 22px; bottom: 22px; width: 56px; height: 56px;
+    border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 8px 28px rgba(124,92,224,0.4), 0 0 0 6px rgba(124,92,224,0.1);
+    z-index: 1200; transition: transform 0.2s, box-shadow 0.2s;
+    animation: aiFabFloat 3s ease-in-out infinite;
+}
+#aiFabBtn:hover { transform: scale(1.1); box-shadow: 0 12px 36px rgba(124,92,224,0.55), 0 0 0 8px rgba(124,92,224,0.15); }
+#aiFabBtn i[data-lucide] { width: 26px; height: 26px; position: relative; z-index: 1; }
+#aiFabPulse { position: absolute; inset: 0; border-radius: 50%; background: var(--primary); opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite; }
+@keyframes aiFabPulse { 0%{transform:scale(1);opacity:0.5;} 70%,100%{transform:scale(1.8);opacity:0;} }
+@keyframes aiFabFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+
+#aiWidgetPanel {
+    position: fixed; right: 22px; bottom: 88px; width: 340px; max-width: calc(100vw - 32px);
+    max-height: 70vh; background: var(--bg-primary); border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(79,54,168,0.3); z-index: 1199;
+    display: flex; flex-direction: column; overflow: hidden;
+    transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+#aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+#aiWidgetHeader { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+#aiWidgetBody { padding: 16px; overflow-y: auto; }
+.ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--primary-dark); }
+.ai-widget-hint { font-size: 12px; color: var(--gray); margin: 0 0 8px; }
+.ai-widget-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: var(--bg-primary); color: var(--dark); }
+.ai-widget-btn { width: 100%; padding: 10px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+
+/* Dark mode */
+body.dark-mode {
+    --dark: #E5E2F5; --gray: #9B95B8; --border: #2E2A4A; --border-strong: #3D3660;
+    --bg-primary: #1E1B36; --bg-secondary: #262042; --primary-lighter: #2E2650; --accent-lighter: #3A2E20;
+    background: #141028; color: #E5E2F5;
+}
+body.dark-mode .main-content { background: #141028; }
+body.dark-mode .card, body.dark-mode .modal-content, body.dark-mode .metric-card { background: #1E1B36; border-color: #2E2A4A; }
+body.dark-mode .card-header { background: linear-gradient(135deg, rgba(124,92,224,0.08), rgba(245,165,92,0.06)); }
+body.dark-mode table thead { background: rgba(124,92,224,0.08); }
+body.dark-mode table td { border-bottom-color: rgba(124,92,224,0.08); }
+body.dark-mode .form-group input, body.dark-mode .form-group select, body.dark-mode .form-group textarea { background: #141028; color: #E5E2F5; border-color: #2E2A4A; }
+body.dark-mode .btn-secondary { background: #262042; color: #E5E2F5; border-color: #3D3660; }
+body.dark-mode .toast { background: #1E1B36; color: #E5E2F5; }
+body.dark-mode .calc-btn { background: #262042; color: #E5E2F5; }
+body.dark-mode .msg-bubble.parent { background: #262042; }
+
+@media (max-width: 900px) {
+    .hamburger-btn { display: inline-block; }
+    .sidebar { transform: translateX(-100%); transition: transform 0.3s; z-index: 101; }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .header-title { font-size: 18px; }
+    .user-info { display: none; }
+    .content { padding: 18px 14px; }
+    .top-header { padding: 12px 16px; }
+}
 </style>
 </head>
-<body class="hope-theme hope-portal-page">
-  <div class="topbar">
-    <h1 id="headerTitle">Teacher Portal</h1>
-    <button onclick="logout()">Log out</button>
-  </div>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3v2M10 5h4M9 8a3 3 0 016 0v3a4 4 0 01-1 2.65V15h-4v-1.35A4 4 0 019 11V8z" stroke="#7C5CE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 18h6M10 20h4" stroke="#F5A55C" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div><span class="logo-text-1">SCHOOL</span> <span class="logo-text-2">HUB</span></div>
+                        <div class="logo-tagline">TEACHER PORTAL</div>
+                    </div>
+                    <div class="teacher-badge" id="sidebarTeacherName">Loading…</div>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a class="menu-link active" data-view="dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                <li><a class="menu-link" data-view="attendance"><i data-lucide="check-circle-2"></i> Attendance</a></li>
+                <li><a class="menu-link" data-view="grades"><i data-lucide="trending-up"></i> Grades</a></li>
+                <li><a class="menu-link" data-view="testrecords"><i data-lucide="file-text"></i> Test Records</a></li>
+                <li><a class="menu-link" data-view="students"><i data-lucide="users"></i> My Students</a></li>
+                <li><a class="menu-link" data-view="reports"><i data-lucide="bar-chart-3"></i> Class Reports</a></li>
+                <li><a class="menu-link" data-view="messages"><i data-lucide="message-circle"></i> Parent Messages</a></li>
+                <li><a class="menu-link" data-view="settings"><i data-lucide="settings"></i> Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="dark-mode-row" onclick="toggleDarkMode()">
+                    <span><i data-lucide="moon"></i> Dark Mode</span>
+                    <div class="dm-toggle" id="dmToggle"></div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i data-lucide="log-out"></i> Logout
+                </button>
+            </div>
+        </aside>
 
-  <div class="container">
-    <div class="card">
-      <h2 id="classInfo">Loading your class…</h2>
-    </div>
+        <div class="main-content">
+            <div class="top-header">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                    <div id="liveClock"><span>🕐</span><span id="liveClockTime">--:--:--</span></div>
+                </div>
+                <div class="user-section">
+                    <button class="header-icon-btn" id="notifBtn" onclick="toggleNotifications()" title="Notifications">
+                        <i data-lucide="bell"></i>
+                        <span class="badge-dot" id="notifDot" style="display:none;"></span>
+                    </button>
+                    <button class="header-icon-btn" id="calcBtn" onclick="toggleCalculator()" title="Calculator">
+                        <i data-lucide="calculator"></i>
+                    </button>
+                    <div class="user-avatar" id="userAvatar">T</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Teacher</div>
+                        <div class="user-role" id="userRole">Teacher</div>
+                    </div>
+                </div>
+            </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="attendance">✅ Attendance</button>
-      <button class="tab-btn" data-tab="grades">📈 Grades</button>
-      <button class="tab-btn" data-tab="testrecords">📝 Monthly/Annual Tests</button>
-      <button class="tab-btn" data-tab="messages">💬 Parent Messages</button>
-      <button class="btn btn-primary" onclick="openBulkAttendance()">📋 Bulk Register</button>
-    </div>
+            <div class="content">
+                <!-- DASHBOARD -->
+                <div class="view active" id="dashboardView">
+                    <div class="metrics-grid">
+                        <div class="metric-card"><div class="metric-label">My Students</div><div class="metric-value" id="mStudents">0</div></div>
+                        <div class="metric-card success"><div class="metric-label">Today Present</div><div class="metric-value" id="mPresent">0</div></div>
+                        <div class="metric-card warning"><div class="metric-label">Today Absent</div><div class="metric-value" id="mAbsent">0</div></div>
+                        <div class="metric-card danger"><div class="metric-label">Attendance %</div><div class="metric-value" id="mRate">0%</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📊 Class Overview</h3>
+                            <button class="btn btn-primary btn-sm" onclick="switchView('attendance')"><i data-lucide="plus"></i> Mark Attendance</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="classOverview" style="color:var(--gray);">Loading…</div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="card" id="tab-attendance">
-      <h2>Mark Today's Attendance</h2>
-      <div class="row-form">
-        <input type="date" id="attDate" />
-        <select id="attStudent"></select>
-        <select id="attPresent">
-          <option value="true">Present</option>
-          <option value="false">Absent</option>
-        </select>
-        <input type="text" id="attRemarks" placeholder="Remarks (optional)" />
-        <button onclick="markAttendance()">Save</button>
-      </div>
-      <div class="msg" id="attMsg"></div>
-      <table>
-        <thead><tr><th>Date</th><th>Student</th><th>Status</th><th>Remarks</th></tr></thead>
-        <tbody id="attTable"></tbody>
-      </table>
-    </div>
+                <!-- ATTENDANCE -->
+                <div class="view" id="attendanceView">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">✅ Mark Today's Attendance</h3>
+                            <button class="btn btn-primary" onclick="openBulkAttendance()"><i data-lucide="list-checks"></i> Bulk Register</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Date</label><input type="date" id="attDate"></div>
+                                <div class="form-group"><label>Student</label><select id="attStudent"></select></div>
+                                <div class="form-group"><label>Status</label><select id="attPresent"><option value="true">Present</option><option value="false">Absent</option></select></div>
+                                <div class="form-group"><label>Remarks (optional)</label><input type="text" id="attRemarks" placeholder="Remarks"></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="markAttendance()"><i data-lucide="save"></i> Save</button>
+                            <div class="table-responsive" style="margin-top:18px;">
+                                <table><thead><tr><th>Date</th><th>Student</th><th>Status</th><th>Remarks</th></tr></thead><tbody id="attTable"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="card" id="tab-grades" style="display:none">
-      <h2>Enter Grade</h2>
-      <div class="row-form">
-        <select id="gradeStudent"></select>
-        <input type="text" id="gradeSubject" placeholder="Subject" style="width:140px" />
-        <input type="number" id="gradeMarks" placeholder="Marks" style="width:90px" />
-        <input type="number" id="gradeTotal" placeholder="Total" value="100" style="width:90px" />
-        <input type="date" id="gradeExamDate" />
-        <button onclick="addGrade()">Save</button>
-      </div>
-      <div class="msg" id="gradeMsg"></div>
-      <table>
-        <thead><tr><th>Student</th><th>Subject</th><th>Marks</th><th>%</th><th>Exam Date</th></tr></thead>
-        <tbody id="gradeTable"></tbody>
-      </table>
-    </div>
+                <!-- GRADES -->
+                <div class="view" id="gradesView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">📈 Enter Grade</h3></div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Student</label><select id="gradeStudent"></select></div>
+                                <div class="form-group"><label>Subject</label><input type="text" id="gradeSubject" placeholder="e.g. Math"></div>
+                                <div class="form-group"><label>Marks</label><input type="number" id="gradeMarks" placeholder="0"></div>
+                                <div class="form-group"><label>Total</label><input type="number" id="gradeTotal" value="100"></div>
+                                <div class="form-group"><label>Exam Date</label><input type="date" id="gradeExamDate"></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="addGrade()"><i data-lucide="save"></i> Save Grade</button>
+                            <div class="table-responsive" style="margin-top:18px;">
+                                <table><thead><tr><th>Student</th><th>Subject</th><th>Marks</th><th>%</th><th>Exam Date</th></tr></thead><tbody id="gradeTable"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="card" id="tab-testrecords" style="display:none">
-      <h2>Add Monthly/Annual Test Record (with photo of paper)</h2>
-      <div class="row-form">
-        <select id="trStudent"></select>
-        <select id="trTerm">
-          <option value="monthly">Monthly</option>
-          <option value="annual">Annual</option>
-        </select>
-        <input type="text" id="trPeriod" placeholder="Period (YYYY-MM)" style="width:140px" />
-        <input type="text" id="trSubject" placeholder="Subject" style="width:120px" />
-        <input type="number" id="trMarks" placeholder="Marks" style="width:80px" />
-        <input type="number" id="trTotal" placeholder="Total" value="100" style="width:80px" />
-        <input type="file" id="trImage" accept="image/*,application/pdf" />
-        <button onclick="addTestRecord()">Save</button>
-      </div>
-      <div class="msg" id="trMsg"></div>
-      <table>
-        <thead><tr><th>Student</th><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th><th>Photo</th></tr></thead>
-        <tbody id="trTable"></tbody>
-      </table>
-    </div>
+                <!-- TEST RECORDS -->
+                <div class="view" id="testrecordsView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">📝 Add Monthly/Annual Test Record</h3></div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Student</label><select id="trStudent"></select></div>
+                                <div class="form-group"><label>Term</label><select id="trTerm"><option value="monthly">Monthly</option><option value="annual">Annual</option></select></div>
+                                <div class="form-group"><label>Period (YYYY-MM)</label><input type="text" id="trPeriod" placeholder="2025-01"></div>
+                                <div class="form-group"><label>Subject</label><input type="text" id="trSubject" placeholder="e.g. Math"></div>
+                                <div class="form-group"><label>Marks</label><input type="number" id="trMarks" placeholder="0"></div>
+                                <div class="form-group"><label>Total</label><input type="number" id="trTotal" value="100"></div>
+                                <div class="form-group"><label>Photo/PDF</label><input type="file" id="trImage" accept="image/*,application/pdf"></div>
+                            </div>
+                            <button class="btn btn-primary" onclick="addTestRecord()"><i data-lucide="save"></i> Save Record</button>
+                            <div class="table-responsive" style="margin-top:18px;">
+                                <table><thead><tr><th>Student</th><th>Term</th><th>Period</th><th>Subject</th><th>Marks</th><th>Photo</th></tr></thead><tbody id="trTable"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="card" id="tab-messages" style="display:none">
-      <h2>Parent Messages</h2>
-      <div style="display:grid; grid-template-columns: 220px 1fr; gap:16px; min-height:320px;">
-        <div id="msgThreadList" style="border-right:1px solid var(--ht-border,#E5E1F5); padding-right:12px; overflow-y:auto; max-height:420px;">
-          <div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">Loading...</div>
-        </div>
-        <div>
-          <div id="msgConversation" style="min-height:280px; max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
-            <div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">Select a student to view messages.</div>
-          </div>
-          <div id="msgReplyBox" style="display:none; gap:8px;">
-            <input type="text" id="msgReplyInput" placeholder="Type a reply..." style="flex:1;" />
-            <button onclick="sendClassMessage()" style="padding:0.6rem 1.2rem; border:none; border-radius:10px; background:linear-gradient(135deg, #7C5CE0, #6244C7); color:#fff; font-weight:700; cursor:pointer;">Send</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+                <!-- MY STUDENTS -->
+                <div class="view" id="studentsView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">👨‍🎓 My Students</h3></div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table><thead><tr><th>Roll</th><th>Name</th><th>Father</th><th>Phone</th><th>Class</th></tr></thead><tbody id="studentsTableBody"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<script>
-const API_BASE = (window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null")
-    ? "http://127.0.0.1:8000" : window.location.origin;
+                <!-- CLASS REPORTS -->
+                <div class="view" id="reportsView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">📊 Class Performance</h3></div>
+                        <div class="card-body">
+                            <canvas id="classPerfChart" height="180"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">🏆 Top Students (Average %)</h3></div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table><thead><tr><th>Rank</th><th>Name</th><th>Average %</th><th>Attendance %</th></tr></thead><tbody id="topStudentsBody"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-const token = localStorage.getItem("teacher_token");
-if (!token) window.location.href = "teacher-login.html";
+                <!-- MESSAGES -->
+                <div class="view" id="messagesView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">💬 Parent Messages</h3></div>
+                        <div class="card-body">
+                            <div style="display:grid; grid-template-columns:240px 1fr; gap:16px; min-height:380px;">
+                                <div class="msg-thread-list" id="msgThreadList">
+                                    <div style="color:var(--gray); font-size:0.85rem;">Loading…</div>
+                                </div>
+                                <div>
+                                    <div id="msgConversation" style="min-height:300px; max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:12px; padding:4px;">
+                                        <div style="color:var(--gray); font-size:0.9rem;">Select a student to view messages.</div>
+                                    </div>
+                                    <div id="msgReplyBox" style="display:none; gap:8px;">
+                                        <input type="text" id="msgReplyInput" placeholder="Type a reply..." style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; background:var(--bg-primary); color:var(--dark);">
+                                        <button class="btn btn-primary" onclick="sendClassMessage()">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-let myStudents = [];
-
-function logout() {
-  localStorage.removeItem("teacher_token");
-  localStorage.removeItem("teacher_name");
-  window.location.href = "teacher-login.html";
-}
-
-async function authFetch(path, options = {}) {
-  const headers = { ...(options.headers || {}), Authorization: `Bearer ${token}` };
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    if (res.status === 401) logout();
-    throw new Error(data.detail || "Request failed");
-  }
-  return data;
-}
-
-function populateStudentSelects() {
-  const opts = myStudents.map(s => `<option value="${s.id}">${s.roll_number} - ${s.name}</option>`).join("");
-  ["attStudent", "gradeStudent", "trStudent"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = opts;
-  });
-}
-
-async function loadMyClass() {
-  const me = await authFetch("/teacher/me");
-  document.getElementById("headerTitle").textContent = `Teacher Portal — ${me.name}`;
-  document.getElementById("classInfo").textContent =
-    `Class: ${me.class_assigned}${me.subject ? " · Subject: " + me.subject : ""}`;
-  myStudents = await authFetch("/teacher/students");
-  populateStudentSelects();
-  await loadAttendance();
-  await loadGrades();
-  await loadTestRecords();
-}
-
-document.getElementById("attDate").valueAsDate = new Date();
-
-async function markAttendance() {
-  const msg = document.getElementById("attMsg");
-  msg.textContent = ""; msg.className = "msg";
-  try {
-    const body = new URLSearchParams();
-    body.append("student_id", document.getElementById("attStudent").value);
-    body.append("date", document.getElementById("attDate").value);
-    body.append("is_present", document.getElementById("attPresent").value);
-    const remarks = document.getElementById("attRemarks").value;
-    if (remarks) body.append("remarks", remarks);
-    await authFetch("/teacher/attendance", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-    msg.textContent = "Attendance saved."; msg.classList.add("ok");
-    document.getElementById("attRemarks").value = "";
-    await loadAttendance();
-  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
-}
-
-async function loadAttendance() {
-  const records = await authFetch("/teacher/attendance");
-  const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
-  document.getElementById("attTable").innerHTML = records.slice(0, 30).map(r => `
-    <tr><td>${r.date}</td><td>${byId[r.student_id] || r.student_id}</td>
-    <td><span class="pill ${r.is_present ? "present" : "absent"}">${r.is_present ? "Present" : "Absent"}</span></td>
-    <td>${r.remarks || ""}</td></tr>`).join("");
-}
-
-async function addGrade() {
-  const msg = document.getElementById("gradeMsg");
-  msg.textContent = ""; msg.className = "msg";
-  try {
-    const body = new URLSearchParams();
-    body.append("student_id", document.getElementById("gradeStudent").value);
-    body.append("subject", document.getElementById("gradeSubject").value);
-    body.append("marks_obtained", document.getElementById("gradeMarks").value);
-    body.append("total_marks", document.getElementById("gradeTotal").value || "100");
-    const examDate = document.getElementById("gradeExamDate").value;
-    if (examDate) body.append("exam_date", examDate);
-    await authFetch("/teacher/grades", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-    msg.textContent = "Grade saved."; msg.classList.add("ok");
-    document.getElementById("gradeSubject").value = "";
-    document.getElementById("gradeMarks").value = "";
-    await loadGrades();
-  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
-}
-
-async function loadGrades() {
-  const records = await authFetch("/teacher/grades");
-  const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
-  document.getElementById("gradeTable").innerHTML = records.slice(0, 30).map(r => `
-    <tr><td>${byId[r.student_id] || r.student_id}</td><td>${r.subject}</td>
-    <td>${r.marks_obtained}/${r.total_marks}</td><td>${r.percentage}%</td><td>${r.exam_date || "—"}</td></tr>`).join("");
-}
-
-async function addTestRecord() {
-  const msg = document.getElementById("trMsg");
-  msg.textContent = ""; msg.className = "msg";
-  try {
-    const form = new FormData();
-    form.append("student_id", document.getElementById("trStudent").value);
-    form.append("term_type", document.getElementById("trTerm").value);
-    form.append("period", document.getElementById("trPeriod").value);
-    form.append("subject", document.getElementById("trSubject").value);
-    form.append("marks_obtained", document.getElementById("trMarks").value);
-    form.append("total_marks", document.getElementById("trTotal").value || "100");
-    const imageFile = document.getElementById("trImage").files[0];
-    if (imageFile) form.append("image", imageFile);
-    await authFetch("/teacher/test-records", { method: "POST", body: form });
-    msg.textContent = "Test record saved."; msg.classList.add("ok");
-    document.getElementById("trPeriod").value = "";
-    document.getElementById("trSubject").value = "";
-    document.getElementById("trMarks").value = "";
-    document.getElementById("trImage").value = "";
-    await loadTestRecords();
-  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
-}
-
-async function loadTestRecords() {
-  const records = await authFetch("/teacher/test-records");
-  const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
-  document.getElementById("trTable").innerHTML = records.slice(0, 30).map(r => `
-    <tr><td>${byId[r.student_id] || r.student_id}</td><td>${r.term_type}</td><td>${r.period}</td>
-    <td>${r.subject}</td><td>${r.marks_obtained}/${r.total_marks}</td>
-    <td>${r.image_url ? `<button onclick="viewRecordImage(${r.id})" style="padding:0.3rem 0.7rem; border:none; border-radius:6px; background:var(--ht-primary,#7C5CE0); color:#fff; font-weight:600; cursor:pointer;">View</button>` : "—"}</td></tr>`).join("");
-}
-
-async function viewRecordImage(recordId) {
-  try { const { url } = await authFetch(`/test-records/${recordId}/image-url`); window.open(url, "_blank"); }
-  catch (err) { alert(err.message); }
-}
-
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    ["attendance", "grades", "testrecords", "messages"].forEach(t => {
-      document.getElementById(`tab-${t}`).style.display = (t === btn.dataset.tab) ? "block" : "none";
-    });
-    if (btn.dataset.tab === "messages") loadMessageThreads();
-  });
-});
-
-let activeMessageStudentId = null;
-
-async function loadMessageThreads() {
-  const container = document.getElementById("msgThreadList");
-  try {
-    const threads = await authFetch("/teacher/messages");
-    if (threads.length === 0) {
-      container.innerHTML = `<div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">No messages yet.</div>`;
-      return;
-    }
-    container.innerHTML = threads.map(t => `
-      <div onclick="openMessageThread(${t.student_id}, '${t.student_name.replace(/'/g, "\\'")}')"
-           style="padding:10px 12px; border-radius:10px; cursor:pointer; margin-bottom:4px; ${activeMessageStudentId === t.student_id ? 'background:var(--ht-primary-lighter,#EDE9FE);' : ''}">
-        <div style="font-weight:600; font-size:0.85rem; color:var(--ht-dark,#1E1B4B);">${t.student_name}</div>
-        <div style="font-size:0.78rem; color:var(--ht-gray,#6B7280); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          ${t.last_sender_role === "parent" ? "👨‍👩‍👧 " : "You: "}${t.last_message}
-        </div>
-      </div>`).join("");
-  } catch (error) {
-    container.innerHTML = `<div style="color:#991B1B; font-size:0.85rem;">${error.message}</div>`;
-  }
-}
-
-async function openMessageThread(studentId, studentName) {
-  activeMessageStudentId = studentId;
-  await loadMessageThreads();
-  const convo = document.getElementById("msgConversation");
-  convo.innerHTML = `<div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">Loading...</div>`;
-  document.getElementById("msgReplyBox").style.display = "flex";
-  try {
-    const messages = await authFetch(`/teacher/messages/${studentId}`);
-    convo.innerHTML = messages.length === 0
-      ? `<div style="color:var(--ht-gray,#6B7280); font-size:0.85rem;">No messages with ${studentName}'s parent yet.</div>`
-      : messages.map(m => `
-          <div style="align-self:${m.sender_role === "parent" ? "flex-start" : "flex-end"}; max-width:75%; padding:10px 14px; border-radius:14px; font-size:0.85rem;
-                      background:${m.sender_role === "parent" ? "var(--ht-bg-secondary,#F7F5FF)" : "linear-gradient(135deg, #7C5CE0, #6244C7)"};
-                      color:${m.sender_role === "parent" ? "var(--ht-dark,#1E1B4B)" : "#fff"};">
-            ${m.message}
-          </div>`).join("");
-    convo.scrollTop = convo.scrollHeight;
-  } catch (error) {
-    convo.innerHTML = `<div style="color:#991B1B; font-size:0.85rem;">${error.message}</div>`;
-  }
-}
-
-async function sendClassMessage() {
-  const input = document.getElementById("msgReplyInput");
-  const text = input.value.trim();
-  if (!text || !activeMessageStudentId) return;
-  try {
-    await authFetch(`/teacher/messages/${activeMessageStudentId}?message=${encodeURIComponent(text)}`, { method: "POST" });
-    input.value = "";
-    const students = myStudents.find(s => s.id === activeMessageStudentId);
-    await openMessageThread(activeMessageStudentId, students ? students.name : "");
-  } catch (error) { alert(error.message); }
-}
-
-async function applyPortalBackground() {
-  try {
-    const result = await authFetch("/settings/background-image");
-    if (result.url) {
-      const overlayPercent = (result.overlay !== undefined && result.overlay !== null) ? parseInt(result.overlay) : 82;
-      const topOpacity = overlayPercent / 100;
-      const bottomOpacity = Math.min(topOpacity + 0.08, 1);
-      document.body.style.backgroundImage = `linear-gradient(rgba(247,245,255,${topOpacity}), rgba(247,245,255,${bottomOpacity})), url('${result.url}')`;
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundAttachment = "fixed";
-      document.body.style.backgroundPosition = "center";
-    }
-  } catch (e) {}
-}
-applyPortalBackground();
-
-loadMyClass().catch(err => {
-  document.getElementById("classInfo").textContent = err.message;
-});
-
-// ==================== AI WIDGET ====================
-let aiWidgetOpen = false;
-let aiWidgetLoaded = false;
-
-async function toggleAIWidget() {
-  const panel = document.getElementById("aiWidgetPanel");
-  aiWidgetOpen = !aiWidgetOpen;
-  panel.classList.toggle("open", aiWidgetOpen);
-  if (aiWidgetOpen && !aiWidgetLoaded) {
-    aiWidgetLoaded = true;
-    const select = document.getElementById("aiStudentSelect");
-    select.innerHTML = myStudents.map(s => `<option value="${s.id}" data-name="${s.name}">${s.roll_number} - ${s.name}</option>`).join("")
-      || `<option value="">No students in your class yet</option>`;
-  }
-}
-
-async function generateAIStudentSummary() {
-  const select = document.getElementById("aiStudentSelect");
-  const studentId = select.value;
-  if (!studentId) return;
-  const resultBox = document.getElementById("aiWidgetResult");
-  resultBox.style.display = "block";
-  resultBox.textContent = "Generating...";
-  try {
-    const result = await authFetch(`/ai/student-summary/${studentId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ language: "roman_urdu" }),
-    });
-    resultBox.textContent = result.summary;
-  } catch (err) { resultBox.textContent = "Error: " + err.message; }
-}
-</script>
-
-<button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights" aria-label="Open AI Insights">
-    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="8" width="14" height="11" rx="3" fill="currentColor"/>
-        <rect x="9" y="2" width="2" height="4" rx="1" fill="currentColor"/>
-        <circle cx="10" cy="2" r="1.4" fill="currentColor"/>
-        <circle cx="9" cy="13.5" r="1.6" fill="#7C5CE0"/>
-        <circle cx="15" cy="13.5" r="1.6" fill="#7C5CE0"/>
-        <rect x="8.5" y="17" width="7" height="1.6" rx="0.8" fill="#7C5CE0"/>
-        <rect x="1.5" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
-        <rect x="20.3" y="11" width="2.2" height="5" rx="1.1" fill="currentColor"/>
-    </svg>
-    <span id="aiFabPulse"></span>
-</button>
-
-<div id="aiWidgetPanel">
-    <div id="aiWidgetHeader">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div id="aiWidgetHeaderIcon">✨</div>
-            <div>
-                <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;">AI Insights</div>
-                <div style="font-size:11.5px; opacity:0.8;">Your class only</div>
+                <!-- SETTINGS -->
+                <div class="view" id="settingsView">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">👤 My Profile</h3></div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Name</label><input type="text" id="setName" disabled></div>
+                                <div class="form-group"><label>Email</label><input type="text" id="setEmail" disabled></div>
+                                <div class="form-group"><label>Class Assigned</label><input type="text" id="setClass" disabled></div>
+                                <div class="form-group"><label>Subject</label><input type="text" id="setSubject" disabled></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">🔐 Change Password</h3></div>
+                        <div class="card-body">
+                            <p style="color:var(--gray); font-size:0.88rem; margin-bottom:14px;">Agar aapko password change karna hai toh admin se rabta karein.</p>
+                            <button class="btn btn-secondary" onclick="alert('Admin se contact karein: password reset ke liye.')"><i data-lucide="key-round"></i> Request Password Reset</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <span onclick="toggleAIWidget()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
     </div>
-    <div id="aiWidgetBody">
-        <div class="ai-widget-section">
+
+    <!-- CALCULATOR -->
+    <div id="calcPanel">
+        <div id="calcHeader">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="calculator" style="width:16px;height:16px;"></i>
+                </div>
+                <div style="font-weight:700; font-size:14px;">Calculator</div>
+            </div>
+            <span onclick="toggleCalculator()" style="cursor:pointer; font-size:16px; opacity:0.85;">✕</span>
+        </div>
+        <div id="calcBody">
+            <div class="calc-display">
+                <div class="calc-expression" id="calcExpression"></div>
+                <div class="calc-result" id="calcResult">0</div>
+            </div>
+            <div class="calc-grid">
+                <button class="calc-btn calc-fn" onclick="calcClear()">C</button>
+                <button class="calc-btn calc-fn" onclick="calcBackspace()">⌫</button>
+                <button class="calc-btn calc-fn" onclick="calcPercent()">%</button>
+                <button class="calc-btn calc-op" onclick="calcInput('/')">÷</button>
+                <button class="calc-btn" onclick="calcInput('7')">7</button><button class="calc-btn" onclick="calcInput('8')">8</button><button class="calc-btn" onclick="calcInput('9')">9</button><button class="calc-btn calc-op" onclick="calcInput('*')">×</button>
+                <button class="calc-btn" onclick="calcInput('4')">4</button><button class="calc-btn" onclick="calcInput('5')">5</button><button class="calc-btn" onclick="calcInput('6')">6</button><button class="calc-btn calc-op" onclick="calcInput('-')">−</button>
+                <button class="calc-btn" onclick="calcInput('1')">1</button><button class="calc-btn" onclick="calcInput('2')">2</button><button class="calc-btn" onclick="calcInput('3')">3</button><button class="calc-btn calc-op" onclick="calcInput('+')">+</button>
+                <button class="calc-btn" onclick="calcInput('(')">(</button><button class="calc-btn" onclick="calcInput('0')">0</button><button class="calc-btn" onclick="calcInput('.')">.</button><button class="calc-btn calc-op" onclick="calcInput(')')">)</button>
+                <button class="calc-btn calc-eq" onclick="calcEquals()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI FAB -->
+    <button id="aiFabBtn" onclick="toggleAIWidget()" title="AI Insights">
+        <i data-lucide="sparkles"></i>
+        <span id="aiFabPulse"></span>
+    </button>
+
+    <div id="aiWidgetPanel">
+        <div id="aiWidgetHeader">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="sparkles" style="width:16px;height:16px;"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700; font-size:14px;">AI Insights</div>
+                    <div style="font-size:11px; opacity:0.8;">Class summary</div>
+                </div>
+            </div>
+            <span onclick="toggleAIWidget()" style="cursor:pointer; font-size:18px; opacity:0.85;">✕</span>
+        </div>
+        <div id="aiWidgetBody">
             <div class="ai-widget-label">📄 Student Summary</div>
-            <p class="ai-widget-hint">Apni class ka koi student choose karein.</p>
+            <p class="ai-widget-hint">Apni class ka student choose karein.</p>
             <select id="aiStudentSelect" class="ai-widget-select"></select>
             <button class="ai-widget-btn" onclick="generateAIStudentSummary()">✨ Generate Summary</button>
+            <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--bg-secondary); border-radius:10px; font-size:12.5px; line-height:1.6; white-space:pre-wrap;"></div>
         </div>
-        <div id="aiWidgetResult" style="display:none; margin-top:10px; padding:12px; background:var(--ht-bg-secondary,#F7F5FF); border-radius:10px; font-size:12.5px; line-height:1.6; white-space:pre-wrap; color:var(--ht-dark,#1E1B4B);"></div>
     </div>
-</div>
 
-<style>
-    #aiFabBtn {
-        position: fixed; right: 24px; bottom: 24px; width: 58px; height: 58px;
-        border-radius: 50%; border: none;
-        background: linear-gradient(135deg, #7C5CE0, #6244C7);
-        color: #fff; display: flex; align-items: center; justify-content: center;
-        cursor: pointer; box-shadow: 0 8px 28px rgba(124, 92, 224, 0.4), 0 0 0 6px rgba(124, 92, 224, 0.1); z-index: 1200;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        animation: aiFabFloat 3s ease-in-out infinite;
+    <!-- NOTIFICATIONS PANEL -->
+    <div id="notifPanel" style="position:fixed; right:22px; top:72px; width:320px; max-width:calc(100vw - 32px); background:var(--bg-primary); border-radius:16px; box-shadow:0 24px 60px rgba(79,54,168,0.3); z-index:1199; display:none; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-weight:700; color:var(--primary-dark);">🔔 Notifications</div>
+            <button onclick="toggleNotifications()" style="border:none; background:transparent; cursor:pointer; color:var(--gray);">✕</button>
+        </div>
+        <div id="notifContent" style="color:var(--gray); font-size:0.85rem; text-align:center; padding:20px 0;">
+            Koi nayi notification nahi.
+        </div>
+    </div>
+
+<script>
+/* ==================== CONFIG & AUTH ==================== */
+const API_BASE = (window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null")
+    ? "http://127.0.0.1:8000" : window.location.origin;
+const token = localStorage.getItem("teacher_token");
+if (!token) window.location.href = "teacher-login.html";
+// Set role so bulk-attendance.js knows this is a teacher (no unlock button)
+localStorage.setItem("user_role", "teacher");
+
+let myStudents = [];
+let teacherInfo = null;
+
+/* ==================== API HELPER ==================== */
+async function authFetch(path, options = {}) {
+    const headers = { ...(options.headers || {}), Authorization: `Bearer ${token}` };
+    if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
     }
-    #aiFabBtn:hover { transform: scale(1.1); box-shadow: 0 12px 36px rgba(124, 92, 224, 0.55), 0 0 0 8px rgba(124, 92, 224, 0.15); }
-    #aiFabPulse {
-        position: absolute; inset: 0; border-radius: 50%; background: #7C5CE0;
-        opacity: 0.55; animation: aiFabPulse 2.2s ease-out infinite;
+    const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        if (res.status === 401) { logout(); throw new Error("Session expired"); }
+        throw new Error(data.detail || "Request failed");
     }
-    @keyframes aiFabPulse { 0% { transform: scale(1); opacity: 0.5; } 70%, 100% { transform: scale(1.8); opacity: 0; } }
-    @keyframes aiFabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-    #aiWidgetPanel {
-        position: fixed; right: 24px; bottom: 96px; width: 340px; max-width: calc(100vw - 32px);
-        max-height: 70vh; background: #fff; border-radius: 20px;
-        box-shadow: 0 24px 60px rgba(79, 54, 168, 0.3); border: 1px solid rgba(124, 92, 224, 0.1);
-        z-index: 1199; display: flex; flex-direction: column; overflow: hidden;
-        transform: translateY(16px) scale(0.97); opacity: 0; pointer-events: none;
-        transition: transform 0.22s ease, opacity 0.22s ease;
+    return data;
+}
+// Alias used by js/bulk-attendance.js
+window.apiRequest = authFetch;
+
+/* ==================== TOAST ==================== */
+function showToast(message, type = "info", duration = 3000) {
+    let container = document.querySelector(".toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.className = "toast-container";
+        document.body.appendChild(container);
     }
-    #aiWidgetPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
-    #aiWidgetHeader {
-        background: linear-gradient(135deg, #7C5CE0, #6244C7);
-        color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    const iconName = type === "success" ? "check-circle-2" : type === "error" ? "alert-circle" : "info";
+    toast.innerHTML = `<i data-lucide="${iconName}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => { toast.classList.add("hide"); setTimeout(() => toast.remove(), 300); }, duration);
+}
+
+/* ==================== NAVIGATION ==================== */
+function switchView(viewName) {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    const target = document.getElementById(viewName + "View");
+    if (target) target.classList.add("active");
+    document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+    const activeLink = document.querySelector(`[data-view="${viewName}"]`);
+    if (activeLink) activeLink.classList.add("active");
+    closeSidebar();
+    const titles = {
+        dashboard: "Dashboard", attendance: "Attendance", grades: "Grades",
+        testrecords: "Test Records", students: "My Students",
+        reports: "Class Reports", messages: "Parent Messages", settings: "Settings"
+    };
+    const pageTitle = document.getElementById("pageTitle");
+    pageTitle.textContent = titles[viewName] || "Dashboard";
+    pageTitle.style.animation = "none";
+    void pageTitle.offsetWidth;
+    pageTitle.style.animation = "titleGradient 4s ease-in-out infinite";
+    // Lazy load data
+    if (viewName === "messages") loadMessageThreads();
+    if (viewName === "reports") loadClassReports();
+    if (viewName === "students") renderMyStudents();
+    if (viewName === "settings") renderSettings();
+}
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("sidebarOverlay").classList.toggle("show");
+}
+function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebarOverlay").classList.remove("show");
+}
+function logout() {
+    localStorage.removeItem("teacher_token");
+    localStorage.removeItem("teacher_name");
+    localStorage.removeItem("user_role");
+    window.location.href = "teacher-login.html";
+}
+
+/* ==================== DARK MODE ==================== */
+function applyDarkMode(enabled) {
+    document.body.classList.toggle("dark-mode", enabled);
+    const t = document.getElementById("dmToggle");
+    if (t) t.classList.toggle("on", enabled);
+    localStorage.setItem("schoolhub_dark_mode", enabled ? "1" : "0");
+}
+function toggleDarkMode() {
+    applyDarkMode(!document.body.classList.contains("dark-mode"));
+}
+
+/* ==================== LIVE CLOCK ==================== */
+function startLiveClock() {
+    const el = document.getElementById("liveClockTime");
+    if (!el) return;
+    const tick = () => { el.textContent = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:true}); };
+    tick(); setInterval(tick, 1000);
+}
+
+/* ==================== STUDENT SELECTS ==================== */
+function populateStudentSelects() {
+    const opts = myStudents.map(s => `<option value="${s.id}">${s.roll_number} - ${s.name}</option>`).join("");
+    ["attStudent", "gradeStudent", "trStudent"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = opts;
+    });
+    const aiSel = document.getElementById("aiStudentSelect");
+    if (aiSel) aiSel.innerHTML = opts || `<option value="">No students</option>`;
+}
+
+/* ==================== LOAD MY CLASS ==================== */
+async function loadMyClass() {
+    try {
+        const me = await authFetch("/teacher/me");
+        teacherInfo = me;
+        document.getElementById("sidebarTeacherName").textContent = me.name;
+        document.getElementById("userName").textContent = me.name;
+        document.getElementById("userRole").textContent = "Teacher";
+        document.getElementById("userAvatar").textContent = (me.name || "T").charAt(0).toUpperCase();
+        myStudents = await authFetch("/teacher/students");
+        populateStudentSelects();
+        await Promise.all([loadAttendance(), loadGrades(), loadTestRecords()]);
+        renderDashboardMetrics();
+    } catch (err) {
+        showToast("Load failed: " + err.message, "error");
     }
-    #aiWidgetHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    #aiWidgetBody { padding: 16px; overflow-y: auto; }
-    .ai-widget-label { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--ht-primary-dark, #6244C7); }
-    .ai-widget-hint { font-size: 12px; color: var(--ht-gray, #6B7280); margin: 0 0 8px; }
-    .ai-widget-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--ht-border, #E5E1F5); border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: #fff; color: var(--ht-dark, #1E1B4B); }
-    .ai-widget-select:focus { outline: none; border-color: #7C5CE0; box-shadow: 0 0 0 3px rgba(124, 92, 224, 0.1); }
-    .ai-widget-btn { width: 100%; padding: 10px; border: none; border-radius: 10px; background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(124, 92, 224, 0.3); }
-    .ai-widget-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124, 92, 224, 0.4); }
-    @media (max-width: 480px) { #aiWidgetPanel { right: 16px; bottom: 88px; width: calc(100vw - 32px); } #aiFabBtn { right: 16px; bottom: 16px; } }
-</style>
+}
+
+/* ==================== DASHBOARD METRICS ==================== */
+async function renderDashboardMetrics() {
+    document.getElementById("mStudents").textContent = myStudents.length;
+    try {
+        const attendance = await authFetch("/teacher/attendance");
+        const today = new Date().toISOString().split("T")[0];
+        const todayRecs = attendance.filter(r => r.date === today);
+        const present = todayRecs.filter(r => r.is_present).length;
+        const absent = todayRecs.length - present;
+        document.getElementById("mPresent").textContent = present;
+        document.getElementById("mAbsent").textContent = absent;
+        const rate = todayRecs.length ? Math.round((present / todayRecs.length) * 100) : 0;
+        document.getElementById("mRate").textContent = rate + "%";
+        const overview = document.getElementById("classOverview");
+        if (overview && teacherInfo) {
+            overview.innerHTML = `
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+                    <div><div style="color:var(--gray); font-size:12.5px;">Class</div><div style="font-weight:700; font-size:16px; color:var(--primary);">${teacherInfo.class_assigned || "—"}</div></div>
+                    <div><div style="color:var(--gray); font-size:12.5px;">Subject</div><div style="font-weight:700; font-size:16px; color:var(--primary);">${teacherInfo.subject || "—"}</div></div>
+                    <div><div style="color:var(--gray); font-size:12.5px;">Total Students</div><div style="font-weight:700; font-size:16px; color:var(--primary);">${myStudents.length}</div></div>
+                </div>`;
+        }
+    } catch (e) { console.error(e); }
+}
+
+/* ==================== ATTENDANCE ==================== */
+async function markAttendance() {
+    try {
+        const body = new URLSearchParams();
+        body.append("student_id", document.getElementById("attStudent").value);
+        body.append("date", document.getElementById("attDate").value);
+        body.append("is_present", document.getElementById("attPresent").value);
+        const remarks = document.getElementById("attRemarks").value;
+        if (remarks) body.append("remarks", remarks);
+        await authFetch("/teacher/attendance", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        showToast("Attendance saved", "success");
+        document.getElementById("attRemarks").value = "";
+        await loadAttendance();
+        renderDashboardMetrics();
+    } catch (err) { showToast(err.message, "error"); }
+}
+async function loadAttendance() {
+    try {
+        const records = await authFetch("/teacher/attendance");
+        const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
+        document.getElementById("attTable").innerHTML = records.slice(0, 30).map(r => `
+            <tr><td>${r.date}</td><td>${byId[r.student_id] || r.student_id}</td>
+            <td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td>
+            <td>${r.remarks || "—"}</td></tr>`).join("") || `<tr><td colspan="4" style="text-align:center;color:var(--gray);">No records</td></tr>`;
+    } catch (e) { console.error(e); }
+}
+
+/* ==================== GRADES ==================== */
+async function addGrade() {
+    try {
+        const body = new URLSearchParams();
+        body.append("student_id", document.getElementById("gradeStudent").value);
+        body.append("subject", document.getElementById("gradeSubject").value);
+        body.append("marks_obtained", document.getElementById("gradeMarks").value);
+        body.append("total_marks", document.getElementById("gradeTotal").value || "100");
+        const ed = document.getElementById("gradeExamDate").value;
+        if (ed) body.append("exam_date", ed);
+        await authFetch("/teacher/grades", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        showToast("Grade saved", "success");
+        document.getElementById("gradeSubject").value = "";
+        document.getElementById("gradeMarks").value = "";
+        await loadGrades();
+    } catch (err) { showToast(err.message, "error"); }
+}
+async function loadGrades() {
+    try {
+        const records = await authFetch("/teacher/grades");
+        const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
+        document.getElementById("gradeTable").innerHTML = records.slice(0, 30).map(r => `
+            <tr><td>${byId[r.student_id] || r.student_id}</td><td>${r.subject}</td>
+            <td>${r.marks_obtained}/${r.total_marks}</td><td>${r.percentage}%</td><td>${r.exam_date || "—"}</td></tr>`).join("") || `<tr><td colspan="5" style="text-align:center;color:var(--gray);">No grades</td></tr>`;
+    } catch (e) { console.error(e); }
+}
+
+/* ==================== TEST RECORDS ==================== */
+async function addTestRecord() {
+    try {
+        const form = new FormData();
+        form.append("student_id", document.getElementById("trStudent").value);
+        form.append("term_type", document.getElementById("trTerm").value);
+        form.append("period", document.getElementById("trPeriod").value);
+        form.append("subject", document.getElementById("trSubject").value);
+        form.append("marks_obtained", document.getElementById("trMarks").value);
+        form.append("total_marks", document.getElementById("trTotal").value || "100");
+        const img = document.getElementById("trImage").files[0];
+        if (img) form.append("image", img);
+        await authFetch("/teacher/test-records", { method: "POST", body: form });
+        showToast("Test record saved", "success");
+        ["trPeriod","trSubject","trMarks"].forEach(id => document.getElementById(id).value = "");
+        document.getElementById("trImage").value = "";
+        await loadTestRecords();
+    } catch (err) { showToast(err.message, "error"); }
+}
+async function loadTestRecords() {
+    try {
+        const records = await authFetch("/teacher/test-records");
+        const byId = Object.fromEntries(myStudents.map(s => [s.id, s.name]));
+        document.getElementById("trTable").innerHTML = records.slice(0, 30).map(r => `
+            <tr><td>${byId[r.student_id] || r.student_id}</td><td>${r.term_type}</td><td>${r.period}</td>
+            <td>${r.subject}</td><td>${r.marks_obtained}/${r.total_marks}</td>
+            <td>${r.image_url ? `<button class="btn btn-primary btn-sm" onclick="viewRecordImage(${r.id})">View</button>` : "—"}</td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--gray);">No records</td></tr>`;
+    } catch (e) { console.error(e); }
+}
+async function viewRecordImage(recordId) {
+    try { const { url } = await authFetch(`/test-records/${recordId}/image-url`); window.open(url, "_blank"); }
+    catch (err) { showToast(err.message, "error"); }
+}
+
+/* ==================== MY STUDENTS ==================== */
+function renderMyStudents() {
+    const tbody = document.getElementById("studentsTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = myStudents.map(s => `
+        <tr><td>${s.roll_number || "—"}</td><td>${s.name}</td>
+        <td>${s.father_name || "—"}</td><td>${s.phone || "—"}</td>
+        <td>${s.class_name || "—"}</td></tr>`).join("") || `<tr><td colspan="5" style="text-align:center;color:var(--gray);">No students</td></tr>`;
+}
+
+/* ==================== CLASS REPORTS ==================== */
+async function loadClassReports() {
+    try {
+        const [grades, attendance] = await Promise.all([
+            authFetch("/teacher/grades"),
+            authFetch("/teacher/attendance")
+        ]);
+        // Top students by average %
+        const byStudent = {};
+        grades.forEach(g => {
+            if (!byStudent[g.student_id]) byStudent[g.student_id] = { total: 0, count: 0 };
+            byStudent[g.student_id].total += (g.percentage || 0);
+            byStudent[g.student_id].count += 1;
+        });
+        const attByStudent = {};
+        attendance.forEach(a => {
+            if (!attByStudent[a.student_id]) attByStudent[a.student_id] = { total: 0, present: 0 };
+            attByStudent[a.student_id].total += 1;
+            if (a.is_present) attByStudent[a.student_id].present += 1;
+        });
+        const ranked = Object.entries(byStudent).map(([sid, d]) => {
+            const s = myStudents.find(x => String(x.id) === String(sid));
+            if (!s) return null;
+            const att = attByStudent[sid];
+            const attPct = att && att.total ? Math.round((att.present / att.total) * 100) : 0;
+            return { name: s.name, avg: d.count ? +(d.total / d.count).toFixed(1) : 0, att: attPct };
+        }).filter(Boolean).sort((a, b) => b.avg - a.avg).slice(0, 10);
+
+        document.getElementById("topStudentsBody").innerHTML = ranked.map((r, i) => `
+            <tr><td>#${i + 1}</td><td>${r.name}</td><td><strong>${r.avg}%</strong></td><td>${r.att}%</td></tr>`).join("")
+            || `<tr><td colspan="4" style="text-align:center;color:var(--gray);">No data</td></tr>`;
+
+        // Chart
+        const ctx = document.getElementById("classPerfChart");
+        if (!ctx || typeof Chart === "undefined") return;
+        if (window._perfChart) window._perfChart.destroy();
+        window._perfChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ranked.slice(0, 10).map(r => r.name.split(" ")[0]),
+                datasets: [{ label: "Average %", data: ranked.slice(0, 10).map(r => r.avg), backgroundColor: "#7C5CE0", borderRadius: 6 }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } } }
+        });
+    } catch (e) { console.error(e); }
+}
+
+/* ==================== SETTINGS ==================== */
+function renderSettings() {
+    if (!teacherInfo) return;
+    document.getElementById("setName").value = teacherInfo.name || "—";
+    document.getElementById("setEmail").value = teacherInfo.email || "—";
+    document.getElementById("setClass").value = teacherInfo.class_assigned || "—";
+    document.getElementById("setSubject").value = teacherInfo.subject || "—";
+}
+
+/* ==================== MESSAGES ==================== */
+let activeMessageStudentId = null;
+async function loadMessageThreads() {
+    const container = document.getElementById("msgThreadList");
+    try {
+        const threads = await authFetch("/teacher/messages");
+        if (!threads.length) { container.innerHTML = `<div style="color:var(--gray); font-size:0.85rem;">No messages yet.</div>`; return; }
+        container.innerHTML = threads.map(t => `
+            <div class="msg-thread ${activeMessageStudentId === t.student_id ? "active" : ""}" onclick="openMessageThread(${t.student_id}, '${t.student_name.replace(/'/g, "\\'")}')">
+                <div style="font-weight:600; font-size:0.85rem;">${t.student_name}</div>
+                <div style="font-size:0.76rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${t.last_sender_role === "parent" ? "👨‍👩‍👧 " : "You: "}${t.last_message}
+                </div>
+            </div>`).join("");
+    } catch (e) { container.innerHTML = `<div style="color:var(--danger); font-size:0.85rem;">${e.message}</div>`; }
+}
+async function openMessageThread(studentId, studentName) {
+    activeMessageStudentId = studentId;
+    await loadMessageThreads();
+    const convo = document.getElementById("msgConversation");
+    convo.innerHTML = `<div style="color:var(--gray); font-size:0.85rem;">Loading…</div>`;
+    document.getElementById("msgReplyBox").style.display = "flex";
+    try {
+        const messages = await authFetch(`/teacher/messages/${studentId}`);
+        convo.innerHTML = messages.length === 0
+            ? `<div style="color:var(--gray); font-size:0.85rem;">No messages with ${studentName}'s parent yet.</div>`
+            : messages.map(m => `<div class="msg-bubble ${m.sender_role === "parent" ? "parent" : "staff"}">${m.message}</div>`).join("");
+        convo.scrollTop = convo.scrollHeight;
+    } catch (err) { convo.innerHTML = `<div style="color:var(--danger); font-size:0.85rem;">${err.message}</div>`; }
+}
+async function sendClassMessage() {
+    const input = document.getElementById("msgReplyInput");
+    const text = input.value.trim();
+    if (!text || !activeMessageStudentId) return;
+    try {
+        await authFetch(`/teacher/messages/${activeMessageStudentId}?message=${encodeURIComponent(text)}`, { method: "POST" });
+        input.value = "";
+        const s = myStudents.find(x => x.id === activeMessageStudentId);
+        await openMessageThread(activeMessageStudentId, s ? s.name : "");
+    } catch (err) { showToast(err.message, "error"); }
+}
+
+/* ==================== CALCULATOR ==================== */
+let calcExpr = "", calcJustEval = false;
+function toggleCalculator() {
+    const p = document.getElementById("calcPanel");
+    const b = document.getElementById("calcBtn");
+    const isOpen = p.classList.toggle("open");
+    b.classList.toggle("active", isOpen);
+}
+function updateCalcDisplay() {
+    const e = document.getElementById("calcExpression");
+    const r = document.getElementById("calcResult");
+    e.textContent = calcExpr || "";
+    if (calcExpr.trim()) {
+        try { r.textContent = formatCalc(evalCalc(calcExpr)); } catch { r.textContent = calcExpr; }
+    } else r.textContent = "0";
+}
+function evalCalc(expr) {
+    const s = expr.replace(/[^0-9+\-*/().\s]/g, "");
+    if (!s.trim() || !/^[0-9+\-*/().\s]+$/.test(s)) throw new Error("Invalid");
+    const r = Function('"use strict"; return (' + s + ')')();
+    if (typeof r !== "number" || !isFinite(r) || isNaN(r)) throw new Error("Invalid");
+    return r;
+}
+function formatCalc(n) { return Number.isInteger(n) ? String(n) : String(parseFloat(n.toFixed(10))); }
+function calcInput(v) { if (calcJustEval && /^[0-9.]$/.test(v)) calcExpr = ""; calcJustEval = false; calcExpr += v; updateCalcDisplay(); }
+function calcClear() { calcExpr = ""; calcJustEval = false; updateCalcDisplay(); }
+function calcBackspace() { if (calcJustEval) return calcClear(); calcExpr = calcExpr.slice(0, -1); updateCalcDisplay(); }
+function calcPercent() { if (calcExpr && !/[+\-*/(]$/.test(calcExpr)) { calcExpr += "/100"; updateCalcDisplay(); } }
+function calcEquals() {
+    if (!calcExpr.trim()) return;
+    try { const r = evalCalc(calcExpr); const s = formatCalc(r); document.getElementById("calcResult").textContent = s; calcExpr = s; calcJustEval = true; }
+    catch { document.getElementById("calcResult").textContent = "Error"; }
+}
+
+/* ==================== NOTIFICATIONS ==================== */
+function toggleNotifications() {
+    const p = document.getElementById("notifPanel");
+    p.style.display = p.style.display === "block" ? "none" : "block";
+}
+
+/* ==================== AI WIDGET ==================== */
+let aiWidgetOpen = false, aiWidgetLoaded = false;
+function toggleAIWidget() {
+    const p = document.getElementById("aiWidgetPanel");
+    aiWidgetOpen = !aiWidgetOpen;
+    p.classList.toggle("open", aiWidgetOpen);
+    if (aiWidgetOpen && !aiWidgetLoaded) {
+        aiWidgetLoaded = true;
+        const s = document.getElementById("aiStudentSelect");
+        s.innerHTML = myStudents.map(x => `<option value="${x.id}" data-name="${x.name}">${x.roll_number} - ${x.name}</option>`).join("") || `<option value="">No students</option>`;
+    }
+}
+async function generateAIStudentSummary() {
+    const sel = document.getElementById("aiStudentSelect");
+    const sid = sel.value;
+    if (!sid) return;
+    const box = document.getElementById("aiWidgetResult");
+    box.style.display = "block"; box.textContent = "Generating…";
+    try {
+        const r = await authFetch(`/ai/student-summary/${sid}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ language: "roman_urdu" }) });
+        box.textContent = r.summary || "No summary.";
+    } catch (e) { box.textContent = "Error: " + e.message; }
+}
+
+/* ==================== PORTAL BACKGROUND ==================== */
+async function applyPortalBackground() {
+    try {
+        const r = await authFetch("/settings/background-image");
+        if (r.url) {
+            const ov = (r.overlay !== undefined && r.overlay !== null) ? parseInt(r.overlay) : 82;
+            const top = ov / 100, bot = Math.min(top + 0.08, 1);
+            document.body.style.backgroundImage = `linear-gradient(rgba(247,245,255,${top}), rgba(247,245,255,${bot})), url('${r.url}')`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundAttachment = "fixed";
+            document.body.style.backgroundPosition = "center";
+        }
+    } catch (e) {}
+}
+
+/* ==================== INIT ==================== */
+window.addEventListener("DOMContentLoaded", async () => {
+    // Dark mode from storage
+    applyDarkMode(localStorage.getItem("schoolhub_dark_mode") === "1");
+    // Menu links
+    document.querySelectorAll(".menu-link").forEach(link => {
+        link.addEventListener("click", () => switchView(link.dataset.view));
+    });
+    // Set today's date
+    const attDate = document.getElementById("attDate");
+    if (attDate) attDate.valueAsDate = new Date();
+    // Icons
+    if (window.lucide) lucide.createIcons();
+    // Clock
+    startLiveClock();
+    // Portal background
+    applyPortalBackground();
+    // Load class
+    await loadMyClass();
+    // Re-create icons after dynamic content
+    if (window.lucide) lucide.createIcons();
+    showToast("Welcome back!", "success", 2000);
+});
+</script>
 
 <script src="js/branding.js"></script>
 <script src="js/animations.js"></script>
@@ -618,7 +1204,6 @@ async function generateAIStudentSummary() {
 <script src="js/skeleton.js"></script>
 <script src="js/empty-states.js"></script>
 <script src="js/success-anim.js"></script>
-<script src="js/hope-theme.js"></script>
 <script src="js/bulk-attendance.js"></script>
 </body>
 </html>
