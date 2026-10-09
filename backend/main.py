@@ -188,6 +188,8 @@ async def startup():
         })
         _ensure_columns(inspector, existing_tables, "attendance", {
             "marked_by_user_id": "marked_by_user_id INTEGER",
+             "is_locked": "is_locked BOOLEAN NOT NULL DEFAULT FALSE", 
+             "locked_at": "locked_at TIMESTAMP",
         })
 
         # ⚠️ SECURITY: these two secrets, if left at their placeholder default,
