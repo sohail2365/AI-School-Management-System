@@ -794,6 +794,8 @@ function switchView(viewName) {
     const activeLink = document.querySelector(`[data-view="${viewName}"]`);
     if (activeLink) activeLink.classList.add("active");
     closeSidebar();
+    const contentEl = document.querySelector(".content");
+    if (contentEl) contentEl.scrollTop = 0;
     const titles = {
         dashboard: "Dashboard", attendance: "Attendance", grades: "Grades",
         testrecords: "Test Records", students: "My Students",
@@ -941,6 +943,9 @@ async function addGrade() {
         document.getElementById("gradeSubject").value = "";
         document.getElementById("gradeMarks").value = "";
         await loadGrades();
+        if (document.getElementById("reportsView")?.classList.contains("active")) {
+            await loadClassReports();
+        }
     } catch (err) { showToast(err.message, "error"); }
 }
 async function loadGrades() {
@@ -998,25 +1003,30 @@ function renderMyStudents() {
 }
 
 /* ==================== CLASS REPORTS ==================== */
+/* ==================== CLASS REPORTS ==================== */
 async function loadClassReports() {
     try {
         const [grades, attendance] = await Promise.all([
             authFetch("/teacher/grades"),
             authFetch("/teacher/attendance")
         ]);
-        // Top students by average %
+
+        // Group grades by student
         const byStudent = {};
         grades.forEach(g => {
             if (!byStudent[g.student_id]) byStudent[g.student_id] = { total: 0, count: 0 };
             byStudent[g.student_id].total += (g.percentage || 0);
             byStudent[g.student_id].count += 1;
         });
+
+        // Group attendance by student
         const attByStudent = {};
         attendance.forEach(a => {
             if (!attByStudent[a.student_id]) attByStudent[a.student_id] = { total: 0, present: 0 };
             attByStudent[a.student_id].total += 1;
             if (a.is_present) attByStudent[a.student_id].present += 1;
         });
+
         const ranked = Object.entries(byStudent).map(([sid, d]) => {
             const s = myStudents.find(x => String(x.id) === String(sid));
             if (!s) return null;
@@ -1025,23 +1035,64 @@ async function loadClassReports() {
             return { name: s.name, avg: d.count ? +(d.total / d.count).toFixed(1) : 0, att: attPct };
         }).filter(Boolean).sort((a, b) => b.avg - a.avg).slice(0, 10);
 
-        document.getElementById("topStudentsBody").innerHTML = ranked.map((r, i) => `
-            <tr><td>#${i + 1}</td><td>${r.name}</td><td><strong>${r.avg}%</strong></td><td>${r.att}%</td></tr>`).join("")
-            || `<tr><td colspan="4" style="text-align:center;color:var(--gray);">No data</td></tr>`;
+        // Render table
+        const tbody = document.getElementById("topStudentsBody");
+        if (tbody) {
+            tbody.innerHTML = ranked.length
+                ? ranked.map((r, i) => `<tr><td>#${i + 1}</td><td>${r.name}</td><td><strong>${r.avg}%</strong></td><td>${r.att}%</td></tr>`).join("")
+                : `<tr><td colspan="4" style="text-align:center;color:var(--gray);">Abhi koi grades ya attendance nahi hai.</td></tr>`;
+        }
 
-        // Chart
+        // Chart with robust handling
         const ctx = document.getElementById("classPerfChart");
-        if (!ctx || typeof Chart === "undefined") return;
-        if (window._perfChart) window._perfChart.destroy();
-        window._perfChart = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ranked.slice(0, 10).map(r => r.name.split(" ")[0]),
-                datasets: [{ label: "Average %", data: ranked.slice(0, 10).map(r => r.avg), backgroundColor: "#7C5CE0", borderRadius: 6 }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } } }
-        });
-    } catch (e) { console.error(e); }
+        if (!ctx) return;
+
+        if (typeof Chart === "undefined") {
+            // Fallback message
+            const parent = ctx.parentElement;
+            if (parent) {
+                parent.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray);">📊 Chart library load nahi ho saki. Page refresh karein.</div>';
+            }
+            console.warn("Chart.js not loaded");
+            return;
+        }
+
+        // Destroy old chart
+        if (window._perfChart) {
+            try { window._perfChart.destroy(); } catch(e) {}
+            window._perfChart = null;
+        }
+
+        // Ensure canvas is sized (fixes 0x0 issue)
+        await new Promise(r => requestAnimationFrame(r));
+
+        try {
+            window._perfChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: ranked.length ? ranked.map(r => r.name.split(" ")[0]) : ["No data"],
+                    datasets: [{
+                        label: "Average %",
+                        data: ranked.length ? ranked.map(r => r.avg) : [0],
+                        backgroundColor: "#7C5CE0",
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } }
+                }
+            });
+        } catch (chartErr) {
+            console.error("Chart render error:", chartErr);
+        }
+    } catch (e) {
+        console.error("Class Reports load failed:", e);
+        const tbody = document.getElementById("topStudentsBody");
+        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--danger);">${e.message}</td></tr>`;
+    }
 }
 
 /* ==================== SETTINGS ==================== */
@@ -1132,7 +1183,26 @@ function calcEquals() {
 /* ==================== NOTIFICATIONS ==================== */
 function toggleNotifications() {
     const p = document.getElementById("notifPanel");
-    p.style.display = p.style.display === "block" ? "none" : "block";
+    const isVisible = p.style.display === "block";
+    if (!isVisible) {
+        // Populate notifications before showing
+        const content = document.getElementById("notifContent");
+        if (content) {
+            const today = new Date().toISOString().split("T")[0];
+            content.innerHTML = `
+                <div style="text-align:left;">
+                    <div style="padding:10px; border-radius:8px; background:var(--primary-lighter); margin-bottom:8px;">
+                        <div style="font-weight:600; font-size:13px; color:var(--primary-dark);">📅 Aaj ki date</div>
+                        <div style="font-size:12px; color:var(--gray);">${today}</div>
+                    </div>
+                    <div style="padding:10px; border-radius:8px; background:var(--accent-lighter);">
+                        <div style="font-weight:600; font-size:13px; color:var(--accent-dark);">👥 Total Students</div>
+                        <div style="font-size:12px; color:var(--gray);">${myStudents.length} students aap ki class mein</div>
+                    </div>
+                </div>`;
+        }
+    }
+    p.style.display = isVisible ? "none" : "block";
 }
 
 /* ==================== AI WIDGET ==================== */
@@ -1199,7 +1269,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     window.addEventListener('bulk-attendance-submitted', async (e) => {
         console.log('Attendance submitted:', e.detail);
         await renderDashboardMetrics();
+        if (document.getElementById("reportsView")?.classList.contains("active")) {
+            await loadClassReports();
+        }
         await loadAttendance();
+        if (document.getElementById("reportsView")?.classList.contains("active")) {
+            await loadClassReports();
+        }
         showToast("Dashboard updated", "success", 1500);
     });
 });
