@@ -4121,6 +4121,11 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             } catch (error) { console.error("Error initializing:", error); }
         }
         window.addEventListener("load", init);
+        window.addEventListener('bulk-attendance-submitted', async (e) => {
+            console.log('Attendance submitted:', e.detail);
+            if (typeof loadDashboard === 'function') await loadDashboard();
+            if (typeof loadAttendance === 'function') await loadAttendance();
+        });
 
         // ==================== STUDENT PROFILE ====================
         let currentProfileData = null;

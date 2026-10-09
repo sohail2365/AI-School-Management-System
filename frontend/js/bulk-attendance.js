@@ -261,6 +261,9 @@
                 }),
             });
             alert('✅ ' + result.total + ' records saved. Attendance lock ho gayi.');
+            window.dispatchEvent(new CustomEvent('bulk-attendance-submitted', {
+                detail: { class_name: baClassName, date: baDate }
+            }));
             await loadBulkAttendance();
         } catch (e) {
             console.error('Submit failed:', e);

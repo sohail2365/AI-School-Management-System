@@ -1196,6 +1196,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     // Re-create icons after dynamic content
     if (window.lucide) lucide.createIcons();
     showToast("Welcome back!", "success", 2000);
+    window.addEventListener('bulk-attendance-submitted', async (e) => {
+        console.log('Attendance submitted:', e.detail);
+        await renderDashboardMetrics();
+        await loadAttendance();
+        showToast("Dashboard updated", "success", 1500);
+    });
 });
 </script>
 
