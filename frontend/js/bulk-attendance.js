@@ -90,9 +90,19 @@
         const sel = document.getElementById('baClass');
         if (sel.options.length > 1) return;
         try {
-            const classes = await apiRequest('/students/classes-summary');
+            let classes = await apiRequest('/students/classes-summary');
+            // ✅ NEW: Agar teacher hai toh sirf assigned class dikhao
+            const filter = window.__bulkAttendanceClassFilter;
+            if (filter) {
+                classes = classes.filter(c => c.class_name === filter);
+            }
             sel.innerHTML = '<option value="">Select Class</option>' +
                 classes.map(c => '<option value="' + c.class_name + '">Class ' + c.class_name + ' (' + c.student_count + ')</option>').join('');
+            // ✅ Auto-select if only one class (teacher ke liye)
+            if (filter && classes.length === 1) {
+                sel.value = classes[0].class_name;
+                setTimeout(() => loadBulkAttendance(), 150);
+            }
         } catch (e) {
             console.error('Failed to load classes:', e);
         }

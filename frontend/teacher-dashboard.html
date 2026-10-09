@@ -860,6 +860,7 @@ async function loadMyClass() {
     try {
         const me = await authFetch("/teacher/me");
         teacherInfo = me;
+        window.__bulkAttendanceClassFilter = me.class_assigned || null;
         document.getElementById("sidebarTeacherName").textContent = me.name;
         document.getElementById("userName").textContent = me.name;
         document.getElementById("userRole").textContent = "Teacher";
@@ -1200,7 +1201,6 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 <script src="js/branding.js"></script>
 <script src="js/animations.js"></script>
-<script src="js/dark-mode.js"></script>
 <script src="js/skeleton.js"></script>
 <script src="js/empty-states.js"></script>
 <script src="js/success-anim.js"></script>
