@@ -608,8 +608,8 @@ body.dark-mode .msg-bubble.parent { background: #262042; }
                 <div class="view" id="reportsView">
                     <div class="card">
                         <div class="card-header"><h3 class="card-title">📊 Class Performance</h3></div>
-                        <div class="card-body">
-                            <canvas id="classPerfChart" height="180"></canvas>
+                        <div class="card-body" style="height:320px; position:relative;">
+                            <canvas id="classPerfChart"></canvas>
                         </div>
                     </div>
                     <div class="card">
@@ -1003,30 +1003,37 @@ function renderMyStudents() {
 }
 
 /* ==================== CLASS REPORTS ==================== */
-/* ==================== CLASS REPORTS ==================== */
 async function loadClassReports() {
+    console.log('[Class Reports] Loading...');
+    const tbody = document.getElementById("topStudentsBody");
+    const canvas = document.getElementById("classPerfChart");
+    
     try {
+        // 1. Fetch data
         const [grades, attendance] = await Promise.all([
             authFetch("/teacher/grades"),
             authFetch("/teacher/attendance")
         ]);
-
-        // Group grades by student
+        
+        console.log('[Class Reports] Grades:', grades.length, 'Attendance:', attendance.length);
+        
+        // 2. Group grades by student
         const byStudent = {};
         grades.forEach(g => {
             if (!byStudent[g.student_id]) byStudent[g.student_id] = { total: 0, count: 0 };
             byStudent[g.student_id].total += (g.percentage || 0);
             byStudent[g.student_id].count += 1;
         });
-
-        // Group attendance by student
+        
+        // 3. Group attendance by student
         const attByStudent = {};
         attendance.forEach(a => {
             if (!attByStudent[a.student_id]) attByStudent[a.student_id] = { total: 0, present: 0 };
             attByStudent[a.student_id].total += 1;
             if (a.is_present) attByStudent[a.student_id].present += 1;
         });
-
+        
+        // 4. Rank students
         const ranked = Object.entries(byStudent).map(([sid, d]) => {
             const s = myStudents.find(x => String(x.id) === String(sid));
             if (!s) return null;
@@ -1034,67 +1041,71 @@ async function loadClassReports() {
             const attPct = att && att.total ? Math.round((att.present / att.total) * 100) : 0;
             return { name: s.name, avg: d.count ? +(d.total / d.count).toFixed(1) : 0, att: attPct };
         }).filter(Boolean).sort((a, b) => b.avg - a.avg).slice(0, 10);
-
-        // Render table
-        const tbody = document.getElementById("topStudentsBody");
+        
+        console.log('[Class Reports] Ranked students:', ranked.length);
+        
+        // 5. Render table
         if (tbody) {
             tbody.innerHTML = ranked.length
                 ? ranked.map((r, i) => `<tr><td>#${i + 1}</td><td>${r.name}</td><td><strong>${r.avg}%</strong></td><td>${r.att}%</td></tr>`).join("")
                 : `<tr><td colspan="4" style="text-align:center;color:var(--gray);">Abhi koi grades ya attendance nahi hai.</td></tr>`;
         }
-
-        // Chart with robust handling
-        const ctx = document.getElementById("classPerfChart");
-        if (!ctx) return;
-
-        if (typeof Chart === "undefined") {
-            // Fallback message
-            const parent = ctx.parentElement;
-            if (parent) {
-                parent.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray);">📊 Chart library load nahi ho saki. Page refresh karein.</div>';
-            }
-            console.warn("Chart.js not loaded");
+        
+        // 6. Render chart
+        if (!canvas) {
+            console.error('[Class Reports] Canvas not found!');
             return;
         }
-
+        
+        if (typeof Chart === "undefined") {
+            console.error('[Class Reports] Chart.js NOT loaded!');
+            const parent = canvas.parentElement;
+            if (parent) parent.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--gray);">📊 Chart library load nahi hui. Ctrl+Shift+R karein.</div>';
+            return;
+        }
+        
         // Destroy old chart
         if (window._perfChart) {
             try { window._perfChart.destroy(); } catch(e) {}
             window._perfChart = null;
         }
-
-        // Ensure canvas is sized (fixes 0x0 issue)
-        await new Promise(r => requestAnimationFrame(r));
-
+        
+        // Wait one frame for parent to be sized
+        await new Promise(r => setTimeout(r, 50));
+        
+        const chartData = ranked.length ? ranked : [];
         try {
-            window._perfChart = new Chart(ctx, {
+            window._perfChart = new Chart(canvas, {
                 type: "bar",
                 data: {
-                    labels: ranked.length ? ranked.map(r => r.name.split(" ")[0]) : ["No data"],
+                    labels: chartData.length ? chartData.map(r => r.name.split(" ")[0]) : ["No Data"],
                     datasets: [{
                         label: "Average %",
-                        data: ranked.length ? ranked.map(r => r.avg) : [0],
+                        data: chartData.length ? chartData.map(r => r.avg) : [0],
                         backgroundColor: "#7C5CE0",
-                        borderRadius: 6
+                        borderRadius: 6,
+                        barThickness: 40
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + "%" } } }
+                    scales: {
+                        y: { min: 0, max: 100, ticks: { callback: v => v + "%" } },
+                        x: { grid: { display: false } }
+                    }
                 }
             });
+            console.log('[Class Reports] Chart rendered ✓');
         } catch (chartErr) {
-            console.error("Chart render error:", chartErr);
+            console.error('[Class Reports] Chart error:', chartErr);
         }
     } catch (e) {
-        console.error("Class Reports load failed:", e);
-        const tbody = document.getElementById("topStudentsBody");
+        console.error("[Class Reports] Failed:", e);
         if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--danger);">${e.message}</td></tr>`;
     }
 }
-
 /* ==================== SETTINGS ==================== */
 function renderSettings() {
     if (!teacherInfo) return;
