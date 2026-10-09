@@ -1,6 +1,6 @@
 from datetime import date as dt_date
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -10,7 +10,7 @@ from backend.models.grade import Grade
 from backend.models.parent_message import ParentMessage
 from backend.models.school import School
 from backend.models.student import Student
-from backend.models.student_document import StudentDocument
+from backend.models.student_document import DocumentType, StudentDocument
 from backend.models.test_record import TestRecord
 from backend.schemas.attendance import AttendanceOut
 from backend.schemas.fee import FeeOut
@@ -19,10 +19,7 @@ from backend.schemas.student import StudentOut
 from backend.schemas.student_document import StudentDocumentOut
 from backend.schemas.test_record import TestRecordOut
 from backend.utils.rbac import require_roles
-from backend.utils.storage import get_signed_url
-
-import os
-import uuid
+from backend.utils.storage import delete_file, get_signed_url, upload_student_file
 
 router = APIRouter(prefix="/parent", tags=["parent-portal"])
 
@@ -236,75 +233,61 @@ def send_my_message(
 # ==================== PARENT: DOCUMENT UPLOAD ====================
 # Parent apne bachche ke documents upload aur delete kar sakta hai.
 # Security: _my_child() se verify hota hai ke student parent ka bachcha hai.
+# Storage: Same helper as admin/teacher (works on Vercel via cloud storage).
 
-@router.post("/documents/upload", status_code=status.HTTP_201_CREATED)
-async def parent_upload_document(
-    doc_type: str = Form(...),
-    label: str = Form(None),
+@router.post(
+    "/documents/upload",
+    response_model=StudentDocumentOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def parent_upload_document(
+    doc_type: str = Query(..., description="id_card | b_form | test_paper | profile_photo | other"),
+    label: str | None = Query(default=None, max_length=150),
     file: UploadFile = File(...),
     token: dict = Depends(require_roles(["parent"])),
     db: Session = Depends(get_db),
 ):
     """
     Parent apne bachche ka document upload karein.
-    Allowed doc_types: id_card, b_form, test_paper, profile_photo, other
+    Uses same cloud storage helper as admin/teacher document upload.
     """
     school = _my_school(token, db)
     if not school.parent_show_documents:
         raise HTTPException(status_code=403, detail="Documents are not enabled for parents at this school.")
-    
+
     # Verify parent owns this student
     student = _my_child(token, db)
-    
-    # Validate doc_type
-    allowed_types = ["id_card", "b_form", "test_paper", "profile_photo", "other"]
-    if doc_type not in allowed_types:
+
+    # Validate doc_type using same enum as student-documents
+    try:
+        parsed_type = DocumentType(doc_type)
+    except ValueError:
         raise HTTPException(
             status_code=422,
-            detail=f"Invalid doc_type. Allowed: {', '.join(allowed_types)}"
+            detail="doc_type must be one of: id_card, b_form, test_paper, profile_photo, other",
         )
-    
-    # Read file (max 5 MB)
-    contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="File too large (max 5 MB)")
-    if len(contents) == 0:
-        raise HTTPException(status_code=422, detail="Empty file")
-    
-    # Save file — use same pattern as student-documents endpoint
-    # NOTE: Adjust this to match how your existing student-documents upload works!
-    upload_dir = "uploads/student_documents"
-    os.makedirs(upload_dir, exist_ok=True)
-    
-    ext = os.path.splitext(file.filename or "")[1].lower() or ".bin"
-    unique_name = f"{uuid.uuid4().hex}{ext}"
-    file_path = os.path.join(upload_dir, unique_name)
-    
-    with open(file_path, "wb") as f:
-        f.write(contents)
-    
-    # Create DB record — use file_url field (matches existing model)
+
+    # ✅ Use SAME cloud storage helper as admin/teacher
+    path = upload_student_file(file, token["school_id"], student.id, subfolder=parsed_type.value)
+
     doc = StudentDocument(
         school_id=token["school_id"],
         student_id=student.id,
-        doc_type=doc_type,
-        label=label or file.filename or doc_type,
+        doc_type=parsed_type,
+        file_url=path,
         file_name=file.filename,
-        file_url=file_path,  # ⚠️ Change to whatever existing field name is
-        uploaded_by_user_id=token["user_id"],
+        label=label,
+        uploaded_by_user_id=token.get("user_id"),
     )
     db.add(doc)
+
+    # Profile photo also updates the canonical card photo (same as admin flow)
+    if parsed_type == DocumentType.profile_photo:
+        student.photo_url = path
+
     db.commit()
     db.refresh(doc)
-    
-    return {
-        "id": doc.id,
-        "doc_type": doc.doc_type,
-        "label": doc.label,
-        "file_name": doc.file_name,
-        "created_at": doc.created_at.isoformat() if doc.created_at else None,
-        "message": "Document uploaded successfully",
-    }
+    return doc
 
 
 @router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -317,9 +300,9 @@ def parent_delete_document(
     school = _my_school(token, db)
     if not school.parent_show_documents:
         raise HTTPException(status_code=403, detail="Documents are not enabled for parents.")
-    
+
     student = _my_child(token, db)
-    
+
     doc = (
         db.query(StudentDocument)
         .filter(
@@ -331,14 +314,9 @@ def parent_delete_document(
     )
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
-    
-    # Delete physical file
-    try:
-        if doc.file_url and os.path.exists(doc.file_url):
-            os.remove(doc.file_url)
-    except Exception as e:
-        print(f"File delete warning: {e}")
-    
+
+    # ✅ Use SAME cloud delete helper
+    delete_file(doc.file_url)
     db.delete(doc)
     db.commit()
     return None

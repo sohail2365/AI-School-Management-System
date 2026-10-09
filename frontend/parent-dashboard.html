@@ -850,11 +850,18 @@ async function submitUpload() {
     const btn = document.getElementById("uploadBtn");
     btn.disabled = true; btn.textContent = "Uploading...";
     try {
+        // ✅ Send doc_type & label as Query params, file as FormData
+        const params = new URLSearchParams({ doc_type: docType });
+        if (label) params.set("label", label);
+
         const form = new FormData();
-        form.append("doc_type", docType);
-        if (label) form.append("label", label);
         form.append("file", file);
-        await api("/parent/documents/upload", { method: "POST", body: form });
+
+        await api(`/parent/documents/upload?${params.toString()}`, {
+            method: "POST",
+            body: form,
+        });
+
         showToast("Document uploaded!", "success");
         closeUploadModal();
         await loadDocuments();
@@ -864,7 +871,6 @@ async function submitUpload() {
         btn.disabled = false; btn.textContent = "📤 Upload";
     }
 }
-
 /* ==================== MESSAGES ==================== */
 async function loadMessages() {
     const el = document.getElementById("messagesContent");
