@@ -916,6 +916,63 @@
                         <div class="card-body"><div id="teacherActivityList" style="font-size:0.9rem;"><div style="color:#94a3b8; padding:10px 0;">Loading...</div></div></div>
                     </div>
                 </div>
+                <!-- ✅ NEW: Fee Students View (class ke andar student list with dues) -->
+                <div class="view" id="feesStudentsView">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="view-header-bar">
+                                <button class="btn btn-sm btn-secondary" onclick="backToFeeClasses()">← Back</button>
+                                <h3 class="card-title" id="feesStudentsTitle">Fee Summary</h3>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn btn-secondary" onclick="openAddFeeModal()">➕ Add Fee</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+                                <input type="text" id="feeStudentSearchInput" placeholder="🔍 Search by name..." style="flex:1; min-width:200px; padding:10px 14px; border:2px solid var(--border); border-radius:10px; font-size:14px; background:var(--bg-primary); color:var(--dark);" oninput="debounceFilterFeeStudents()">
+                                <button class="btn btn-secondary" onclick="clearFeeStudentSearch()">Clear</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Roll</th>
+                                            <th>Student Name</th>
+                                            <th>Father's Name</th>
+                                            <th>Total Fee</th>
+                                            <th>Paid</th>
+                                            <th>Pending</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="feesStudentsTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ NEW: Full-page Fee Statement View -->
+                <div class="view" id="feeStatementView">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="view-header-bar">
+                                <button class="btn btn-sm btn-secondary" onclick="backFromFeeStatement()">← Back</button>
+                                <h3 class="card-title" id="feeStatementTitle">Fee Statement</h3>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn btn-primary" onclick="openAddAdditionalChargeModal()">➕ Add Additional Charge</button>
+                                <button class="btn btn-success" onclick="openFifoPaymentModal()">💵 Record Payment</button>
+                                <button class="btn btn-secondary" onclick="printFeeStatement()">🧾 Print Statement</button>
+                            </div>
+                        </div>
+                        <div class="card-body" id="feeStatementBody">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
 
                 <div class="view" id="studentsView">
                     <div id="studentsClassGrid">
@@ -1636,6 +1693,91 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             <div class="btn-group" style="border-top:1px solid var(--border); padding-top:16px;">
                 <button class="btn btn-primary" onclick="saveCustomFields()">💾 Save Fields</button>
                 <button class="btn btn-secondary" onclick="closeFieldBuilder()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- ✅ NEW: Add Additional Charge Modal -->
+    <div class="modal" id="addAdditionalChargeModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('addAdditionalChargeModal')">✕</span>
+            <div class="modal-header">➕ Add Additional Charge</div>
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Charge Name *</label>
+                    <input type="text" id="acChargeName" placeholder="e.g. Dairy, Copies, Uniform">
+                </div>
+                <div class="form-group">
+                    <label>Amount (Rs.) *</label>
+                    <input type="number" id="acAmount" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Month</label>
+                    <select id="acMonth">
+                        <!-- JS fills -->
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Due Date (optional)</label>
+                    <input type="date" id="acDueDate">
+                </div>
+            </div>
+            <p style="color:var(--gray); font-size:0.85rem; margin-top:8px;">
+                ℹ️ Yeh charge is student ke account mein add ho jayega. Payment record karte waqt FIFO mein include hoga.
+            </p>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="saveAdditionalCharge()">💾 Add Charge</button>
+                <button class="btn btn-secondary" onclick="closeModal('addAdditionalChargeModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ NEW: FIFO Payment Modal -->
+    <div class="modal" id="fifoPaymentModal">
+        <div class="modal-content modal-wide">
+            <span class="modal-close" onclick="closeModal('fifoPaymentModal')">✕</span>
+            <div class="modal-header">💵 Record Payment (FIFO)</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Student</label>
+                    <input type="text" id="fpStudentName" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Total Pending</label>
+                    <input type="text" id="fpTotalPending" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Amount Receiving Now (Rs.) *</label>
+                    <input type="number" id="fpAmount" placeholder="0" min="0" oninput="updateFifoPreview()">
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="fpMethod">
+                        <option value="cash">Cash</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="online">Online</option>
+                        <option value="cheque">Cheque</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Receipt Number</label>
+                    <input type="text" id="fpReceipt" placeholder="e.g. RCT-001">
+                </div>
+                <div class="form-group">
+                    <label>Payment Date</label>
+                    <input type="date" id="fpDate">
+                </div>
+            </div>
+
+            <div id="fpPreview" style="margin-top:16px; background:var(--bg-secondary); border-radius:12px; padding:14px; border:1px solid var(--border);">
+                <div style="font-weight:700; font-size:0.9rem; margin-bottom:8px; color:var(--primary-dark);">📋 Payment will be applied (FIFO — oldest first):</div>
+                <div id="fpPreviewList" style="font-size:0.85rem; color:var(--gray);">
+                    Amount enter karein preview dekhne ke liye…
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="submitFifoPayment()">✅ Confirm Payment</button>
+                <button class="btn btn-secondary" onclick="closeModal('fifoPaymentModal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -2469,7 +2611,11 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             await renderCustomFieldsInModal(student.custom_fields_data || {});
             openModal("addStudentModal");
         }
-
+        let _feeStatementStudentId = null;
+        let _feeStatementData = null;
+        let _feeStudentSearchTimer = null;
+        let _feeStudentsCache = [];
+        let _feeBackContext = { class: null };
         let currentFeeStatusFilter = "";
         let cachedFeesForPayment = [];
         let cachedStudentsForFees = [];
@@ -2478,6 +2624,181 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             currentFeeStatusFilter = statusValue;
             document.querySelectorAll(".fee-filter-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.status === statusValue));
             loadFees();
+        }
+        /* ============================================================
+           ✅ FEE STATEMENT (Full Page)
+           ============================================================ */
+        async function openFeeStatement(studentId) {
+            _feeStatementStudentId = studentId;
+            _feeBackContext.class = currentFeeClass;
+
+            // Switch to statement view
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById("feeStatementView").classList.add("active");
+            document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+            const feesLink = document.querySelector('[data-view="fees"]');
+            if (feesLink) feesLink.classList.add("active");
+            closeSidebar();
+            animatePageTitle("Fee Statement");
+            document.getElementById("feeStatementTitle").textContent = "Fee Statement";
+            document.getElementById("feeStatementBody").innerHTML = "Loading...";
+            const contentEl = document.querySelector(".content");
+            if (contentEl) contentEl.scrollTop = 0;
+
+            await _loadFeeStatement(studentId);
+        }
+
+        function backFromFeeStatement() {
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById("feesView").classList.add("active");
+            document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+            const feesLink = document.querySelector('[data-view="fees"]');
+            if (feesLink) feesLink.classList.add("active");
+            closeSidebar();
+            animatePageTitle("Fees Management");
+
+            // Restore class view
+            if (_feeBackContext.class || currentFeeClass) {
+                const cn = _feeBackContext.class || currentFeeClass;
+                currentFeeClass = cn;
+                document.getElementById("feesClassGrid").style.display = "none";
+                document.getElementById("feesDetailView").style.display = "none";
+                document.getElementById("feesStudentsView").style.display = "block";
+                document.getElementById("feesStudentsTitle").textContent = `Class ${cn} — Student Fee Summary`;
+                loadFeeStudentsInClass(cn);
+            } else {
+                showFeeClassGrid();
+                loadFeeClasses();
+            }
+        }
+
+        async function _loadFeeStatement(studentId) {
+            try {
+                const data = await apiRequest(`/fees/student/${studentId}/statement`);
+                _feeStatementData = data;
+                const s = data.student;
+                const sum = data.summary;
+
+                document.getElementById("feeStatementTitle").textContent =
+                    `${s.name} — Class ${s.class_name || "-"} (Roll ${s.roll_number || "-"})`;
+
+                // Group fees
+                const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+                const monthNameNow = new Date().toLocaleString("en-US", { month: "long" }); // "October"
+
+                const isCurrentMonth = (m) => {
+                    if (!m) return false;
+                    const mm = String(m).trim();
+                    return mm === currentMonth || mm.toLowerCase() === monthNameNow.toLowerCase();
+                };
+
+                const current = data.fees.filter(f => isCurrentMonth(f.month));
+                const arrears = data.fees.filter(f => !isCurrentMonth(f.month) && f.status !== "paid" && f.due_amount > 0);
+                const additional = data.fees.filter(f => f.fee_type === "additional");
+                const history = data.fees.filter(f => f.status === "paid" && !isCurrentMonth(f.month));
+
+                const feeRow = (f) => {
+                    const badge = feeBadgeClass(f.status);
+                    const typeBadge = f.fee_type === "additional"
+                        ? '<span class="badge badge-info" style="font-size:0.7rem; margin-left:6px;">Additional</span>'
+                        : (f.fee_type === "admission"
+                            ? '<span class="badge badge-warning" style="font-size:0.7rem; margin-left:6px;">Admission</span>'
+                            : "");
+                    return `<tr>
+                        <td>${f.fee_name || "-"}${typeBadge}</td>
+                        <td>${f.month || "-"}</td>
+                        <td>Rs. ${f.amount}</td>
+                        <td>Rs. ${f.paid_amount}</td>
+                        <td><strong>Rs. ${f.due_amount}</strong></td>
+                        <td><span class="badge ${badge}">${f.status}</span></td>
+                        <td>
+                            ${(f.status !== "paid" && f.fee_type === "additional")
+                                ? `<button class="btn btn-sm btn-danger" onclick="deleteAdditionalCharge(${f.id})" title="Delete this charge">🗑️</button>`
+                                : ""}
+                        </td>
+                    </tr>`;
+                };
+
+                const tableBlock = (title, arr, emptyMsg) => {
+                    if (!arr || arr.length === 0) {
+                        return `<h4 style="margin: 20px 0 8px;">${title}</h4>
+                                <div style="padding:14px; text-align:center; color:var(--gray); background:var(--bg-secondary); border-radius:10px; font-size:0.88rem;">${emptyMsg}</div>`;
+                    }
+                    return `<h4 style="margin: 20px 0 8px;">${title}</h4>
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>Item</th><th>Month</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th><th></th></tr></thead>
+                                <tbody>${arr.map(feeRow).join("")}</tbody>
+                            </table>
+                        </div>`;
+                };
+
+                // Summary cards
+                const summaryHtml = `
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:20px;">
+                        <div style="padding:18px; border-radius:14px; background:var(--primary-lighter); text-align:center;">
+                            <div style="font-size:24px; font-weight:800; color:var(--primary-dark);">Rs. ${sum.total_amount.toLocaleString()}</div>
+                            <div style="color:var(--gray); font-size:13px; margin-top:4px;">Total Fee</div>
+                        </div>
+                        <div style="padding:18px; border-radius:14px; background:#D1FAE5; text-align:center;">
+                            <div style="font-size:24px; font-weight:800; color:#065F46;">Rs. ${sum.total_paid.toLocaleString()}</div>
+                            <div style="color:var(--gray); font-size:13px; margin-top:4px;">Paid</div>
+                        </div>
+                        <div style="padding:18px; border-radius:14px; background:#FEE2E2; text-align:center;">
+                            <div style="font-size:24px; font-weight:800; color:#991B1B;">Rs. ${sum.total_pending.toLocaleString()}</div>
+                            <div style="color:var(--gray); font-size:13px; margin-top:4px;">Pending</div>
+                        </div>
+                    </div>
+                `;
+
+                // Payment history
+                const paymentsHtml = data.payments.length > 0
+                    ? `<div class="table-responsive">
+                        <table>
+                            <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Receipt</th><th>Fee Applied</th></tr></thead>
+                            <tbody>${data.payments.map(p => {
+                                const fee = data.fees.find(f => f.id === p.fee_id);
+                                return `<tr>
+                                    <td>${p.payment_date ? p.payment_date.slice(0, 10) : "-"}</td>
+                                    <td>Rs. ${p.amount_paid}</td>
+                                    <td>${p.payment_method || "cash"}</td>
+                                    <td>${p.receipt_number || "-"}</td>
+                                    <td style="font-size:0.85rem; color:var(--gray);">${fee ? fee.fee_name : "-"}</td>
+                                </tr>`;
+                            }).join("")}</tbody>
+                        </table>
+                    </div>`
+                    : `<div style="padding:14px; text-align:center; color:var(--gray); background:var(--bg-secondary); border-radius:10px; font-size:0.88rem;">No payments recorded yet.</div>`;
+
+                document.getElementById("feeStatementBody").innerHTML = `
+                    ${summaryHtml}
+                    <div style="display:flex; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+                        <div><strong>Father:</strong> ${s.father_name || "-"}</div>
+                        <div style="margin-left:16px;"><strong>Phone:</strong> ${s.phone || "-"}</div>
+                    </div>
+                    ${tableBlock("📅 Current Month", current, "Is month ki koi fee nahi hai.")}
+                    ${tableBlock("⏳ Previous Arrears", arrears, "🎉 No pending arrears — all clear!")}
+                    ${additional.length > 0 ? tableBlock("➕ Additional Charges (all)", additional, "") : ""}
+                    <h4 style="margin: 20px 0 8px;">💵 Payment History</h4>
+                    ${paymentsHtml}
+                    ${history.length > 0 ? tableBlock("✅ Cleared (past months)", history, "") : ""}
+                `;
+            } catch (error) {
+                console.error("Error loading fee statement:", error);
+                document.getElementById("feeStatementBody").innerHTML =
+                    `<p style="color:var(--danger);">Failed to load: ${error.message}</p>`;
+            }
+        }
+
+        async function deleteAdditionalCharge(feeId) {
+            if (!confirm("Yeh charge delete karna hai?")) return;
+            try {
+                await apiRequest(`/fees/${feeId}`, { method: "DELETE" });
+                showAlert("Charge deleted", "success");
+                if (_feeStatementStudentId) await _loadFeeStatement(_feeStatementStudentId);
+            } catch (error) {
+                showAlert("Delete failed: " + error.message, "error");
+            }
         }
         async function loadFees() {
             try {
@@ -3533,7 +3854,78 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             showAlert(`✅ Saved ${ok} grade(s). ${fail > 0 ? fail + " failed." : ""}`, fail > 0 ? "error" : "success");
             closeModal("bulkExamEntryModal");
         }
+        /* ============================================================
+           ✅ ADDITIONAL CHARGE
+           ============================================================ */
+        function _populateMonthDropdown(selectId, selectedValue) {
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            const now = new Date();
+            const opts = [];
+            // Current + past 12 months + "One-time (no month)"
+            opts.push({ value: "one-time", label: "⭐ One-time (no month)" });
+            for (let i = 0; i < 12; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const yyyymm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+                const label = d.toLocaleString("en-US", { month: "long", year: "numeric" });
+                opts.push({ value: yyyymm, label });
+            }
+            sel.innerHTML = opts.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+            if (selectedValue) sel.value = selectedValue;
+        }
 
+        function openAddAdditionalChargeModal(studentId) {
+            // Agar statement page se call hua toh use current student
+            const sid = studentId || _feeStatementStudentId;
+            if (!sid) {
+                showAlert("Pehle student select karein", "error");
+                return;
+            }
+            document.getElementById("addAdditionalChargeModal").dataset.studentId = sid;
+            document.getElementById("acChargeName").value = "";
+            document.getElementById("acAmount").value = "";
+            document.getElementById("acDueDate").value = new Date().toISOString().slice(0, 10);
+            _populateMonthDropdown("acMonth");
+            openModal("addAdditionalChargeModal");
+        }
+
+        async function saveAdditionalCharge() {
+            try {
+                const sid = parseInt(document.getElementById("addAdditionalChargeModal").dataset.studentId);
+                const name = document.getElementById("acChargeName").value.trim();
+                const amount = parseFloat(document.getElementById("acAmount").value);
+                const monthRaw = document.getElementById("acMonth").value;
+                const dueDate = document.getElementById("acDueDate").value || null;
+
+                if (!sid || !name) { showAlert("Charge name required", "error"); return; }
+                if (!amount || amount <= 0) { showAlert("Valid amount required", "error"); return; }
+
+                // If "one-time", store null month; else store the YYYY-MM string
+                const month = monthRaw === "one-time" ? null : monthRaw;
+
+                const payload = {
+                    student_id: sid,
+                    fee_name: name,
+                    amount: amount,
+                    due_date: dueDate,
+                    month: month,
+                    fee_type: "additional",
+                };
+
+                await apiRequest("/fees", { method: "POST", body: JSON.stringify(payload) });
+                showAlert("Charge added!", "success");
+                closeModal("addAdditionalChargeModal");
+
+                // Refresh statement if open, else refresh student list
+                if (_feeStatementStudentId === sid && document.getElementById("feeStatementView").classList.contains("active")) {
+                    await _loadFeeStatement(sid);
+                } else if (currentFeeClass) {
+                    await loadFeeStudentsInClass(currentFeeClass);
+                }
+            } catch (error) {
+                showAlert("Save failed: " + error.message, "error");
+            }
+        }
         async function loadSettings() {
             try {
                 const s = await apiRequest("/settings/school");
@@ -4621,7 +5013,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 const feeRowsHtml = data.fees.records.length ? data.fees.records.map(f => `<tr><td>${f.fee_name || "-"}</td><td>Rs. ${f.amount}</td><td>Rs. ${f.paid_amount}</td><td>Rs. ${f.due_amount}</td><td><span class="badge ${feeBadgeClass(f.status)}">${f.status}</span></td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No fee records</td></tr>`;
 
                 const userRole = (localStorage.getItem("user_role") || "").toLowerCase();
-                document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Mother's Name:</strong><br>${s.mother_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:16px; border-radius:14px; background:var(--primary-lighter); text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--primary-dark);">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance</div></div><div style="padding:16px; border-radius:14px; background:var(--accent-lighter); text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--accent-dark);">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average</div></div><div style="padding:16px; border-radius:14px; background:#FEE2E2; text-align:center;"><div style="font-size:22px; font-weight:800; color:#991B1B;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${userRole === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
+                document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:16px; border-radius:14px; background:var(--primary-lighter); text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--primary-dark);">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance</div></div><div style="padding:16px; border-radius:14px; background:var(--accent-lighter); text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--accent-dark);">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average</div></div><div style="padding:16px; border-radius:14px; background:#FEE2E2; text-align:center;"><div style="font-size:22px; font-weight:800; color:#991B1B;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${userRole === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
 
                 loadStudentProfileDocuments(studentId);
                 if (userRole === "admin") renderParentLoginSection(s);
@@ -4747,6 +5139,114 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             `;
             openPrintWindow(`Admission Slip - ${s.name}`, bodyHtml);
         }
+        async function printFeeStatement() {
+            if (!_feeStatementData) { showAlert("Pehle statement load karein", "error"); return; }
+            const school = await getSchoolProfile();
+            const data = _feeStatementData;
+            const s = data.student;
+            const sum = data.summary;
+
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthNameNow = new Date().toLocaleString("en-US", { month: "long" });
+            const isCurrentMonth = (m) => {
+                if (!m) return false;
+                const mm = String(m).trim();
+                return mm === currentMonth || mm.toLowerCase() === monthNameNow.toLowerCase();
+            };
+
+            const current = data.fees.filter(f => isCurrentMonth(f.month));
+            const arrears = data.fees.filter(f => !isCurrentMonth(f.month) && f.month !== null && f.status !== "paid" && f.due_amount > 0);
+            const oneTime = data.fees.filter(f => !f.month && f.status !== "paid" && f.due_amount > 0);
+
+            const feeRowHtml = (f) => `
+                <tr>
+                    <td>${f.fee_name || "-"}</td>
+                    <td>${f.month || "one-time"}</td>
+                    <td style="text-align:right;">Rs. ${f.amount}</td>
+                    <td style="text-align:right;">Rs. ${f.paid_amount}</td>
+                    <td style="text-align:right;"><strong>Rs. ${f.due_amount}</strong></td>
+                </tr>`;
+
+            const sectionHtml = (title, arr) => {
+                if (!arr || arr.length === 0) return "";
+                return `
+                    <tr><td colspan="5" style="background:#f2f2f2; font-weight:700; padding:8px;">${title}</td></tr>
+                    ${arr.map(feeRowHtml).join("")}`;
+            };
+
+            // Fetch photo if exists
+            let photoHtml = "";
+            try {
+                if (s.photo_url) {
+                    const resp = await fetch(`${API_BASE}/students/${s.id}/photo-url`, {
+                        headers: { Authorization: `Bearer ${getToken()}` }
+                    });
+                    if (resp.ok) {
+                        const { url } = await resp.json();
+                        if (url) photoHtml = `<img src="${url}" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:1px solid #999; margin-top:6px;">`;
+                    }
+                }
+            } catch (e) {}
+
+            const receiptNum = (data.payments && data.payments[0] && data.payments[0].receipt_number)
+                || `FS-${String(s.id).padStart(4, "0")}`;
+
+            const bodyHtml = `
+                <div class="header">
+                    <h1>${school.name || "School"}</h1>
+                    <div>${school.address || ""}</div>
+                    <div style="font-size:12px;">${school.phone ? "📞 " + school.phone : ""}</div>
+                    <h2 style="margin-top:14px;">FEE STATEMENT</h2>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>Student:</strong> ${s.name}<br>
+                        <strong>Father:</strong> ${s.father_name || "-"}<br>
+                        <strong>Class:</strong> ${s.class_name || "-"} · <strong>Roll:</strong> ${s.roll_number || "-"}
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>Receipt #:</strong> ${receiptNum}<br>
+                        <strong>Date:</strong> ${new Date().toLocaleDateString("en-GB")}
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Month</th>
+                            <th style="text-align:right;">Amount</th>
+                            <th style="text-align:right;">Paid</th>
+                            <th style="text-align:right;">Pending</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sectionHtml("Previous Arrears", arrears)}
+                        ${sectionHtml("Current Month", current)}
+                        ${sectionHtml("One-time Charges", oneTime)}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:#f2f2f2; font-weight:700;">
+                            <td colspan="2">Total</td>
+                            <td style="text-align:right;">Rs. ${sum.total_amount}</td>
+                            <td style="text-align:right;">Rs. ${sum.total_paid}</td>
+                            <td style="text-align:right;">Rs. ${sum.total_pending}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top:24px; display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div>${photoHtml}</div>
+                    <div style="text-align:right;">
+                        <div>Signature: _______________________</div>
+                    </div>
+                </div>
+
+                <div class="footer">Thank you! · This is a computer-generated statement from ${school.name || "the school"}.</div>
+            `;
+
+            openPrintWindow(`Fee Statement - ${s.name}`, bodyHtml);
+        }
         async function printFeeReceipt(feeId) {
             const fee = cachedFeesForPayment.find(f => f.id === feeId);
             if (!fee) return;
@@ -4764,6 +5264,143 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.getElementById("bulkFeeDueDate").value = "";
             document.getElementById("bulkFeeSkipExisting").checked = true;
             openModal("bulkFeeModal");
+        }
+        /* ============================================================
+           ✅ FIFO PAYMENT
+           ============================================================ */
+           function openFifoPaymentModal(studentId) {
+            const sid = studentId || _feeStatementStudentId;
+            if (!sid) {
+                showAlert("Pehle student select karein", "error");
+                return;
+            }
+            // Get from cache or use statement data
+            let student = null;
+            let totalPending = 0;
+            if (_feeStatementData && _feeStatementData.student.id === sid) {
+                student = _feeStatementData.student;
+                totalPending = _feeStatementData.summary.total_pending;
+            } else {
+                const s = _feeStudentsCache.find(x => x.id === sid);
+                if (s) {
+                    student = s;
+                    totalPending = s.total_pending;
+                }
+            }
+            if (!student) { showAlert("Student not found", "error"); return; }
+
+            document.getElementById("fifoPaymentModal").dataset.studentId = sid;
+            document.getElementById("fpStudentName").value = student.name;
+            document.getElementById("fpTotalPending").value = `Rs. ${totalPending}`;
+            document.getElementById("fpAmount").value = totalPending > 0 ? totalPending : "";
+            document.getElementById("fpMethod").value = "cash";
+            document.getElementById("fpReceipt").value = "";
+            document.getElementById("fpDate").value = new Date().toISOString().slice(0, 10);
+            document.getElementById("fpPreviewList").innerHTML = '<span style="color:var(--gray);">Amount enter karein preview dekhne ke liye…</span>';
+
+            // ✅ FIX: Always fetch fresh statement for this student if not matching
+            if (!_feeStatementData || _feeStatementData.student.id !== sid) {
+                _feeStatementData = null;  // Clear stale data first
+                apiRequest(`/fees/student/${sid}/statement`).then(d => {
+                    _feeStatementData = d;
+                    updateFifoPreview();
+                }).catch(() => {
+                    document.getElementById("fpPreviewList").innerHTML =
+                        '<span style="color:var(--danger);">Preview load nahi ho saki. Phir try karein.</span>';
+                });
+            } else {
+                updateFifoPreview();
+            }
+
+            openModal("fifoPaymentModal");
+        }
+
+        function updateFifoPreview() {
+            const list = document.getElementById("fpPreviewList");
+            const amountVal = parseFloat(document.getElementById("fpAmount").value);
+            if (!_feeStatementData || !_feeStatementData.fees) {
+                list.innerHTML = '<span style="color:var(--gray);">Loading preview…</span>';
+                return;
+            }
+            if (!amountVal || amountVal <= 0) {
+                list.innerHTML = '<span style="color:var(--gray);">Amount enter karein…</span>';
+                return;
+            }
+
+            // Simulate FIFO
+            const pending = _feeStatementData.fees
+                .filter(f => f.status !== "paid" && f.due_amount > 0)
+                .slice()
+                .sort((a, b) => {
+                    const da = a.due_date || "9999-99-99";
+                    const db = b.due_date || "9999-99-99";
+                    if (da !== db) return da < db ? -1 : 1;
+                    return (a.id || 0) - (b.id || 0);
+                });
+
+            let remaining = amountVal;
+            const applied = [];
+            for (const f of pending) {
+                if (remaining <= 0) break;
+                const pay = Math.min(remaining, f.due_amount);
+                applied.push({ fee: f, amount: pay });
+                remaining -= pay;
+            }
+
+            if (applied.length === 0) {
+                list.innerHTML = '<span style="color:var(--gray);">Koi pending fee nahi hai.</span>';
+                return;
+            }
+
+            list.innerHTML = applied.map(a => `
+                <div style="display:flex; justify-content:space-between; padding:6px 10px; background:var(--bg-primary); border-radius:8px; margin-bottom:4px;">
+                    <span>${a.fee.fee_name} <span style="color:var(--gray); font-size:0.8rem;">(${a.fee.month || "one-time"})</span></span>
+                    <strong>Rs. ${a.amount.toFixed(2)}</strong>
+                </div>
+            `).join("") + (remaining > 0
+                ? `<div style="margin-top:6px; color:var(--warning); font-size:0.82rem;">⚠️ Rs. ${remaining.toFixed(2)} unused (total pending se zyada)</div>`
+                : "");
+        }
+
+        async function submitFifoPayment() {
+            try {
+                const sid = parseInt(document.getElementById("fifoPaymentModal").dataset.studentId);
+                const amount = parseFloat(document.getElementById("fpAmount").value);
+                const method = document.getElementById("fpMethod").value;
+                const receipt = document.getElementById("fpReceipt").value.trim() || null;
+                const payDate = document.getElementById("fpDate").value || null;
+
+                if (!sid || !amount || amount <= 0) {
+                    showAlert("Valid amount required", "error");
+                    return;
+                }
+
+                const payload = {
+                    amount: amount,
+                    payment_method: method,
+                    receipt_number: receipt,
+                    payment_date: payDate,
+                };
+
+                const result = await apiRequest(`/fees/student/${sid}/record-payment`, {
+                    method: "POST",
+                    body: JSON.stringify(payload),
+                });
+
+                const applied = result.applied_to || [];
+                showAlert(`✅ Rs. ${amount} received. Applied to ${applied.length} fee(s).`, "success");
+
+                closeModal("fifoPaymentModal");
+
+                // Refresh views
+                if (document.getElementById("feeStatementView").classList.contains("active") && _feeStatementStudentId === sid) {
+                    await _loadFeeStatement(sid);
+                } else if (currentFeeClass) {
+                    await loadFeeStudentsInClass(currentFeeClass);
+                }
+            } catch (error) {
+                showAlert("Payment failed: " + error.message, "error");
+            }
         }
         async function submitBulkFee() {
             try {
@@ -4919,18 +5556,94 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         }).join("");
     }
     function showFeeClassGrid() {
-        const g = document.getElementById("feesClassGrid"), d = document.getElementById("feesDetailView");
-        if (g) g.style.display = "block"; if (d) d.style.display = "none";
-    }
+            const g = document.getElementById("feesClassGrid");
+            const d = document.getElementById("feesDetailView");
+            const s = document.getElementById("feesStudentsView");
+            if (g) g.style.display = "block";
+            if (d) d.style.display = "none";
+            if (s) s.style.display = "none";
+        }
     async function openFeeClass(cn) {
-        currentFeeClass = cn; window._currentFeeStatusFilter = "";
-        document.querySelectorAll(".fee-filter-btn").forEach(b => b.classList.toggle("active", b.dataset.status === ""));
-        document.getElementById("feesClassGrid").style.display = "none";
-        document.getElementById("feesDetailView").style.display = "block";
-        document.getElementById("feesDetailTitle").textContent = "Class " + cn + " — Fees";
-        await loadFeesInClass(cn);
-    }
-    function backToFeeClasses() { currentFeeClass = null; window._currentFeeStatusFilter = ""; showFeeClassGrid(); loadFeeClasses(); }
+            currentFeeClass = cn;
+            document.getElementById("feesClassGrid").style.display = "none";
+            document.getElementById("feesDetailView").style.display = "none";
+            document.getElementById("feesStudentsView").style.display = "block";
+            document.getElementById("feesStudentsTitle").textContent = `Class ${cn} — Student Fee Summary`;
+            await loadFeeStudentsInClass(cn);
+        }
+
+        // ✅ NEW: Load students with fee summary
+        async function loadFeeStudentsInClass(cn, search) {
+            try {
+                const data = await apiRequest(`/fees/students-summary?class_name=${encodeURIComponent(cn)}`);
+                _feeStudentsCache = data || [];
+                renderFeeStudentsTable(search);
+            } catch (error) {
+                console.error("Error loading fee students:", error);
+                document.getElementById("feesStudentsTable").innerHTML =
+                    `<tr><td colspan="8" style="text-align:center; color:var(--danger); padding:20px;">Failed to load: ${error.message}</td></tr>`;
+            }
+        }
+
+        function renderFeeStudentsTable(search) {
+            const tbody = document.getElementById("feesStudentsTable");
+            let list = _feeStudentsCache;
+            if (search) {
+                const q = search.toLowerCase();
+                list = list.filter(s =>
+                    (s.name || "").toLowerCase().includes(q) ||
+                    (s.father_name || "").toLowerCase().includes(q) ||
+                    String(s.roll_number || "").includes(q)
+                );
+            }
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--gray); padding:30px;">No students found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map(s => {
+                const badge = s.is_clear
+                    ? '<span class="badge badge-success">Clear</span>'
+                    : (s.pending_count > 0
+                        ? `<span class="badge badge-danger">${s.pending_count} pending</span>`
+                        : '<span class="badge badge-warning">Due</span>');
+                return `<tr>
+                    <td>${s.roll_number || "-"}</td>
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.father_name || "-"}</td>
+                    <td>Rs. ${s.total_amount.toLocaleString()}</td>
+                    <td>Rs. ${s.total_paid.toLocaleString()}</td>
+                    <td><strong style="color:${s.total_pending > 0 ? "#DC2626" : "var(--success)"};">Rs. ${s.total_pending.toLocaleString()}</strong></td>
+                    <td>${badge}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="openFeeStatement(${s.id})">📄 View</button>
+                            <button class="btn btn-sm btn-secondary" onclick="openAddAdditionalChargeModal(${s.id})">➕ Charge</button>
+                            <button class="btn btn-sm btn-success" onclick="openFifoPaymentModal(${s.id})">💵 Pay</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function debounceFilterFeeStudents() {
+            clearTimeout(_feeStudentSearchTimer);
+            _feeStudentSearchTimer = setTimeout(() => {
+                const q = document.getElementById("feeStudentSearchInput").value.trim();
+                renderFeeStudentsTable(q);
+            }, 300);
+        }
+
+        function clearFeeStudentSearch() {
+            document.getElementById("feeStudentSearchInput").value = "";
+            renderFeeStudentsTable("");
+        }
+        function backToFeeClasses() {
+            currentFeeClass = null;
+            window._currentFeeStatusFilter = "";
+            document.getElementById("feesStudentsView").style.display = "none";
+            showFeeClassGrid();
+            loadFeeClasses();
+        }
     async function loadFeesInClass(cn) {
         try {
             const sf = window._currentFeeStatusFilter || "";
