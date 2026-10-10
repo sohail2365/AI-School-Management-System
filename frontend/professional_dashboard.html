@@ -1588,7 +1588,35 @@ Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</d
             </div>
         </div>
     </div>
+    <!-- ============ CUSTOM FIELDS BUILDER MODAL ============ -->
+    <div class="modal" id="fieldBuilderModal">
+        <div class="modal-content modal-wide" style="max-width:760px;">
+            <span class="modal-close" onclick="closeFieldBuilder()">✕</span>
+            <div class="modal-header">🧩 Custom Fields Builder</div>
 
+            <p style="font-size:0.88rem; color:var(--gray); margin-bottom:16px; line-height:1.6;">
+                Yahan se apni marzi ke fields add karein. Yeh fields <b>Add Student</b> form mein automatic dikhengi.
+            </p>
+
+            <div id="fieldBuilderList" style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px; max-height:400px; overflow-y:auto; padding-right:4px;">
+                <!-- Fields will load here -->
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                <button class="btn btn-secondary btn-sm" onclick="addFieldRow('text')">➕ Text</button>
+                <button class="btn btn-secondary btn-sm" onclick="addFieldRow('number')">➕ Number</button>
+                <button class="btn btn-secondary btn-sm" onclick="addFieldRow('date')">➕ Date</button>
+                <button class="btn btn-secondary btn-sm" onclick="addFieldRow('dropdown')">➕ Dropdown</button>
+                <button class="btn btn-secondary btn-sm" onclick="addFieldRow('textarea')">➕ Long Text</button>
+                <button class="btn btn-secondary btn-sm" onclick="addFieldRow('checkbox')">➕ Checkbox</button>
+            </div>
+
+            <div class="btn-group" style="border-top:1px solid var(--border); padding-top:16px;">
+                <button class="btn btn-primary" onclick="saveCustomFields()">💾 Save Fields</button>
+                <button class="btn btn-secondary" onclick="closeFieldBuilder()">Cancel</button>
+            </div>
+        </div>
+    </div>
     <!-- ============ ADMIN AI CHAT MODAL ============ -->
     <div class="modal" id="adminAIChatModal">
         <div class="modal-content modal-wide">
@@ -1664,16 +1692,29 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             <span class="modal-close" onclick="closeModal('addStudentModal')">✕</span>
             <div class="modal-header" id="studentModalTitle">Add Student</div>
             <div class="form-grid">
+                <div class="form-group"><label>Admission Date</label><input type="date" id="studentAdmissionDate"></div>
                 <div class="form-group"><label>Full Name</label><input type="text" id="studentName" placeholder="Enter student name"></div>
                 <div class="form-group"><label>Father's Name</label><input type="text" id="studentFatherName" placeholder="Enter father's name"></div>
-                <div class="form-group"><label>Email</label><input type="email" id="studentEmail" placeholder="Enter email"></div>
-                <div class="form-group"><label>Phone</label><input type="text" id="studentPhone" placeholder="Enter phone"></div>
+                <div class="form-group"><label>Date of Birth</label><input type="date" id="studentDob"></div>
+                <div class="form-group"><label>Contact Number</label><input type="text" id="studentPhone" placeholder="Enter phone"></div>
+                <div class="form-group"><label>B-Form No.</label><input type="text" id="studentBForm" placeholder="e.g. 12345-6789012-3"></div>
+                <div class="form-group"><label>Gender</label><select id="studentGender"><option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
                 <div class="form-group"><label>Parent Email <span style="color:#64748b; font-weight:400;">(auto-creates login)</span></label><input type="email" id="studentParentEmail" placeholder="parent@example.com"></div>
                 <div class="form-group"><label>Class</label><input type="text" id="studentClass" placeholder="Enter class"></div>
-                <div class="form-group"><label>Roll Number</label><input type="text" id="studentRoll" placeholder="Enter roll number"></div>
-                <div class="form-group"><label>Date of Birth</label><input type="date" id="studentDob"></div>
-                <div class="form-group"><label>Gender</label><select id="studentGender"><option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                <div class="form-group"><label>Roll Number <span style="color:#64748b; font-weight:400;">(auto)</span></label><input type="text" id="studentRoll" placeholder="Auto-filled"></div>
+                <div class="form-group"><label>Admission Fee (Rs.)</label><input type="number" id="studentAdmissionFee" placeholder="0"></div>
+                <div class="form-group"><label>Monthly Fee (Rs.)</label><input type="number" id="studentMonthlyFee" placeholder="0"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="studentEmail" placeholder="Enter email"></div>
+                <div class="form-group" style="grid-column: 1 / -1;"><label>Picture for ID Card</label><input type="file" id="studentPhoto" accept="image/*"></div>
                 <div class="form-group" style="grid-column: 1 / -1;"><label>Address</label><textarea id="studentAddress" placeholder="Enter address" rows="2" style="resize: vertical;"></textarea></div>
+            </div>
+
+            <!-- ✅ NEW: Custom Fields Container -->
+            <div id="customFieldsContainer" style="display:none; margin-top:6px; margin-bottom:6px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+                    <span style="font-weight:700; font-size:0.85rem; color:var(--primary-dark);">✨ Additional Information</span>
+                </div>
+                <div id="customFieldsGrid" class="form-grid" style="margin-bottom:0;"></div>
             </div>
             <div class="btn-group">
                 <button class="btn btn-primary" id="studentSaveBtn" onclick="saveStudent()">Save Student</button>
@@ -2305,8 +2346,31 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         async function saveStudent() {
             try {
                 const editingId = document.getElementById("addStudentModal").dataset.editingId;
-                const payload = { name: document.getElementById("studentName").value, father_name: document.getElementById("studentFatherName").value || null, email: document.getElementById("studentEmail").value || null, phone: document.getElementById("studentPhone").value || null, parent_email: document.getElementById("studentParentEmail").value || null, class_name: document.getElementById("studentClass").value, roll_number: document.getElementById("studentRoll").value, date_of_birth: document.getElementById("studentDob").value || null, gender: document.getElementById("studentGender").value || null, address: document.getElementById("studentAddress").value || null };
-                if (!payload.name || !payload.roll_number || !payload.class_name) { showAlert("Name, roll number and class are required", "error"); return; }
+                const customValues = collectCustomFieldValues();
+
+                const payload = {
+                    name: document.getElementById("studentName").value,
+                    father_name: document.getElementById("studentFatherName").value || null,
+                    email: document.getElementById("studentEmail").value || null,
+                    phone: document.getElementById("studentPhone").value || null,
+                    parent_email: document.getElementById("studentParentEmail").value || null,
+                    class_name: document.getElementById("studentClass").value,
+                    roll_number: document.getElementById("studentRoll").value,
+                    date_of_birth: document.getElementById("studentDob").value || null,
+                    gender: document.getElementById("studentGender").value || null,
+                    address: document.getElementById("studentAddress").value || null,
+                    admission_date: document.getElementById("studentAdmissionDate")?.value || null,
+                    b_form_number: document.getElementById("studentBForm")?.value || null,
+                    admission_fee: parseFloat(document.getElementById("studentAdmissionFee")?.value) || null,
+                    monthly_fee_override: parseFloat(document.getElementById("studentMonthlyFee")?.value) || null,
+                    custom_fields_data: customValues,
+                };
+
+                if (!payload.name || !payload.roll_number || !payload.class_name) {
+                    showAlert("Name, roll number and class are required", "error");
+                    return;
+                }
+
                 let result;
                 if (editingId) {
                     result = await apiRequest(`/students/${editingId}`, { method: "PUT", body: JSON.stringify(payload) });
@@ -2315,24 +2379,66 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     result = await apiRequest("/students", { method: "POST", body: JSON.stringify(payload) });
                     if (typeof showSuccess === 'function') showSuccess("Student saved!");
                 }
-                if (result && result.parent_temp_password) showCredentialModal("Parent Portal Login Created", payload.parent_email, result.parent_temp_password);
+                if (result && result.parent_temp_password) {
+                    showCredentialModal("Parent Portal Login Created", payload.parent_email, result.parent_temp_password);
+                }
                 closeModal("addStudentModal");
-                await loadStudents();
-            } catch (error) { console.error("Error saving student:", error); }
+                if (currentStudentClass) await loadStudentsInClass(currentStudentClass);
+                else await loadStudents();
+            } catch (error) {
+                console.error("Error saving student:", error);
+            }
         }
         async function deleteStudent(id) {
             if (!confirm("Are you sure you want to delete this student?")) return;
             try { await apiRequest(`/students/${id}`, { method: "DELETE" }); showAlert("Student deleted successfully"); await loadStudents(); }
             catch (error) { console.error("Error deleting student:", error); }
         }
-        function openAddStudentModal() {
+        let _rollFetchTimer = null;
+        async function openAddStudentModal() {
             document.getElementById("addStudentModal").dataset.editingId = "";
-            document.getElementById("studentModalTitle").textContent = "Add Student";
+            document.getElementById("studentModalTitle").textContent = "Add Student (Admission Slip)";
             document.getElementById("studentSaveBtn").textContent = "Save Student";
-            ["studentName","studentFatherName","studentEmail","studentPhone","studentParentEmail","studentClass","studentRoll","studentDob","studentGender","studentAddress"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+            ["studentName","studentFatherName","studentEmail","studentPhone","studentParentEmail","studentClass","studentRoll","studentDob","studentGender","studentAddress","studentBForm","studentAdmissionFee","studentMonthlyFee","studentAdmissionDate"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+            const rollInput = document.getElementById("studentRoll");
+            if (rollInput) { rollInput.readOnly = false; delete rollInput.dataset.manuallyEdited; }
+
+            // Auto-fill today's date as admission date
+            const adDate = document.getElementById("studentAdmissionDate");
+            if (adDate) adDate.value = new Date().toISOString().slice(0, 10);
+
+            await renderCustomFieldsInModal({});
+
+            // Hook class → next roll fetch (only once)
+            const classInput = document.getElementById("studentClass");
+            if (classInput && !classInput.dataset.rollHooked) {
+                classInput.dataset.rollHooked = "1";
+                classInput.addEventListener("input", (e) => {
+                    clearTimeout(_rollFetchTimer);
+                    _rollFetchTimer = setTimeout(async () => {
+                        const cls = e.target.value.trim();
+                        if (!cls) return;
+                        try {
+                            const data = await apiRequest(`/students/next-roll?class=${encodeURIComponent(cls)}`);
+                            const ri = document.getElementById("studentRoll");
+                            if (ri && !ri.dataset.manuallyEdited) ri.value = data.next_roll_number;
+                        } catch (_) {}
+                    }, 500);
+                });
+            }
+            const rollEl = document.getElementById("studentRoll");
+            if (rollEl && !rollEl.dataset.manualHooked) {
+                rollEl.dataset.manualHooked = "1";
+                rollEl.addEventListener("input", () => { rollEl.dataset.manuallyEdited = "1"; });
+            }
+
             openModal("addStudentModal");
         }
-        function editStudent(id) {
+
+        async function editStudent(id) {
             const student = students.find(s => s.id === id);
             if (!student) return;
             document.getElementById("addStudentModal").dataset.editingId = id;
@@ -2348,6 +2454,12 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.getElementById("studentDob").value = student.date_of_birth ? student.date_of_birth.slice(0, 10) : "";
             document.getElementById("studentGender").value = student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1).toLowerCase() : "";
             document.getElementById("studentAddress").value = student.address || "";
+            const bf = document.getElementById("studentBForm"); if (bf) bf.value = student.b_form_number || "";
+            const af = document.getElementById("studentAdmissionFee"); if (af) af.value = student.admission_fee ?? "";
+            const mf = document.getElementById("studentMonthlyFee"); if (mf) mf.value = student.monthly_fee_override ?? "";
+            const ad = document.getElementById("studentAdmissionDate"); if (ad) ad.value = student.admission_date ? student.admission_date.slice(0, 10) : "";
+
+            await renderCustomFieldsInModal(student.custom_fields_data || {});
             openModal("addStudentModal");
         }
 
@@ -3443,6 +3555,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 document.getElementById("ppPaymentInfo").value = pp.payment_info || "";
             } catch (e) {}
             await applyPortalBackground();
+            await loadCustomFieldsPreview();
         }
         async function saveParentPortalSettings() {
             try {
@@ -3674,7 +3787,240 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             else if (key === "Escape") { toggleCalculator(); e.preventDefault(); }
             else if (key.toLowerCase() === "c") { calcClear(); e.preventDefault(); }
         });
+        /* ============================================================
+           CUSTOM FIELDS BUILDER
+           ============================================================ */
+        const CF_TYPES = {
+            text: { label: "Text", placeholder: "e.g. Ahmed Khan" },
+            number: { label: "Number", placeholder: "e.g. 12345" },
+            date: { label: "Date", placeholder: "" },
+            dropdown: { label: "Dropdown", placeholder: "Select an option" },
+            textarea: { label: "Long Text", placeholder: "Write details…" },
+            checkbox: { label: "Checkbox", placeholder: "" },
+        };
+        let cfCurrentFields = [];
 
+        function _cfKeyFromLabel(label) {
+            return (label || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+        }
+
+        async function loadCustomFieldsPreview() {
+            const container = document.getElementById("customFieldsPreview");
+            if (!container) return;
+            try {
+                const data = await apiRequest("/settings/custom-fields");
+                const fields = data.fields || [];
+                if (fields.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--gray); border:1.5px dashed var(--border); border-radius:10px;">
+                        <p style="font-size:0.88rem;">Abhi tak koi custom field nahi. <b>Edit Fields</b> click karein.</p>
+                    </div>`;
+                    return;
+                }
+                container.innerHTML = fields.map(f => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg-secondary); border-radius:10px; border:1px solid var(--border);">
+                        <div>
+                            <strong style="color:var(--primary-dark); font-size:0.9rem;">${f.label}</strong>
+                            <span style="margin-left:8px; font-size:0.78rem; color:var(--gray); background:var(--bg-primary); padding:2px 8px; border-radius:6px;">
+                                ${CF_TYPES[f.type]?.label || f.type}
+                            </span>
+                            ${f.required ? '<span style="margin-left:6px; font-size:0.72rem; color:#DC2626; font-weight:700;">*</span>' : ''}
+                        </div>
+                        <code style="font-size:0.78rem; color:var(--gray);">${f.key}</code>
+                    </div>
+                `).join("");
+            } catch (err) {
+                container.innerHTML = `<div style="color:var(--danger); font-size:0.9rem;">${err.message}</div>`;
+            }
+        }
+
+        async function openFieldBuilder() {
+            document.getElementById("fieldBuilderModal").classList.add("show");
+            document.getElementById("fieldBuilderList").innerHTML = '<div style="color:var(--gray); text-align:center; padding:20px;">Loading…</div>';
+            cfCurrentFields = [];
+            try {
+                const data = await apiRequest("/settings/custom-fields");
+                cfCurrentFields = data.fields || [];
+            } catch (err) { cfCurrentFields = []; }
+            renderFieldBuilder();
+        }
+        function closeFieldBuilder() { document.getElementById("fieldBuilderModal").classList.remove("show"); }
+
+        function renderFieldBuilder() {
+            const container = document.getElementById("fieldBuilderList");
+            if (cfCurrentFields.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--gray); background:var(--bg-secondary); border-radius:10px; border:1.5px dashed var(--border);">
+                    <p style="font-size:0.9rem;">Koi field nahi. Neeche se type choose karein.</p>
+                </div>`;
+                return;
+            }
+            container.innerHTML = cfCurrentFields.map((f, idx) => `
+                <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:12px; padding:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="background:var(--primary-lighter); color:var(--primary-dark); padding:3px 10px; border-radius:6px; font-size:0.78rem; font-weight:700;">
+                                ${CF_TYPES[f.type]?.label || f.type}
+                            </span>
+                            <span style="font-size:0.75rem; color:var(--gray);">#${idx + 1}</span>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="removeFieldRow(${idx})">🗑️</button>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <div class="form-group">
+                            <label style="font-size:0.78rem;">Label *</label>
+                            <input type="text" class="cf-label" value="${(f.label || '').replace(/"/g, '&quot;')}"
+                                   placeholder="e.g. Caste"
+                                   oninput="onCFLabelChange(${idx}, this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:0.78rem;">Key (auto) *</label>
+                            <input type="text" class="cf-key" value="${f.key || ''}"
+                                   placeholder="caste"
+                                   oninput="onCFKeyChange(${idx}, this.value)">
+                        </div>
+                    </div>
+
+                    ${f.type === 'dropdown' ? `
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label style="font-size:0.78rem;">Options (comma separated) *</label>
+                            <input type="text" class="cf-options"
+                                   value="${(f.options || []).join(', ').replace(/"/g, '&quot;')}"
+                                   placeholder="General, OBC, SC, ST"
+                                   oninput="onCFOptionsChange(${idx}, this.value)">
+                        </div>
+                    ` : ''}
+
+                    <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+                        <input type="checkbox" ${f.required ? 'checked' : ''} onchange="onCFRequiredChange(${idx}, this.checked)" style="width:auto;">
+                        Required field
+                    </label>
+                </div>
+            `).join("");
+        }
+
+        function addFieldRow(type) {
+            cfCurrentFields.push({
+                key: "", label: "", type: type,
+                required: false, placeholder: "",
+                options: type === "dropdown" ? [] : null,
+            });
+            renderFieldBuilder();
+            setTimeout(() => {
+                const list = document.getElementById("fieldBuilderList");
+                if (list) list.scrollTop = list.scrollHeight;
+            }, 50);
+        }
+
+        function removeFieldRow(idx) {
+            if (!confirm("Yeh field remove karni hai?")) return;
+            cfCurrentFields.splice(idx, 1);
+            renderFieldBuilder();
+        }
+
+        function onCFLabelChange(idx, value) {
+            const wasAuto = cfCurrentFields[idx].key === _cfKeyFromLabel(cfCurrentFields[idx].label || "");
+            cfCurrentFields[idx].label = value;
+            if (!cfCurrentFields[idx].key || wasAuto) {
+                const autoKey = _cfKeyFromLabel(value);
+                cfCurrentFields[idx].key = autoKey;
+                const keyInput = document.querySelectorAll("#fieldBuilderList .cf-key")[idx];
+                if (keyInput) keyInput.value = autoKey;
+            }
+        }
+        function onCFKeyChange(idx, value) {
+            cfCurrentFields[idx].key = value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+        }
+        function onCFOptionsChange(idx, value) {
+            cfCurrentFields[idx].options = value.split(",").map(s => s.trim()).filter(Boolean);
+        }
+        function onCFRequiredChange(idx, value) {
+            cfCurrentFields[idx].required = value;
+        }
+
+        async function saveCustomFields() {
+            for (let i = 0; i < cfCurrentFields.length; i++) {
+                const f = cfCurrentFields[i];
+                if (!f.label || !f.label.trim()) { alert(`Field #${i + 1}: Label required hai`); return; }
+                if (!f.key || !f.key.trim()) { alert(`Field "${f.label}": Key required hai`); return; }
+                if (f.type === "dropdown" && (!f.options || f.options.length === 0)) {
+                    alert(`Field "${f.label}": Kam se kam 1 option daalein`); return;
+                }
+            }
+            const keys = cfCurrentFields.map(f => f.key);
+            if (new Set(keys).size !== keys.length) { alert("Duplicate field keys hain"); return; }
+
+            try {
+                await apiRequest("/settings/custom-fields", {
+                    method: "PUT",
+                    body: JSON.stringify({ fields: cfCurrentFields }),
+                });
+                showAlert("Custom fields saved!", "success");
+                closeFieldBuilder();
+                loadCustomFieldsPreview();
+            } catch (err) { showAlert("Save failed: " + err.message, "error"); }
+        }
+
+        /* ============================================================
+           RENDER CUSTOM FIELDS IN ADD/EDIT STUDENT MODAL
+           ============================================================ */
+        async function renderCustomFieldsInModal(values = {}) {
+            const container = document.getElementById("customFieldsContainer");
+            const grid = document.getElementById("customFieldsGrid");
+            if (!container || !grid) return;
+            try {
+                const data = await apiRequest("/settings/custom-fields");
+                const fields = data.fields || [];
+                if (fields.length === 0) { container.style.display = "none"; return; }
+                container.style.display = "block";
+                grid.innerHTML = fields.map(f => {
+                    const val = values[f.key] ?? "";
+                    const inputId = `cf_input_${f.key}`;
+                    let inputHtml = "";
+                    const fullWidth = f.type === "textarea" ? 'style="grid-column: 1 / -1;"' : "";
+
+                    if (f.type === "text") {
+                        inputHtml = `<input type="text" id="${inputId}" data-cf-key="${f.key}" placeholder="${f.placeholder || ''}" value="${String(val).replace(/"/g, '&quot;')}">`;
+                    } else if (f.type === "number") {
+                        inputHtml = `<input type="number" id="${inputId}" data-cf-key="${f.key}" placeholder="${f.placeholder || ''}" value="${val}">`;
+                    } else if (f.type === "date") {
+                        inputHtml = `<input type="date" id="${inputId}" data-cf-key="${f.key}" value="${val}">`;
+                    } else if (f.type === "textarea") {
+                        inputHtml = `<textarea id="${inputId}" data-cf-key="${f.key}" rows="2" placeholder="${f.placeholder || ''}" style="resize:vertical;">${String(val).replace(/</g, '&lt;')}</textarea>`;
+                    } else if (f.type === "dropdown") {
+                        const opts = (f.options || []).map(o =>
+                            `<option value="${o}" ${String(val) === String(o) ? "selected" : ""}>${o}</option>`
+                        ).join("");
+                        inputHtml = `<select id="${inputId}" data-cf-key="${f.key}">
+                            <option value="">Select…</option>${opts}
+                        </select>`;
+                    } else if (f.type === "checkbox") {
+                        inputHtml = `<label style="display:flex; align-items:center; gap:8px; padding:10px 0; cursor:pointer;">
+                            <input type="checkbox" id="${inputId}" data-cf-key="${f.key}" ${val ? "checked" : ""} style="width:auto;">
+                            <span style="font-size:0.9rem;">Yes</span>
+                        </label>`;
+                    }
+
+                    return `<div class="form-group" ${fullWidth}>
+                        <label>${f.label}${f.required ? ' <span style="color:#DC2626;">*</span>' : ''}</label>
+                        ${inputHtml}
+                    </div>`;
+                }).join("");
+            } catch (err) {
+                console.error("Failed to load custom fields:", err);
+                container.style.display = "none";
+            }
+        }
+
+        function collectCustomFieldValues() {
+            const inputs = document.querySelectorAll("#customFieldsGrid [data-cf-key]");
+            const values = {};
+            inputs.forEach(el => {
+                const key = el.getAttribute("data-cf-key");
+                if (el.type === "checkbox") values[key] = el.checked;
+                else values[key] = el.value;
+            });
+            return values;
+        }
         function downloadCSV(rows, filename) {
             if (!rows || rows.length === 0) { showAlert("No data to export", "error"); return; }
             const escapeCell = (val) => { const str = (val === null || val === undefined) ? "" : String(val); if (str.includes(",") || str.includes('"') || str.includes("\n")) return `"${str.replace(/"/g, '""')}"`; return str; };

@@ -33,6 +33,7 @@ def _announcement_dict(a: Announcement) -> dict:
         "title": a.title,
         "content": a.content,
         "audience": getattr(a, "audience", "both") or "both",
+        "created_at": created,
     }
 
 

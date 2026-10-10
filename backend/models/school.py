@@ -42,6 +42,7 @@ class School(Base):
     # Fee settings
     fee_structure: Mapped[str | None] = mapped_column(Text, nullable=True)
     fee_due_day: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
+    custom_fields: Mapped[str | None] = mapped_column(Text, nullable=True)
     late_fee_percent: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
 
     # Parent Portal — admin-controlled visibility. Each toggle gates what a

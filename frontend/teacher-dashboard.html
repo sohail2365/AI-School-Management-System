@@ -1130,7 +1130,7 @@ async function loadTeacherAnnouncements() {
                     </span>
                 </div>
                 <p style="color:var(--dark); margin-bottom:10px; line-height:1.6; white-space:pre-wrap;">${a.content}</p>
-                <small style="color:var(--gray);">📅 ${new Date(a.created_at).toLocaleDateString()}</small>
+                <small style="color:var(--gray);">📅 ${a.created_at ? new Date(a.created_at).toLocaleDateString() : "—"}</small>
             </div>
         `).join("");
     } catch (e) {

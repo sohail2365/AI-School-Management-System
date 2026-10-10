@@ -68,10 +68,25 @@ class ParentPortalSettingsResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
+
 # ==================== BACKGROUND OVERLAY ====================
 
 class BackgroundOverlayUpdate(BaseModel):
     """Payload for POST /settings/background-image/overlay"""
-    overlay: int = Field(..., ge=40, le=95, description="Overlay intensity, 40-95")        
-        
+    overlay: int = Field(..., ge=40, le=95, description="Overlay intensity, 40-95")
+
+
+# ==================== ✅ NEW: CUSTOM FIELDS ====================
+
+class CustomFieldItem(BaseModel):
+    key: str = Field(..., min_length=1, max_length=60)
+    label: str = Field(..., min_length=1, max_length=80)
+    type: str = Field(..., description="text | number | date | textarea | dropdown | checkbox")
+    required: bool = False
+    placeholder: str | None = None
+    options: list[str] | None = None
+
+
+class CustomFieldsPayload(BaseModel):
+    fields: list[CustomFieldItem]
