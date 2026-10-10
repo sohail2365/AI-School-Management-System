@@ -1424,6 +1424,7 @@
                             <div class="form-group">
                                 <label>What to print</label>
                                 <select id="pcType">
+                                    <option value="unpaid_fees_report">💰 Unpaid Fees Report (all students)</option>
                                     <option value="report_cards">📋 Report Cards (all students)</option>
                                     <option value="id_cards">🪪 Student ID Cards</option>
                                     <option value="fee_receipts">🧾 Fee Receipts (paid fees)</option>
@@ -2715,9 +2716,12 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                         <td><strong>Rs. ${f.due_amount}</strong></td>
                         <td><span class="badge ${badge}">${f.status}</span></td>
                         <td>
-                            ${(f.status !== "paid" && f.fee_type === "additional")
-                                ? `<button class="btn btn-sm btn-danger" onclick="deleteAdditionalCharge(${f.id})" title="Delete this charge">🗑️</button>`
-                                : ""}
+                            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                <button class="btn btn-sm btn-secondary" onclick="printPurchaseReceipt(${f.id})" title="Print receipt">🧾</button>
+                                ${(f.status !== "paid" && f.fee_type === "additional")
+                                    ? `<button class="btn btn-sm btn-danger" onclick="deleteAdditionalCharge(${f.id})" title="Delete this charge">🗑️</button>`
+                                    : ""}
+                            </div>
                         </td>
                     </tr>`;
                 };
@@ -3609,6 +3613,92 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 const classStudents = students.filter(s => s.class_name === className);
                 if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
                 const school = await getSchoolProfile();
+                // ✅ NEW: Unpaid Fees Report
+                if (type === "unpaid_fees_report") {
+                    const rows = [];
+                    for (const s of classStudents) {
+                        try {
+                            const profile = await apiRequest(`/students/${s.id}/profile`);
+                            const fees = profile.fees.records || [];
+                            const total = fees.reduce((sum, f) => sum + Number(f.amount || 0), 0);
+                            const paid = fees.reduce((sum, f) => sum + Number(f.paid_amount || 0), 0);
+                            const pending = Math.round((total - paid) * 100) / 100;
+                            if (pending > 0.01) {
+                                rows.push({
+                                    roll: s.roll_number || "-",
+                                    name: s.name,
+                                    father: s.father_name || "-",
+                                    total,
+                                    paid,
+                                    pending,
+                                });
+                            }
+                        } catch (e) { /* skip failed student */ }
+                    }
+
+                    if (rows.length === 0) {
+                        showAlert(`Class ${className} mein koi unpaid fees nahi 🎉`, "success");
+                        closeModal("printCenterModal");
+                        return;
+                    }
+
+                    // Sort by roll number (numeric)
+                    rows.sort((a, b) => {
+                        const ra = parseInt(a.roll) || 999999;
+                        const rb = parseInt(b.roll) || 999999;
+                        return ra - rb;
+                    });
+
+                    const totals = rows.reduce((acc, r) => ({
+                        total: acc.total + r.total,
+                        paid: acc.paid + r.paid,
+                        pending: acc.pending + r.pending,
+                    }), { total: 0, paid: 0, pending: 0 });
+
+                    const rowsHtml = rows.map(r => `<tr>
+                        <td>${r.roll}</td>
+                        <td>${r.name}</td>
+                        <td>${r.father}</td>
+                        <td style="text-align:right;">Rs. ${r.total.toLocaleString()}</td>
+                        <td style="text-align:right;">Rs. ${r.paid.toLocaleString()}</td>
+                        <td style="text-align:right; color:#DC2626;"><strong>Rs. ${r.pending.toLocaleString()}</strong></td>
+                    </tr>`).join("");
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Unpaid Fees Report — Class ${className}</h2>
+                            <div style="font-size:12px; color:#666; margin-top:6px;">Generated: ${new Date().toLocaleDateString("en-GB")}</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll</th>
+                                    <th>Student Name</th>
+                                    <th>Father's Name</th>
+                                    <th style="text-align:right;">Total Fee</th>
+                                    <th style="text-align:right;">Paid</th>
+                                    <th style="text-align:right;">Pending</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                            <tfoot>
+                                <tr style="background:#f2f2f2; font-weight:700;">
+                                    <td colspan="3">Grand Total (${rows.length} students with dues)</td>
+                                    <td style="text-align:right;">Rs. ${totals.total.toLocaleString()}</td>
+                                    <td style="text-align:right;">Rs. ${totals.paid.toLocaleString()}</td>
+                                    <td style="text-align:right;">Rs. ${totals.pending.toLocaleString()}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="footer">This is a computer-generated report from ${school.name || "the school"}.</div>
+                    `;
+                    openPrintWindow(`Unpaid Fees - Class ${className}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
                 if (type === "class_list") {
                     const rows = classStudents.map((s, i) => `<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.father_name || "-"}</td><td>${s.roll_number || "-"}</td><td>${s.phone || "-"}</td></tr>`).join("");
                     const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:10px;">Class ${className} — Student List</h2></div><table><thead><tr><th>#</th><th>Name</th><th>Father's Name</th><th>Roll</th><th>Phone</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">${school.name} — ${new Date().toLocaleDateString()}</div>`;
@@ -5161,6 +5251,78 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 <div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>
             `;
             openPrintWindow(`Admission Slip - ${s.name}`, bodyHtml);
+        }
+        async function printPurchaseReceipt(feeId) {
+            if (!_feeStatementData) { showAlert("Pehle statement load karein", "error"); return; }
+            const fee = _feeStatementData.fees.find(f => f.id === feeId);
+            if (!fee) { showAlert("Fee record nahi mila", "error"); return; }
+            const s = _feeStatementData.student;
+            const sum = _feeStatementData.summary;
+            const school = await getSchoolProfile();
+
+            const feeName = fee.fee_name || "Purchase";
+            const otherArrears = Math.round((sum.total_pending - fee.due_amount) * 100) / 100;
+
+            const bodyHtml = `
+                <div class="header">
+                    <h1>${school.name || "School"}</h1>
+                    <div>${school.address || ""}</div>
+                    ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                    <h2 style="margin-top:14px;">Purchase Receipt</h2>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>Student:</strong> ${s.name}<br>
+                        <strong>Father:</strong> ${s.father_name || "-"}<br>
+                        <strong>Class:</strong> ${s.class_name || "-"} · <strong>Roll:</strong> ${s.roll_number || "-"}
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>Receipt Date:</strong> ${new Date().toLocaleDateString("en-GB")}
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Month</th>
+                            <th style="text-align:right;">Amount</th>
+                            <th style="text-align:right;">Paid</th>
+                            <th style="text-align:right;">Due</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${feeName}</td>
+                            <td>${fee.month || "one-time"}</td>
+                            <td style="text-align:right;">Rs. ${fee.amount}</td>
+                            <td style="text-align:right;">Rs. ${fee.paid_amount}</td>
+                            <td style="text-align:right;"><strong>Rs. ${fee.due_amount}</strong></td>
+                        </tr>
+                        <tr style="background:#f2f2f2; font-weight:700;">
+                            <td colspan="2">Current Purchase Total</td>
+                            <td style="text-align:right;">Rs. ${fee.amount}</td>
+                            <td style="text-align:right;">Rs. ${fee.paid_amount}</td>
+                            <td style="text-align:right;">Rs. ${fee.due_amount}</td>
+                        </tr>
+                        ${otherArrears > 0.01 ? `
+                        <tr><td colspan="5" style="background:#f2f2f2; font-weight:700; padding:8px;">Previous Arrears & Other Pending</td></tr>
+                        <tr>
+                            <td colspan="4">Outstanding from previous fees</td>
+                            <td style="text-align:right;">Rs. ${otherArrears}</td>
+                        </tr>` : ""}
+                        <tr style="background:#FEE2E2; font-weight:700;">
+                            <td colspan="4">GRAND TOTAL PENDING</td>
+                            <td style="text-align:right; color:#991B1B;"><strong>Rs. ${sum.total_pending}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="meta" style="margin-top:30px;">
+                    <div>Received By: ______________________</div>
+                    <div>Signature: ______________________</div>
+                </div>
+                <div class="footer">Thank you! · Computer-generated receipt from ${school.name || "the school"}.</div>
+            `;
+            openPrintWindow(`Purchase Receipt - ${s.name}`, bodyHtml);
         }
         async function printFeeStatement() {
             if (!_feeStatementData) { showAlert("Pehle statement load karein", "error"); return; }
