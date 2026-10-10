@@ -553,7 +553,7 @@
         .staff-subtab { display: none; }
         .staff-subtab.active { display: block; }
 
-        .modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(30, 27, 75, 0.55); backdrop-filter: blur(6px); animation: fadeIn 0.2s; }
+        .modal { display: none; position: fixed; z-index: 1000; inset: 0; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: rgba(30, 27, 75, 0.55); backdrop-filter: blur(6px); animation: fadeIn 0.2s; }
         .modal.show { display: flex; align-items: center; justify-content: center; padding: 20px; }
         .modal-content {
             background: var(--bg-primary);
@@ -1369,8 +1369,8 @@
                         </p>
                         <div style="font-weight:600; font-size:0.88rem; margin-bottom:6px;">📄 Sample CSV format:</div>
                         <div class="csv-preview">name,father_name,class_name,roll_number,gender,date_of_birth,phone,parent_email
-Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com
-Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</div>
+                            Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com
+                            Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com</div>
                         <div class="form-group" style="margin-bottom:16px;">
                             <label>Select CSV File</label>
                             <input type="file" id="bulkImportFile" accept=".csv">
@@ -2244,10 +2244,17 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.querySelector(".sidebar").classList.remove("open");
             document.getElementById("sidebarOverlay").classList.remove("show");
         }
+        function _activateView(viewId) {
+            document.querySelectorAll(".view").forEach(v => {
+                v.classList.remove("active");
+                v.style.display = ""; 
+            });
+            const target = document.getElementById(viewId);
+            if (target) target.classList.add("active");
+        }
 
         function switchView(viewName) {
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            document.getElementById(viewName + "View").classList.add("active");
+            _activateView(viewName + "View");
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             document.querySelector(`[data-view="${viewName}"]`).classList.add("active");
             closeSidebar();
@@ -2548,7 +2555,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.getElementById("addStudentModal").dataset.editingId = "";
             document.getElementById("studentModalTitle").textContent = "Add Student (Admission Slip)";
             document.getElementById("studentSaveBtn").textContent = "Save Student";
-            ["studentName","studentFatherName","studentEmail","studentPhone","studentParentEmail","studentClass","studentRoll","studentDob","studentGender","studentAddress","studentBForm","studentAdmissionFee","studentMonthlyFee","studentAdmissionDate"].forEach(id => {
+            ["studentName","studentFatherName","studentEmail","studentPhone","studentParentEmail","studentClass","studentRoll","studentDob","studentGender","studentAddress","studentBForm","studentAdmissionFee","studentMonthlyFee","studentAdmissionDate","studentPhoto"].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = "";
             });
@@ -2631,10 +2638,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         async function openFeeStatement(studentId) {
             _feeStatementStudentId = studentId;
             _feeBackContext.class = currentFeeClass;
-
-            // Switch to statement view
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            document.getElementById("feeStatementView").classList.add("active");
+            _activateView("feeStatementView");
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             const feesLink = document.querySelector('[data-view="fees"]');
             if (feesLink) feesLink.classList.add("active");
@@ -2649,8 +2653,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         }
 
         function backFromFeeStatement() {
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            document.getElementById("feesView").classList.add("active");
+            _activateView("feesView");
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             const feesLink = document.querySelector('[data-view="fees"]');
             if (feesLink) feesLink.classList.add("active");
@@ -2663,7 +2666,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 currentFeeClass = cn;
                 document.getElementById("feesClassGrid").style.display = "none";
                 document.getElementById("feesDetailView").style.display = "none";
-                document.getElementById("feesStudentsView").style.display = "block";
+                document.getElementById("feesStudentsView").classList.add("active");
                 document.getElementById("feesStudentsTitle").textContent = `Class ${cn} — Student Fee Summary`;
                 loadFeeStudentsInClass(cn);
             } else {
@@ -3809,21 +3812,44 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         }
 
         async function openBulkExamEntryModal() {
-            if (!students || students.length === 0) students = await apiRequest("/students");
             const sel = document.getElementById("beeClass");
-            const classes = getAllClasses();
-            sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+            sel.innerHTML = '<option value="">Loading…</option>';
+
+            try {
+                const data = await apiRequest("/students");
+                students = data || [];
+            } catch (err) {
+                console.error("Failed to load students:", err);
+                sel.innerHTML = '<option value="">Failed to load</option>';
+                showAlert("Students load nahi ho sake: " + err.message, "error");
+                return;
+            }
+
+            const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))]
+                .sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+
+            if (classes.length === 0) {
+                sel.innerHTML = '<option value="">No classes found</option>';
+                showAlert("Pehle Students section mein students add karein", "error");
+                return;
+            }
+
+            sel.innerHTML = '<option value="">Select Class</option>' +
+                classes.map(c => `<option value="${c}">${c}</option>`).join("");
+
             document.getElementById("beeSubject").value = "";
             document.getElementById("beeTotalMarks").value = "100";
             document.getElementById("beeExamDate").value = new Date().toISOString().slice(0, 10);
-            document.getElementById("beeTableBody").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">Select a class to begin.</td></tr>`;
+            document.getElementById("beeTableBody").innerHTML =
+                `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">Select a class to begin.</td></tr>`;
+
             openModal("bulkExamEntryModal");
         }
         function buildBulkExamTable() {
             const className = document.getElementById("beeClass").value;
             const tbody = document.getElementById("beeTableBody");
             if (!className) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">Select a class to begin.</td></tr>`; return; }
-            const list = students.filter(s => s.class_name === className);
+            const list = (students || []).filter(s => s.class_name === className);
             if (list.length === 0) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--gray); padding:20px;">No students in this class.</td></tr>`; return; }
             tbody.innerHTML = list.map(s => `<tr><td>${s.roll_number || "-"}</td><td>${s.name}</td><td><input type="number" class="bee-marks" data-student-id="${s.id}" placeholder="0" style="width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--dark); font-family:inherit;"></td></tr>`).join("");
         }
@@ -4951,9 +4977,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             _profileBackContext.view = activeView ? activeView.id.replace("View", "") : "students";
             _profileBackContext.studentClass = (typeof currentStudentClass !== "undefined") ? currentStudentClass : null;
 
-            // Switch to profile view
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            document.getElementById("studentProfileView").classList.add("active");
+            _activateView("studentProfileView");
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             const studentsLink = document.querySelector('[data-view="students"]');
             if (studentsLink) studentsLink.classList.add("active");
@@ -4976,8 +5000,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             }
 
             // Switch view WITHOUT resetting class context
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            document.getElementById(target + "View").classList.add("active");
+            _activateView(target + "View");
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             const link = document.querySelector(`[data-view="${target}"]`);
             if (link) link.classList.add("active");
@@ -5561,13 +5584,13 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             const s = document.getElementById("feesStudentsView");
             if (g) g.style.display = "block";
             if (d) d.style.display = "none";
-            if (s) s.style.display = "none";
+            if (s) { s.classList.remove("active"); s.style.display = ""; }
         }
-    async function openFeeClass(cn) {
+        async function openFeeClass(cn) {
             currentFeeClass = cn;
             document.getElementById("feesClassGrid").style.display = "none";
             document.getElementById("feesDetailView").style.display = "none";
-            document.getElementById("feesStudentsView").style.display = "block";
+            document.getElementById("feesStudentsView").classList.add("active");
             document.getElementById("feesStudentsTitle").textContent = `Class ${cn} — Student Fee Summary`;
             await loadFeeStudentsInClass(cn);
         }
@@ -5640,7 +5663,9 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         function backToFeeClasses() {
             currentFeeClass = null;
             window._currentFeeStatusFilter = "";
-            document.getElementById("feesStudentsView").style.display = "none";
+            const s = document.getElementById("feesStudentsView");
+            s.classList.remove("active");
+            s.style.display = "";
             showFeeClassGrid();
             loadFeeClasses();
         }
