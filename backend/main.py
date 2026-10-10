@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -178,7 +178,10 @@ async def startup():
             "failed_login_attempts": "failed_login_attempts INTEGER NOT NULL DEFAULT 0",
             "locked_until": "locked_until TIMESTAMP",
         })
-
+                # ==================== FEES ====================
+        _ensure_columns(inspector, existing_tables, "fees", {
+            "fee_type": "fee_type VARCHAR(20) NOT NULL DEFAULT 'monthly'",
+        })
         # ==================== ATTENDANCE ====================
         _ensure_columns(inspector, existing_tables, "attendance", {
             "marked_by_user_id": "marked_by_user_id INTEGER",

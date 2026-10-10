@@ -8,7 +8,7 @@ from backend.database import get_db
 from backend.models.fee import Fee, FeeStatus
 from backend.models.payment import Payment
 from backend.models.student import Student
-from backend.schemas.fee import FeeCreate, FeeOut, FeeUpdate
+from backend.schemas.fee import FeeCreate, FeeOut, FeeUpdate, FifoPaymentRequest
 from backend.schemas.payment import PaymentCreate, PaymentOut
 from backend.utils.rbac import require_roles
 
@@ -294,6 +294,7 @@ def create_fee(
         paid_amount=0.0,
         due_amount=payload.amount,
         month=payload.month,
+        fee_type=payload.fee_type,   # ✅ NEW
         status=FeeStatus.pending,
     )
     db.add(fee)
@@ -385,4 +386,232 @@ def fee_collection_report(
         "total_paid": paid,
         "total_due": due,
         "collection_rate": round((paid / total) * 100, 2) if total else 0.0,
+    }
+
+# ==================== ✅ NEW: STUDENT FEE STATEMENT ====================
+
+@router.get("/students-summary")
+def class_students_fee_summary(
+    class_name: str,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    List of students in a class with fee summary.
+    Used for the class fee view — instead of raw fee rows, show student cards/rows.
+    """
+    students = (
+        db.query(Student)
+        .filter(Student.school_id == token["school_id"], Student.class_name == class_name)
+        .all()
+    )
+    if not students:
+        return []
+
+    student_ids = [s.id for s in students]
+    fees = (
+        db.query(Fee)
+        .filter(Fee.school_id == token["school_id"], Fee.student_id.in_(student_ids))
+        .all()
+    )
+
+    by_student: dict[int, list[Fee]] = {}
+    for f in fees:
+        by_student.setdefault(f.student_id, []).append(f)
+
+    def sort_key(s):
+        try:
+            return (s.class_name or "", int(str(s.roll_number).strip()))
+        except (ValueError, TypeError):
+            return (s.class_name or "", 999999)
+
+    students = sorted(students, key=sort_key)
+
+    result = []
+    for s in students:
+        fs = by_student.get(s.id, [])
+        total = round(sum(f.amount for f in fs), 2)
+        paid = round(sum(f.paid_amount for f in fs), 2)
+        pending = round(total - paid, 2)
+        pending_count = sum(1 for f in fs if f.status != FeeStatus.paid and f.due_amount > 0)
+        result.append({
+            "id": s.id,
+            "name": s.name,
+            "father_name": s.father_name,
+            "roll_number": s.roll_number,
+            "class_name": s.class_name,
+            "phone": s.phone,
+            "total_amount": total,
+            "total_paid": paid,
+            "total_pending": pending,
+            "pending_count": pending_count,
+            "is_clear": pending <= 0,
+        })
+    return result
+
+
+@router.get("/student/{student_id}/statement")
+def get_student_statement(
+    student_id: int,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Full fee statement for a single student:
+    - student info
+    - summary (total, paid, pending)
+    - all fees (frontend groups by month/type)
+    - payment history
+    """
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    fees = (
+        db.query(Fee)
+        .filter(Fee.school_id == token["school_id"], Fee.student_id == student_id)
+        .order_by(Fee.created_at.desc(), Fee.id.desc())
+        .all()
+    )
+
+    fee_ids = [f.id for f in fees]
+    payments: list[Payment] = []
+    if fee_ids:
+        payments = (
+            db.query(Payment)
+            .filter(Payment.school_id == token["school_id"], Payment.fee_id.in_(fee_ids))
+            .order_by(Payment.payment_date.desc(), Payment.id.desc())
+            .all()
+        )
+
+    total_amount = round(sum(f.amount for f in fees), 2)
+    total_paid = round(sum(f.paid_amount for f in fees), 2)
+    total_pending = round(total_amount - total_paid, 2)
+
+    def fee_dict(f: Fee):
+        return {
+            "id": f.id,
+            "fee_name": f.fee_name,
+            "fee_type": f.fee_type or "monthly",
+            "month": f.month,
+            "amount": f.amount,
+            "paid_amount": f.paid_amount,
+            "due_amount": f.due_amount,
+            "due_date": f.due_date.isoformat() if f.due_date else None,
+            "status": f.status.value if hasattr(f.status, "value") else str(f.status),
+            "created_at": f.created_at.isoformat() if f.created_at else None,
+        }
+
+    return {
+        "student": {
+            "id": student.id,
+            "name": student.name,
+            "father_name": student.father_name,
+            "class_name": student.class_name,
+            "roll_number": student.roll_number,
+            "phone": student.phone,
+            "photo_url": student.photo_url,
+        },
+        "summary": {
+            "total_amount": total_amount,
+            "total_paid": total_paid,
+            "total_pending": total_pending,
+        },
+        "current_month": date.today().strftime("%Y-%m"),
+        "fees": [fee_dict(f) for f in fees],
+        "payments": [
+            {
+                "id": p.id,
+                "fee_id": p.fee_id,
+                "amount_paid": p.amount_paid,
+                "payment_date": p.payment_date.isoformat() if p.payment_date else None,
+                "payment_method": p.payment_method,
+                "receipt_number": p.receipt_number,
+            }
+            for p in payments
+        ],
+    }
+
+
+@router.post("/student/{student_id}/record-payment")
+def record_payment_fifo(
+    student_id: int,
+    payload: FifoPaymentRequest,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Record a payment that auto-applies FIFO across the student's pending fees.
+    Oldest (by due_date, then id) cleared first.
+    """
+    student = (
+        db.query(Student)
+        .filter(Student.id == student_id, Student.school_id == token["school_id"])
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    pending_fees = (
+        db.query(Fee)
+        .filter(
+            Fee.school_id == token["school_id"],
+            Fee.student_id == student_id,
+            Fee.status != FeeStatus.paid,
+            Fee.due_amount > 0,
+        )
+        .order_by(Fee.due_date.asc().nullslast(), Fee.id.asc())
+        .all()
+    )
+    if not pending_fees:
+        raise HTTPException(status_code=422, detail="No pending fees to apply payment")
+
+    total_pending = round(sum(f.due_amount for f in pending_fees), 2)
+    if payload.amount > total_pending:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Payment Rs. {payload.amount} exceeds total pending Rs. {total_pending}",
+        )
+
+    remaining = round(payload.amount, 2)
+    applied: list[dict] = []
+    payment_date = payload.payment_date or date.today()
+
+    for fee in pending_fees:
+        if remaining <= 0:
+            break
+        pay_now = round(min(remaining, fee.due_amount), 2)
+
+        payment = Payment(
+            school_id=token["school_id"],
+            fee_id=fee.id,
+            amount_paid=pay_now,
+            payment_date=payment_date,
+            payment_method=payload.payment_method,
+            receipt_number=payload.receipt_number,
+        )
+        db.add(payment)
+
+        fee.paid_amount = round(fee.paid_amount + pay_now, 2)
+        _recalculate_fee(fee)
+
+        applied.append({
+            "fee_id": fee.id,
+            "fee_name": fee.fee_name,
+            "fee_type": fee.fee_type,
+            "amount_applied": pay_now,
+            "new_status": fee.status.value if hasattr(fee.status, "value") else str(fee.status),
+        })
+        remaining = round(remaining - pay_now, 2)
+
+    db.commit()
+
+    return {
+        "total_paid": payload.amount,
+        "applied_to": applied,
+        "remaining_after": round(total_pending - payload.amount, 2),
     }

@@ -112,6 +112,7 @@ def _auto_create_fee_for_student_with_amount(
         paid_amount=0.0,
         due_date=due,
         month=current_month,
+        fee_type="monthly",
         status=FeeStatus.pending,
     )
     db.add(fee)
@@ -466,6 +467,7 @@ def create_student(
                 paid_amount=0.0,
                 due_date=date.today(),
                 month=date.today().strftime("%Y-%m"),
+                fee_type="admission", 
                 status=FeeStatus.pending,
             )
             db.add(admission_fee)

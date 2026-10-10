@@ -35,6 +35,14 @@ class Fee(Base):
     due_date: Mapped[date | None] = mapped_column(SqlDate, nullable=True)
     month: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
+    # ✅ NEW: "monthly" | "admission" | "additional" | "other"
+    fee_type: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="monthly",
+        server_default="monthly",
+    )
+
     paid_amount: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     due_amount: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
 
