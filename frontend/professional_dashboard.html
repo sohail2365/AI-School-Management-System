@@ -958,7 +958,29 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="view" id="studentProfileView">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="view-header-bar">
+                                <button class="btn btn-sm btn-secondary" onclick="backFromStudentProfile()">← Back</button>
+                                <h3 class="card-title" id="studentProfileTitle">Student Profile</h3>
+                            </div>
+                        </div>
+                        <div class="card-body" id="studentProfileBody">
+                            Loading...
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="btn-group" style="margin-top: 0;">
+                                <button class="btn btn-primary" onclick="printReportCard()">🖨️ Print Report Card</button>
+                                <button class="btn btn-whatsapp" onclick="shareReportCardOnWhatsapp()">📱 Share on WhatsApp</button>
+                                <button class="btn btn-secondary" onclick="printStudentIdCard()">🪪 Print ID Card</button>
+                                <button class="btn btn-secondary" onclick="printAdmissionSlip()">📝 Admission Slip</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="view" id="feesView">
                     <div id="feesClassGrid">
                         <div class="card">
@@ -1749,21 +1771,6 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             <div class="btn-group">
                 <button class="btn btn-primary" onclick="submitBulkFee()">Generate Fees</button>
                 <button class="btn btn-secondary" onclick="closeModal('bulkFeeModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="studentProfileModal">
-        <div class="modal-content modal-wide">
-            <span class="modal-close" onclick="closeModal('studentProfileModal')">✕</span>
-            <div class="modal-header" id="studentProfileTitle">Student Profile</div>
-            <div id="studentProfileBody" style="max-height:65vh; max-height:65dvh; overflow-y:auto;">Loading...</div>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="printReportCard()">🖨️ Print Report Card</button>
-                <button class="btn btn-whatsapp" onclick="shareReportCardOnWhatsapp()">📱 Share on WhatsApp</button>
-                <button class="btn btn-secondary" onclick="printStudentIdCard()">🪪 Print ID Card</button>
-                <button class="btn btn-secondary" onclick="printAdmissionSlip()">📝 Admission Slip</button>
-                <button class="btn btn-secondary" onclick="closeModal('studentProfileModal')">Close</button>
             </div>
         </div>
     </div>
@@ -4545,20 +4552,77 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             try { await apiRequest(`/students/${studentId}/documents/${documentId}`, { method: "DELETE" }); showAlert("Document deleted."); await loadStudentProfileDocuments(studentId); }
             catch (error) { showAlert("Could not delete: " + error.message, "error"); }
         }
-        async function openStudentProfile(studentId) {
+        let _profileBackContext = { view: "students", studentClass: null };
+        function openStudentProfile(studentId) {
+            // Save context for back navigation
+            const activeView = document.querySelector(".view.active");
+            _profileBackContext.view = activeView ? activeView.id.replace("View", "") : "students";
+            _profileBackContext.studentClass = (typeof currentStudentClass !== "undefined") ? currentStudentClass : null;
+
+            // Switch to profile view
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById("studentProfileView").classList.add("active");
+            document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+            const studentsLink = document.querySelector('[data-view="students"]');
+            if (studentsLink) studentsLink.classList.add("active");
+            closeSidebar();
+            animatePageTitle("Student Profile");
             document.getElementById("studentProfileTitle").textContent = "Student Profile";
             document.getElementById("studentProfileBody").innerHTML = "Loading...";
-            openModal("studentProfileModal");
+            const contentEl = document.querySelector(".content");
+            if (contentEl) contentEl.scrollTop = 0;
+
+            _loadStudentProfile(studentId);
+        }
+
+        function backFromStudentProfile() {
+            const target = _profileBackContext.view || "students";
+
+            // Restore class context (bypass switchView's reset)
+            if (target === "students" && typeof currentStudentClass !== "undefined") {
+                currentStudentClass = _profileBackContext.studentClass;
+            }
+
+            // Switch view WITHOUT resetting class context
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById(target + "View").classList.add("active");
+            document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+            const link = document.querySelector(`[data-view="${target}"]`);
+            if (link) link.classList.add("active");
+            closeSidebar();
+
+            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", tools: "Tools", settings: "Settings" };
+            animatePageTitle(titles[target] || "Dashboard");
+
+            // Manually load target view data
+            if (target === "students") {
+                if (typeof loadStudents === "function") loadStudents();
+            } else if (typeof window._origLoadViewData === "function") {
+                window._origLoadViewData(target);
+            } else if (typeof loadViewData === "function") {
+                loadViewData(target);
+            }
+        }
+
+        async function _loadStudentProfile(studentId) {
             try {
                 const data = await apiRequest(`/students/${studentId}/profile`);
                 currentProfileData = data;
-                const s = data.student;
+
+                // Merge with local students array for freshest fields
+                const localStudent = (students || []).find(x => x.id === studentId) || {};
+                const s = Object.assign({}, localStudent, data.student);
+                currentProfileData.student = s;
+
                 document.getElementById("studentProfileTitle").textContent = `${s.name} — ${s.class_name || "-"} (Roll ${s.roll_number || "-"})`;
+
                 const attendanceRowsHtml = data.attendance.recent_records.length ? data.attendance.recent_records.map(r => `<tr><td>${r.date}</td><td><span class="badge ${r.is_present ? "badge-success" : "badge-danger"}">${r.is_present ? "Present" : "Absent"}</span></td><td>${r.remarks || "-"}</td></tr>`).join("") : `<tr><td colspan="3" style="text-align:center; color:var(--gray);">No attendance records</td></tr>`;
                 const gradeRowsHtml = data.grades.records.length ? data.grades.records.map(g => `<tr><td>${g.subject}</td><td>${g.marks_obtained}/${g.total_marks}</td><td>${g.percentage}%</td><td>${g.grade || "-"}</td><td>${g.exam_date || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No grade records</td></tr>`;
                 const feeRowsHtml = data.fees.records.length ? data.fees.records.map(f => `<tr><td>${f.fee_name || "-"}</td><td>Rs. ${f.amount}</td><td>Rs. ${f.paid_amount}</td><td>Rs. ${f.due_amount}</td><td><span class="badge ${feeBadgeClass(f.status)}">${f.status}</span></td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center; color:var(--gray);">No fee records</td></tr>`;
+
                 const userRole = (localStorage.getItem("user_role") || "").toLowerCase();
                 document.getElementById("studentProfileBody").innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;"><div><strong>Father's Name:</strong><br>${s.father_name || "-"}</div><div><strong>Mother's Name:</strong><br>${s.mother_name || "-"}</div><div><strong>Phone:</strong><br>${s.phone || "-"}</div><div><strong>Email:</strong><br>${s.email || "-"}</div></div><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;"><div style="padding:16px; border-radius:14px; background:var(--primary-lighter); text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--primary-dark);">${data.attendance.attendance_rate}%</div><div style="color:var(--gray); font-size:13px;">Attendance</div></div><div style="padding:16px; border-radius:14px; background:var(--accent-lighter); text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--accent-dark);">${data.grades.average_percentage}%</div><div style="color:var(--gray); font-size:13px;">Average</div></div><div style="padding:16px; border-radius:14px; background:#FEE2E2; text-align:center;"><div style="font-size:22px; font-weight:800; color:#991B1B;">Rs. ${data.fees.total_due}</div><div style="color:var(--gray); font-size:13px;">Fees Due</div></div></div><h4 style="margin-bottom:8px;">📅 Recent Attendance</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${attendanceRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📊 Grades</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr></thead><tbody>${gradeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">📈 Progress Over Time</h4><div style="margin-bottom:20px; max-width:100%;"><canvas id="studentProgressChart" height="160"></canvas></div><h4 style="margin-bottom:8px;">💰 Fees</h4><div class="table-responsive" style="margin-bottom:20px;"><table><thead><tr><th>Type</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody>${feeRowsHtml}</tbody></table></div><h4 style="margin-bottom:8px;">🪪 Documents &amp; Photos</h4><div id="studentProfileDocuments" style="margin-bottom:10px;">Loading documents...</div>${userRole === "admin" ? `<h4 style="margin-bottom:8px;">👨‍👩‍👧 Parent Portal Login</h4><div id="studentProfileParentLogin"></div>` : ""}`;
+
                 loadStudentProfileDocuments(studentId);
                 if (userRole === "admin") renderParentLoginSection(s);
                 renderStudentProgressChart(data.grades.records || []);
@@ -4619,7 +4683,68 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             if (!currentProfileData) return;
             const school = await getSchoolProfile();
             const s = currentProfileData.student;
-            const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:14px;">Admission Slip</h2></div><table><tbody><tr><td><strong>Student Name</strong></td><td>${s.name}</td></tr><tr><td><strong>Father's Name</strong></td><td>${s.father_name || "-"}</td></tr><tr><td><strong>Class</strong></td><td>${s.class_name || "-"}</td></tr><tr><td><strong>Roll Number</strong></td><td>${s.roll_number || "-"}</td></tr><tr><td><strong>Date of Birth</strong></td><td>${s.date_of_birth || "-"}</td></tr><tr><td><strong>Gender</strong></td><td>${s.gender || "-"}</td></tr><tr><td><strong>Contact Phone</strong></td><td>${s.phone || "-"}</td></tr><tr><td><strong>Email</strong></td><td>${s.email || "-"}</td></tr><tr><td><strong>Address</strong></td><td>${s.address || "-"}</td></tr></tbody></table><div class="meta" style="margin-top:30px;"><div>Parent/Guardian Signature: ______________________</div><div>Date: ${new Date().toLocaleDateString()}</div></div><div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>`;
+
+            // Fetch custom field definitions
+            let cfDefs = [];
+            try {
+                const cfData = await apiRequest("/settings/custom-fields");
+                cfDefs = cfData.fields || [];
+            } catch (e) { cfDefs = []; }
+
+            // Helpers
+            const tc = (str) => {
+                if (!str) return "-";
+                return String(str).split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+            };
+            const fd = (d) => {
+                if (!d) return "-";
+                try { return new Date(d).toLocaleDateString("en-GB"); } catch (e) { return "-"; }
+            };
+            const money = (v) => (v != null && v !== "") ? `Rs. ${v}` : "-";
+
+            // Custom fields rows
+            const cfValues = s.custom_fields_data || {};
+            let customRows = "";
+            cfDefs.forEach(f => {
+                const val = cfValues[f.key];
+                let displayVal = "-";
+                if (val !== undefined && val !== null && val !== "") {
+                    if (f.type === "checkbox") displayVal = val ? "Yes" : "No";
+                    else displayVal = String(val);
+                }
+                customRows += `<tr><td><strong>${f.label}</strong></td><td>${displayVal}</td></tr>`;
+            });
+
+            const bodyHtml = `
+                <div class="header">
+                    <h1>${school.name || "School"}</h1>
+                    <div>${school.address || ""}</div>
+                    ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                    <h2 style="margin-top:14px;">Admission Slip</h2>
+                </div>
+                <table>
+                    <tbody>
+                        <tr><td><strong>Admission Date</strong></td><td>${fd(s.admission_date)}</td></tr>
+                        <tr><td><strong>Student Name</strong></td><td>${tc(s.name)}</td></tr>
+                        <tr><td><strong>Father's Name</strong></td><td>${tc(s.father_name)}</td></tr>
+                        <tr><td><strong>Date of Birth</strong></td><td>${fd(s.date_of_birth)}</td></tr>
+                        <tr><td><strong>Contact Number</strong></td><td>${s.phone || "-"}</td></tr>
+                        <tr><td><strong>B-Form No.</strong></td><td>${s.b_form_number || "-"}</td></tr>
+                        <tr><td><strong>Gender</strong></td><td>${tc(s.gender)}</td></tr>
+                        <tr><td><strong>Parent Email</strong></td><td>${s.parent_email || "-"}</td></tr>
+                        <tr><td><strong>Class</strong></td><td>${tc(s.class_name)}</td></tr>
+                        <tr><td><strong>Roll Number</strong></td><td>${s.roll_number || "-"}</td></tr>
+                        <tr><td><strong>Admission Fee</strong></td><td>${money(s.admission_fee)}</td></tr>
+                        <tr><td><strong>Monthly Fee</strong></td><td>${money(s.monthly_fee_override)}</td></tr>
+                        ${customRows}
+                    </tbody>
+                </table>
+                <div class="meta" style="margin-top:30px;">
+                    <div>Parent/Guardian Signature: ______________________</div>
+                    <div>Date: ${new Date().toLocaleDateString("en-GB")}</div>
+                </div>
+                <div class="footer">This slip confirms the above student's record with ${school.name || "the school"}.</div>
+            `;
             openPrintWindow(`Admission Slip - ${s.name}`, bodyHtml);
         }
         async function printFeeReceipt(feeId) {
