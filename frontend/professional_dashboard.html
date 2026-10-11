@@ -1417,19 +1417,35 @@
                         <span class="modal-close" onclick="closeModal('printCenterModal')">✕</span>
                         <div class="modal-header">🖨️ Print Center</div>
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label>Class</label>
-                                <select id="pcClass"><option value="">Select Class</option></select>
-                            </div>
-                            <div class="form-group">
+                            <div class="form-group" style="grid-column: 1 / -1;">
                                 <label>What to print</label>
-                                <select id="pcType">
+                                <select id="pcType" onchange="togglePcInputs()">
+                                    <option value="attendance_report">📅 Class Monthly Attendance Report</option>
+                                    <option value="student_attendance_individual">🎓 Individual Student Attendance</option>
+                                    <option value="staff_attendance_report">👥 All Staff Monthly Attendance</option>
+                                    <option value="staff_attendance_individual">🧑 Individual Staff Attendance</option>
                                     <option value="unpaid_fees_report">💰 Unpaid Fees Report (all students)</option>
                                     <option value="report_cards">📋 Report Cards (all students)</option>
                                     <option value="id_cards">🪪 Student ID Cards</option>
                                     <option value="fee_receipts">🧾 Fee Receipts (paid fees)</option>
                                     <option value="class_list">📝 Class Student List</option>
                                 </select>
+                            </div>
+                            <div class="form-group" id="pcClassGroup">
+                                <label>Class</label>
+                                <select id="pcClass"><option value="">Select Class</option></select>
+                            </div>
+                            <div class="form-group" id="pcMonthGroup" style="display:none;">
+                                <label>Month</label>
+                                <input type="month" id="pcMonth">
+                            </div>
+                            <div class="form-group" id="pcStudentGroup" style="display:none;">
+                                <label>Student</label>
+                                <select id="pcStudent"><option value="">Select Student</option></select>
+                            </div>
+                            <div class="form-group" id="pcStaffGroup" style="display:none;">
+                                <label>Staff Member</label>
+                                <select id="pcStaff"><option value="">Select Staff</option></select>
                             </div>
                         </div>
                         <p style="font-size:0.85rem; color:var(--gray); margin-top:8px;">ℹ️ Print preview opens in a new tab.</p>
@@ -3597,24 +3613,461 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 closeModal("bulkExportModal");
             } catch (error) { showAlert("Export failed: " + error.message, "error"); }
         }
+        /* ============================================================
+           ✅ STUDENT PHOTO HELPER — used by ID cards + bulk print
+           ============================================================ */
+        async function resolveStudentPhotoUrl(studentId, s) {
+            if (s && s.photo_url) {
+                try {
+                    const resp = await fetch(`${API_BASE}/students/${studentId}/photo-url`, {
+                        headers: { Authorization: `Bearer ${getToken()}` }
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && data.url) return data.url;
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            try {
+                const docsResp = await fetch(`${API_BASE}/students/${studentId}/documents?doc_type=profile_photo`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                if (docsResp.ok) {
+                    const docs = await docsResp.json();
+                    if (Array.isArray(docs) && docs.length > 0) {
+                        const urlResp = await fetch(`${API_BASE}/students/${studentId}/documents/${docs[0].id}/url`, {
+                            headers: { Authorization: `Bearer ${getToken()}` }
+                        });
+                        if (urlResp.ok) {
+                            const urlData = await urlResp.json();
+                            if (urlData && urlData.url) return urlData.url;
+                        }
+                    }
+                }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
+        /* ============================================================
+           ✅ PRINT CENTER — Toggle inputs + loaders
+           ============================================================ */
+        function togglePcInputs() {
+            const type = document.getElementById("pcType").value;
+            const classGroup = document.getElementById("pcClassGroup");
+            const monthGroup = document.getElementById("pcMonthGroup");
+            const studentGroup = document.getElementById("pcStudentGroup");
+            const staffGroup = document.getElementById("pcStaffGroup");
+
+            if (classGroup) classGroup.style.display = "none";
+            if (monthGroup) monthGroup.style.display = "none";
+            if (studentGroup) studentGroup.style.display = "none";
+            if (staffGroup) staffGroup.style.display = "none";
+
+            const needsClass = ["class_list", "report_cards", "id_cards", "fee_receipts", "unpaid_fees_report", "attendance_report"].includes(type);
+            const needsMonth = ["attendance_report", "student_attendance_individual", "staff_attendance_report", "staff_attendance_individual"].includes(type);
+            const needsStudent = type === "student_attendance_individual";
+            const needsStaff = type === "staff_attendance_individual";
+
+            if (needsClass && classGroup) classGroup.style.display = "flex";
+
+            if (needsMonth && monthGroup) {
+                monthGroup.style.display = "flex";
+                const mi = document.getElementById("pcMonth");
+                if (mi && !mi.value) {
+                    const now = new Date();
+                    mi.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+                }
+            }
+
+            if (needsStudent && studentGroup) {
+                studentGroup.style.display = "flex";
+                loadPrintCenterStudents();
+            }
+            if (needsStaff && staffGroup) {
+                staffGroup.style.display = "flex";
+                loadPrintCenterStaff();
+            }
+        }
+
+        async function loadPrintCenterStudents() {
+            const sel = document.getElementById("pcStudent");
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Loading…</option>';
+            try {
+                if (!students || students.length === 0) students = await apiRequest("/students");
+                const sorted = [...students].sort((a, b) => {
+                    const ca = String(a.class_name || "").localeCompare(String(b.class_name || ""), undefined, { numeric: true });
+                    if (ca !== 0) return ca;
+                    const ra = parseInt(a.roll_number) || 999999;
+                    const rb = parseInt(b.roll_number) || 999999;
+                    return ra - rb;
+                });
+                sel.innerHTML = '<option value="">Select Student</option>' +
+                    sorted.map(s => `<option value="${s.id}">${s.class_name || "?"} · Roll ${s.roll_number || "-"} · ${s.name}</option>`).join("");
+            } catch (e) {
+                sel.innerHTML = '<option value="">Failed to load</option>';
+            }
+        }
+
+        async function loadPrintCenterStaff() {
+            const sel = document.getElementById("pcStaff");
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Loading…</option>';
+            try {
+                const data = await apiRequest("/staff");
+                sel.innerHTML = '<option value="">Select Staff</option>' +
+                    data.map(s => `<option value="${s.id}">${s.name} (${s.designation || "-"})</option>`).join("");
+            } catch (e) {
+                sel.innerHTML = '<option value="">Failed to load</option>';
+            }
+        }
 
         function openPrintCenterModal() {
             const sel = document.getElementById("pcClass");
             const classes = getAllClasses();
             sel.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+            togglePcInputs();
             openModal("printCenterModal");
         }
         async function runPrintCenter() {
-            const className = document.getElementById("pcClass").value;
             const type = document.getElementById("pcType").value;
-            if (!className) { showAlert("Select a class", "error"); return; }
+            const className = document.getElementById("pcClass")?.value || "";
+
+            const classRequiredTypes = ["class_list", "report_cards", "id_cards", "fee_receipts", "unpaid_fees_report", "attendance_report"];
+            if (classRequiredTypes.includes(type) && !className) {
+                showAlert("Select a class", "error");
+                return;
+            }
+
             try {
                 if (!students || students.length === 0) students = await apiRequest("/students");
-                const classStudents = students.filter(s => s.class_name === className);
-                if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
                 const school = await getSchoolProfile();
-                // ✅ NEW: Unpaid Fees Report
+
+                /* ============ 1. INDIVIDUAL STUDENT ATTENDANCE ============ */
+                if (type === "student_attendance_individual") {
+                    const studentId = parseInt(document.getElementById("pcStudent").value);
+                    const monthInput = document.getElementById("pcMonth").value;
+                    if (!studentId || !monthInput) { showAlert("Student aur month select karein", "error"); return; }
+                    const student = students.find(s => s.id === studentId);
+                    if (!student) { showAlert("Student not found", "error"); return; }
+
+                    const [yearStr, monthStr] = monthInput.split("-");
+                    const year = parseInt(yearStr);
+                    const monthNum = parseInt(monthStr);
+                    const monthName = new Date(year, monthNum - 1, 1).toLocaleString("en-US", { month: "long" });
+                    const monthLabel = `${monthName} ${year}`;
+
+                    let records = [];
+                    try {
+                        records = await apiRequest(`/attendance?class_name=${encodeURIComponent(student.class_name)}`);
+                        records = records.filter(a => a.student_id === studentId);
+                    } catch (e) { showAlert("Attendance load nahi ho saki: " + e.message, "error"); return; }
+
+                    const inMonth = records.filter(r => String(r.date).startsWith(`${yearStr}-${monthStr}`));
+                    const daysInMonth = new Date(year, monthNum, 0).getDate();
+                    const rows = [];
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const dateStr = `${yearStr}-${monthStr}-${String(d).padStart(2, "0")}`;
+                        const rec = inMonth.find(r => r.date === dateStr);
+                        let status = "—"; let statusColor = "#6B7280";
+                        if (rec) {
+                            if (rec.is_present) { status = "Present"; statusColor = "#065F46"; }
+                            else { status = "Absent"; statusColor = "#991B1B"; }
+                        }
+                        const dayName = new Date(year, monthNum - 1, d).toLocaleString("en-US", { weekday: "long" });
+                        rows.push(`<tr><td>${dateStr}</td><td>${dayName}</td><td style="color:${statusColor};"><strong>${status}</strong></td><td>${rec?.remarks || ""}</td></tr>`);
+                    }
+
+                    const total = inMonth.length;
+                    const present = inMonth.filter(r => r.is_present).length;
+                    const absent = total - present;
+                    const pct = total > 0 ? Math.round((present / total) * 10000) / 100 : 0;
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Student Monthly Attendance</h2>
+                            <div style="font-size:13px; margin-top:6px;">
+                                <strong>${student.name}</strong> · Class ${student.class_name || "-"} · Roll ${student.roll_number || "-"}<br>
+                                <span style="color:#666;">Father: ${student.father_name || "-"} · Month: <strong>${monthLabel}</strong></span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:14px; margin: 16px 0; justify-content:center;">
+                            <div style="padding:10px 20px; background:#f2f2f2; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#333;">${total}</div>
+                                <div style="font-size:11px; color:#666;">Total Days</div>
+                            </div>
+                            <div style="padding:10px 20px; background:#D1FAE5; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#065F46;">${present}</div>
+                                <div style="font-size:11px; color:#666;">Present</div>
+                            </div>
+                            <div style="padding:10px 20px; background:#FEE2E2; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#991B1B;">${absent}</div>
+                                <div style="font-size:11px; color:#666;">Absent</div>
+                            </div>
+                            <div style="padding:10px 20px; background:#EDE9FE; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#4F36A8;">${pct}%</div>
+                                <div style="font-size:11px; color:#666;">Percentage</div>
+                            </div>
+                        </div>
+                        <table>
+                            <thead><tr><th>Date</th><th>Day</th><th>Status</th><th>Remarks</th></tr></thead>
+                            <tbody>${rows.join("")}</tbody>
+                        </table>
+                        <div class="footer">${school.name || "School"} — Generated on ${new Date().toLocaleDateString("en-GB")}</div>
+                    `;
+                    openPrintWindow(`Attendance - ${student.name} - ${monthLabel}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
+
+                /* ============ 2. ALL STAFF MONTHLY ATTENDANCE ============ */
+                if (type === "staff_attendance_report") {
+                    const monthInput = document.getElementById("pcMonth").value;
+                    if (!monthInput) { showAlert("Month select karein", "error"); return; }
+
+                    const [yearStr, monthStr] = monthInput.split("-");
+                    const year = parseInt(yearStr);
+                    const monthNum = parseInt(monthStr);
+                    const monthName = new Date(year, monthNum - 1, 1).toLocaleString("en-US", { month: "long" });
+                    const monthLabel = `${monthName} ${year}`;
+
+                    let staffList = [];
+                    let attendanceRecords = [];
+                    try {
+                        staffList = await apiRequest("/staff");
+                        attendanceRecords = await apiRequest(`/staff/attendance/list`);
+                    } catch (e) { showAlert("Staff attendance load nahi ho saki: " + e.message, "error"); return; }
+
+                    const inMonth = attendanceRecords.filter(r => String(r.date).startsWith(`${yearStr}-${monthStr}`));
+
+                    const summary = staffList.map(st => {
+                        const recs = inMonth.filter(a => a.staff_id === st.id);
+                        const total = recs.length;
+                        const present = recs.filter(r => r.is_present).length;
+                        const absent = total - present;
+                        const pct = total > 0 ? Math.round((present / total) * 10000) / 100 : 0;
+                        return { name: st.name, designation: st.designation || "-", total, present, absent, pct };
+                    });
+
+                    const totals = summary.reduce((acc, r) => ({
+                        total: acc.total + r.total, present: acc.present + r.present, absent: acc.absent + r.absent,
+                    }), { total: 0, present: 0, absent: 0 });
+                    const overallPct = totals.total > 0 ? Math.round((totals.present / totals.total) * 10000) / 100 : 0;
+
+                    const rowsHtml = summary.map(r => {
+                        const color = r.pct >= 90 ? "#065F46" : (r.pct >= 70 ? "#92400E" : "#991B1B");
+                        return `<tr>
+                            <td>${r.name}</td>
+                            <td>${r.designation}</td>
+                            <td style="text-align:center;">${r.total}</td>
+                            <td style="text-align:center; color:#065F46;"><strong>${r.present}</strong></td>
+                            <td style="text-align:center; color:#991B1B;"><strong>${r.absent}</strong></td>
+                            <td style="text-align:right; color:${color};"><strong>${r.pct}%</strong></td>
+                        </tr>`;
+                    }).join("");
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Staff Monthly Attendance Report</h2>
+                            <div style="font-size:13px; margin-top:6px;"><strong>Month:</strong> ${monthLabel}</div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;">Generated: ${new Date().toLocaleDateString("en-GB")}</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Staff Name</th><th>Designation</th><th style="text-align:center;">Total Days</th><th style="text-align:center;">Present</th><th style="text-align:center;">Absent</th><th style="text-align:right;">Percentage</th></tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                            <tfoot>
+                                <tr style="background:#f2f2f2; font-weight:700;">
+                                    <td colspan="2">Total (${summary.length} staff)</td>
+                                    <td style="text-align:center;">${totals.total}</td>
+                                    <td style="text-align:center;">${totals.present}</td>
+                                    <td style="text-align:center;">${totals.absent}</td>
+                                    <td style="text-align:right;">${overallPct}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="footer">${school.name || "School"} — This is a computer-generated report.</div>
+                    `;
+                    openPrintWindow(`Staff Attendance - ${monthLabel}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
+
+                /* ============ 3. INDIVIDUAL STAFF ATTENDANCE ============ */
+                if (type === "staff_attendance_individual") {
+                    const staffId = parseInt(document.getElementById("pcStaff").value);
+                    const monthInput = document.getElementById("pcMonth").value;
+                    if (!staffId || !monthInput) { showAlert("Staff aur month select karein", "error"); return; }
+
+                    const [yearStr, monthStr] = monthInput.split("-");
+                    const year = parseInt(yearStr);
+                    const monthNum = parseInt(monthStr);
+                    const monthName = new Date(year, monthNum - 1, 1).toLocaleString("en-US", { month: "long" });
+                    const monthLabel = `${monthName} ${year}`;
+
+                    let staffList = [];
+                    let records = [];
+                    try {
+                        staffList = await apiRequest("/staff");
+                        records = await apiRequest(`/staff/attendance/list?staff_id=${staffId}`);
+                    } catch (e) { showAlert("Staff attendance load nahi ho saki: " + e.message, "error"); return; }
+
+                    const staff = staffList.find(s => s.id === staffId);
+                    if (!staff) { showAlert("Staff not found", "error"); return; }
+
+                    const inMonth = records.filter(r => String(r.date).startsWith(`${yearStr}-${monthStr}`));
+                    const daysInMonth = new Date(year, monthNum, 0).getDate();
+                    const rows = [];
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const dateStr = `${yearStr}-${monthStr}-${String(d).padStart(2, "0")}`;
+                        const rec = inMonth.find(r => r.date === dateStr);
+                        let status = "—"; let statusColor = "#6B7280";
+                        if (rec) {
+                            if (rec.is_present) { status = "Present"; statusColor = "#065F46"; }
+                            else { status = "Absent"; statusColor = "#991B1B"; }
+                        }
+                        const dayName = new Date(year, monthNum - 1, d).toLocaleString("en-US", { weekday: "long" });
+                        rows.push(`<tr><td>${dateStr}</td><td>${dayName}</td><td style="color:${statusColor};"><strong>${status}</strong></td><td>${rec?.remarks || ""}</td></tr>`);
+                    }
+
+                    const total = inMonth.length;
+                    const present = inMonth.filter(r => r.is_present).length;
+                    const absent = total - present;
+                    const pct = total > 0 ? Math.round((present / total) * 10000) / 100 : 0;
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Staff Monthly Attendance</h2>
+                            <div style="font-size:13px; margin-top:6px;">
+                                <strong>${staff.name}</strong> · ${staff.designation || "-"}<br>
+                                <span style="color:#666;">Month: <strong>${monthLabel}</strong></span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:14px; margin: 16px 0; justify-content:center;">
+                            <div style="padding:10px 20px; background:#f2f2f2; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#333;">${total}</div>
+                                <div style="font-size:11px; color:#666;">Total Days</div>
+                            </div>
+                            <div style="padding:10px 20px; background:#D1FAE5; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#065F46;">${present}</div>
+                                <div style="font-size:11px; color:#666;">Present</div>
+                            </div>
+                            <div style="padding:10px 20px; background:#FEE2E2; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#991B1B;">${absent}</div>
+                                <div style="font-size:11px; color:#666;">Absent</div>
+                            </div>
+                            <div style="padding:10px 20px; background:#EDE9FE; border-radius:8px; text-align:center;">
+                                <div style="font-size:20px; font-weight:800; color:#4F36A8;">${pct}%</div>
+                                <div style="font-size:11px; color:#666;">Percentage</div>
+                            </div>
+                        </div>
+                        <table>
+                            <thead><tr><th>Date</th><th>Day</th><th>Status</th><th>Remarks</th></tr></thead>
+                            <tbody>${rows.join("")}</tbody>
+                        </table>
+                        <div class="footer">${school.name || "School"} — Generated on ${new Date().toLocaleDateString("en-GB")}</div>
+                    `;
+                    openPrintWindow(`Attendance - ${staff.name} - ${monthLabel}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
+
+                /* ============ 4. CLASS MONTHLY ATTENDANCE ============ */
+                if (type === "attendance_report") {
+                    const monthInput = document.getElementById("pcMonth").value;
+                    if (!monthInput) { showAlert("Month select karein", "error"); return; }
+
+                    const [yearStr, monthStr] = monthInput.split("-");
+                    const year = parseInt(yearStr);
+                    const monthNum = parseInt(monthStr);
+                    const monthName = new Date(year, monthNum - 1, 1).toLocaleString("en-US", { month: "long" });
+                    const monthLabel = `${monthName} ${year}`;
+
+                    const classStudents = students.filter(s => s.class_name === className);
+                    if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
+
+                    let allAttendance = [];
+                    try {
+                        allAttendance = await apiRequest(`/attendance?class_name=${encodeURIComponent(className)}`);
+                    } catch (e) { showAlert("Attendance load nahi ho saki: " + e.message, "error"); return; }
+
+                    const inMonth = allAttendance.filter(r => String(r.date).startsWith(`${yearStr}-${monthStr}`));
+
+                    const summary = classStudents.map(s => {
+                        const recs = inMonth.filter(a => a.student_id === s.id);
+                        const total = recs.length;
+                        const present = recs.filter(r => r.is_present).length;
+                        const absent = total - present;
+                        const pct = total > 0 ? Math.round((present / total) * 10000) / 100 : 0;
+                        return { roll: s.roll_number || "-", name: s.name, father: s.father_name || "-", total, present, absent, pct };
+                    });
+
+                    summary.sort((a, b) => (parseInt(a.roll) || 999999) - (parseInt(b.roll) || 999999));
+
+                    const totals = summary.reduce((acc, r) => ({
+                        total: acc.total + r.total, present: acc.present + r.present, absent: acc.absent + r.absent,
+                    }), { total: 0, present: 0, absent: 0 });
+                    const overallPct = totals.total > 0 ? Math.round((totals.present / totals.total) * 10000) / 100 : 0;
+
+                    const rowsHtml = summary.map(r => {
+                        const pctColor = r.pct >= 90 ? "#065F46" : (r.pct >= 70 ? "#92400E" : "#991B1B");
+                        return `<tr>
+                            <td>${r.roll}</td>
+                            <td>${r.name}</td>
+                            <td>${r.father}</td>
+                            <td style="text-align:center;">${r.total}</td>
+                            <td style="text-align:center; color:#065F46;"><strong>${r.present}</strong></td>
+                            <td style="text-align:center; color:#991B1B;"><strong>${r.absent}</strong></td>
+                            <td style="text-align:right; color:${pctColor};"><strong>${r.pct}%</strong></td>
+                        </tr>`;
+                    }).join("");
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Monthly Attendance Report</h2>
+                            <div style="font-size:13px; margin-top:6px;"><strong>Class:</strong> ${className} · <strong>Month:</strong> ${monthLabel}</div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;">Generated: ${new Date().toLocaleDateString("en-GB")}</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Roll</th><th>Student Name</th><th>Father's Name</th><th style="text-align:center;">Total Days</th><th style="text-align:center;">Present</th><th style="text-align:center;">Absent</th><th style="text-align:right;">Percentage</th></tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                            <tfoot>
+                                <tr style="background:#f2f2f2; font-weight:700;">
+                                    <td colspan="3">Class Total (${summary.length} students)</td>
+                                    <td style="text-align:center;">${totals.total}</td>
+                                    <td style="text-align:center;">${totals.present}</td>
+                                    <td style="text-align:center;">${totals.absent}</td>
+                                    <td style="text-align:right;">${overallPct}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="footer">This is a computer-generated report from ${school.name || "the school"}.</div>
+                    `;
+                    openPrintWindow(`Attendance - Class ${className} - ${monthLabel}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
+
+                /* ============ 5. UNPAID FEES REPORT ============ */
                 if (type === "unpaid_fees_report") {
+                    const classStudents = students.filter(s => s.class_name === className);
+                    if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
+
                     const rows = [];
                     for (const s of classStudents) {
                         try {
@@ -3624,41 +4077,21 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                             const paid = fees.reduce((sum, f) => sum + Number(f.paid_amount || 0), 0);
                             const pending = Math.round((total - paid) * 100) / 100;
                             if (pending > 0.01) {
-                                rows.push({
-                                    roll: s.roll_number || "-",
-                                    name: s.name,
-                                    father: s.father_name || "-",
-                                    total,
-                                    paid,
-                                    pending,
-                                });
+                                rows.push({ roll: s.roll_number || "-", name: s.name, father: s.father_name || "-", total, paid, pending });
                             }
-                        } catch (e) { /* skip failed student */ }
+                        } catch (e) { /* skip */ }
                     }
 
-                    if (rows.length === 0) {
-                        showAlert(`Class ${className} mein koi unpaid fees nahi 🎉`, "success");
-                        closeModal("printCenterModal");
-                        return;
-                    }
+                    if (rows.length === 0) { showAlert(`Class ${className} mein koi unpaid fees nahi 🎉`, "success"); closeModal("printCenterModal"); return; }
 
-                    // Sort by roll number (numeric)
-                    rows.sort((a, b) => {
-                        const ra = parseInt(a.roll) || 999999;
-                        const rb = parseInt(b.roll) || 999999;
-                        return ra - rb;
-                    });
+                    rows.sort((a, b) => (parseInt(a.roll) || 999999) - (parseInt(b.roll) || 999999));
 
                     const totals = rows.reduce((acc, r) => ({
-                        total: acc.total + r.total,
-                        paid: acc.paid + r.paid,
-                        pending: acc.pending + r.pending,
+                        total: acc.total + r.total, paid: acc.paid + r.paid, pending: acc.pending + r.pending,
                     }), { total: 0, paid: 0, pending: 0 });
 
                     const rowsHtml = rows.map(r => `<tr>
-                        <td>${r.roll}</td>
-                        <td>${r.name}</td>
-                        <td>${r.father}</td>
+                        <td>${r.roll}</td><td>${r.name}</td><td>${r.father}</td>
                         <td style="text-align:right;">Rs. ${r.total.toLocaleString()}</td>
                         <td style="text-align:right;">Rs. ${r.paid.toLocaleString()}</td>
                         <td style="text-align:right; color:#DC2626;"><strong>Rs. ${r.pending.toLocaleString()}</strong></td>
@@ -3674,14 +4107,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                         </div>
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Roll</th>
-                                    <th>Student Name</th>
-                                    <th>Father's Name</th>
-                                    <th style="text-align:right;">Total Fee</th>
-                                    <th style="text-align:right;">Paid</th>
-                                    <th style="text-align:right;">Pending</th>
-                                </tr>
+                                <tr><th>Roll</th><th>Student Name</th><th>Father's Name</th><th style="text-align:right;">Total Fee</th><th style="text-align:right;">Paid</th><th style="text-align:right;">Pending</th></tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
                             <tfoot>
@@ -3699,6 +4125,11 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     closeModal("printCenterModal");
                     return;
                 }
+
+                /* ============ 6-9. EXISTING: class_list, report_cards, id_cards, fee_receipts ============ */
+                const classStudents = students.filter(s => s.class_name === className);
+                if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
+
                 if (type === "class_list") {
                     const rows = classStudents.map((s, i) => `<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.father_name || "-"}</td><td>${s.roll_number || "-"}</td><td>${s.phone || "-"}</td></tr>`).join("");
                     const bodyHtml = `<div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:10px;">Class ${className} — Student List</h2></div><table><thead><tr><th>#</th><th>Name</th><th>Father's Name</th><th>Roll</th><th>Phone</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">${school.name} — ${new Date().toLocaleDateString()}</div>`;
@@ -3706,6 +4137,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     closeModal("printCenterModal");
                     return;
                 }
+
                 const allPages = [];
                 for (const s of classStudents) {
                     try {
@@ -3715,7 +4147,12 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                             const rows = g.records.length ? g.records.map(r => `<tr><td>${r.subject}</td><td>${r.marks_obtained}</td><td>${r.total_marks}</td><td>${r.percentage}%</td><td>${r.grade || "-"}</td></tr>`).join("") : `<tr><td colspan="5" style="text-align:center;">No grade records</td></tr>`;
                             allPages.push(`<div style="page-break-after: always; padding: 20px 0;"><div class="header"><h1>${school.name || "School"}</h1><div>${school.address || ""}</div><h2 style="margin-top:14px;">Report Card</h2></div><div class="meta"><div><strong>Student:</strong> ${s.name}<br><strong>Father:</strong> ${s.father_name || "-"}</div><div><strong>Class:</strong> ${s.class_name}<br><strong>Roll:</strong> ${s.roll_number || "-"}</div><div><strong>Attendance:</strong> ${a.attendance_rate}%<br><strong>Average:</strong> ${g.average_percentage}%</div></div><table><thead><tr><th>Subject</th><th>Marks</th><th>Total</th><th>%</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div>`);
                         } else if (type === "id_cards") {
-                            allPages.push(`<div style="display:inline-block; width:48%; margin:1%; vertical-align:top;"><div style="border:2px solid #333; border-radius:10px; padding:16px; text-align:center;"><div style="font-weight:700; font-size:14px;">${school.name || "School"}</div><div style="font-size:10px; color:#666;">${school.phone || ""}</div><div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div><div style="font-size:12px; margin-top:6px;"><strong>Class:</strong> ${s.class_name || "-"} | <strong>Roll:</strong> ${s.roll_number || "-"}</div><div style="font-size:12px;"><strong>Father:</strong> ${s.father_name || "-"}</div></div></div>`);
+                            const photoUrl = await resolveStudentPhotoUrl(s.id, s);
+                            const photoHtml = photoUrl
+                                ? `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:1px solid #999; margin: 8px auto 0; display: block;" crossorigin="anonymous" onerror="this.style.display='none';" />`
+                                : `<div style="width:80px; height:80px; border:1px solid #999; border-radius:50%; margin:8px auto 0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">Photo</div>`;
+
+                            allPages.push(`<div style="display:inline-block; width:48%; margin:1%; vertical-align:top;"><div style="border:2px solid #333; border-radius:10px; padding:16px; text-align:center;"><div style="font-weight:700; font-size:14px;">${school.name || "School"}</div><div style="font-size:10px; color:#666;">${school.phone || ""}</div>${photoHtml}<div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div><div style="font-size:12px; margin-top:6px;"><strong>Class:</strong> ${s.class_name || "-"} | <strong>Roll:</strong> ${s.roll_number || "-"}</div><div style="font-size:12px;"><strong>Father:</strong> ${s.father_name || "-"}</div></div></div>`);
                         } else if (type === "fee_receipts") {
                             const paidFees = (profile.fees.records || []).filter(f => f.paid_amount > 0);
                             paidFees.forEach(f => {
@@ -5165,22 +5602,53 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             const whatsappNumber = formatPhoneForWhatsApp(s.phone);
             window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
         }
+                /* ============================================================
+           ✅ STUDENT PHOTO HELPER — used by ID cards + bulk print
+           ============================================================ */
+        async function resolveStudentPhotoUrl(studentId, s) {
+            // Try 1: photo_url field via dedicated endpoint
+            if (s && s.photo_url) {
+                try {
+                    const resp = await fetch(`${API_BASE}/students/${studentId}/photo-url`, {
+                        headers: { Authorization: `Bearer ${getToken()}` }
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && data.url) return data.url;
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            // Try 2: documents with doc_type=profile_photo
+            try {
+                const docsResp = await fetch(`${API_BASE}/students/${studentId}/documents?doc_type=profile_photo`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                if (docsResp.ok) {
+                    const docs = await docsResp.json();
+                    if (Array.isArray(docs) && docs.length > 0) {
+                        const urlResp = await fetch(`${API_BASE}/students/${studentId}/documents/${docs[0].id}/url`, {
+                            headers: { Authorization: `Bearer ${getToken()}` }
+                        });
+                        if (urlResp.ok) {
+                            const urlData = await urlResp.json();
+                            if (urlData && urlData.url) return urlData.url;
+                        }
+                    }
+                }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
         async function printStudentIdCard() {
             if (!currentProfileData) return;
             const school = await getSchoolProfile();
             const s = currentProfileData.student;
             let photoHtml = `<div style="width:80px; height:80px; border:1px solid #999; border-radius:50%; margin:10px auto; display:flex; align-items:center; justify-content:center; font-size:11px; color:#999;">Photo</div>`;
-            async function resolvePhotoUrl() {
-                if (s.photo_url) {
-                    try { const resp = await fetch(`${API_BASE}/students/${s.id}/photo-url`, { headers: { Authorization: `Bearer ${getToken()}` } }); if (resp.ok) return (await resp.json()).url; } catch (e) {}
+            try {
+                const photoUrl = await resolveStudentPhotoUrl(s.id, s);
+                if (photoUrl) {
+                    photoHtml = `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block; border:1px solid #999;" onerror="this.style.display='none';" />`;
                 }
-                try {
-                    const docsResp = await fetch(`${API_BASE}/students/${s.id}/documents?doc_type=profile_photo`, { headers: { Authorization: `Bearer ${getToken()}` } });
-                    if (docsResp.ok) { const docs = await docsResp.json(); if (Array.isArray(docs) && docs.length > 0) { const urlResp = await fetch(`${API_BASE}/students/${s.id}/documents/${docs[0].id}/url`, { headers: { Authorization: `Bearer ${getToken()}` } }); if (urlResp.ok) return (await urlResp.json()).url; } }
-                } catch (e) {}
-                return null;
-            }
-            try { const photoUrl = await resolvePhotoUrl(); if (photoUrl) photoHtml = `<img src="${photoUrl}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block; border:1px solid #999;" />`; } catch (e) {}
+            } catch (e) { /* keep placeholder */ }
             const bodyHtml = `<div style="width:340px; border:2px solid #333; border-radius:10px; padding:16px; margin:0 auto; text-align:center; font-family:Arial, sans-serif;"><div style="font-weight:700; font-size:16px;">${school.name || "School"}</div><div style="font-size:11px; color:#555;">${school.address || ""}</div><div style="font-size:11px; color:#555; margin-bottom:10px;">${school.phone ? "📞 " + school.phone : ""}${school.phone && school.email ? " · " : ""}${school.email ? "✉️ " + school.email : ""}</div>${photoHtml}<div style="font-weight:700; font-size:15px; margin-top:8px;">${s.name}</div><div style="font-size:13px; margin-top:6px; text-align:left; padding:0 10px;"><div><strong>Class:</strong> ${s.class_name || "-"}</div><div><strong>Roll No:</strong> ${s.roll_number || "-"}</div><div><strong>Father's Name:</strong> ${s.father_name || "-"}</div>${s.phone ? `<div><strong>Contact:</strong> ${s.phone}</div>` : ""}</div><div style="margin-top:12px; font-size:10px; color:#777; border-top:1px solid #ddd; padding-top:6px;">${school.name || "School"} — Student ID Card ${new Date().getFullYear()}</div></div>`;
             openPrintWindow(`ID Card - ${s.name}`, bodyHtml);
         }
@@ -5324,6 +5792,78 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             `;
             openPrintWindow(`Purchase Receipt - ${s.name}`, bodyHtml);
         }
+        async function printPurchaseReceipt(feeId) {
+            if (!_feeStatementData) { showAlert("Pehle statement load karein", "error"); return; }
+            const fee = _feeStatementData.fees.find(f => f.id === feeId);
+            if (!fee) { showAlert("Fee record nahi mila", "error"); return; }
+            const s = _feeStatementData.student;
+            const sum = _feeStatementData.summary;
+            const school = await getSchoolProfile();
+
+            const feeName = fee.fee_name || "Purchase";
+            const otherArrears = Math.round((sum.total_pending - fee.due_amount) * 100) / 100;
+
+            const bodyHtml = `
+                <div class="header">
+                    <h1>${school.name || "School"}</h1>
+                    <div>${school.address || ""}</div>
+                    ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                    <h2 style="margin-top:14px;">Purchase Receipt</h2>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>Student:</strong> ${s.name}<br>
+                        <strong>Father:</strong> ${s.father_name || "-"}<br>
+                        <strong>Class:</strong> ${s.class_name || "-"} · <strong>Roll:</strong> ${s.roll_number || "-"}
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>Receipt Date:</strong> ${new Date().toLocaleDateString("en-GB")}
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th><th>Month</th>
+                            <th style="text-align:right;">Amount</th>
+                            <th style="text-align:right;">Paid</th>
+                            <th style="text-align:right;">Due</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${feeName}</td>
+                            <td>${fee.month || "one-time"}</td>
+                            <td style="text-align:right;">Rs. ${fee.amount}</td>
+                            <td style="text-align:right;">Rs. ${fee.paid_amount}</td>
+                            <td style="text-align:right;"><strong>Rs. ${fee.due_amount}</strong></td>
+                        </tr>
+                        <tr style="background:#f2f2f2; font-weight:700;">
+                            <td colspan="2">Current Purchase Total</td>
+                            <td style="text-align:right;">Rs. ${fee.amount}</td>
+                            <td style="text-align:right;">Rs. ${fee.paid_amount}</td>
+                            <td style="text-align:right;">Rs. ${fee.due_amount}</td>
+                        </tr>
+                        ${otherArrears > 0.01 ? `
+                        <tr><td colspan="5" style="background:#f2f2f2; font-weight:700; padding:8px;">Previous Arrears & Other Pending</td></tr>
+                        <tr>
+                            <td colspan="4">Outstanding from previous fees</td>
+                            <td style="text-align:right;">Rs. ${otherArrears}</td>
+                        </tr>` : ""}
+                        <tr style="background:#FEE2E2; font-weight:700;">
+                            <td colspan="4">GRAND TOTAL PENDING</td>
+                            <td style="text-align:right; color:#991B1B;"><strong>Rs. ${sum.total_pending}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="meta" style="margin-top:30px;">
+                    <div>Received By: ______________________</div>
+                    <div>Signature: ______________________</div>
+                </div>
+                <div class="footer">Thank you! · Computer-generated receipt from ${school.name || "the school"}.</div>
+            `;
+            openPrintWindow(`Purchase Receipt - ${s.name}`, bodyHtml);
+        }
+
         async function printFeeStatement() {
             if (!_feeStatementData) { showAlert("Pehle statement load karein", "error"); return; }
             const school = await getSchoolProfile();
