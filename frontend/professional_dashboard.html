@@ -1446,6 +1446,7 @@
                                     <option value="staff_attendance_individual">🧑 Individual Staff Attendance</option>
                                     <option value="unpaid_fees_report">💰 Unpaid Fees Report (all students)</option>
                                     <option value="fee_receipts">🧾 Fee Receipts (paid fees)</option>
+                                    <option value="student_grade_sheet">🎓 Individual Student Grade Sheet</option>
                                     <option value="class_grade_sheet">🎯 Class Grade Sheet (Marksheet)</option>
                                     <option value="report_cards">📋 Report Cards (all students)</option>
                                     <option value="id_cards">🪪 Student ID Cards</option>
@@ -3871,7 +3872,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
 
             const needsClass = ["class_list", "report_cards", "id_cards", "fee_receipts", "unpaid_fees_report", "attendance_report"].includes(type);
             const needsMonth = ["attendance_report", "student_attendance_individual", "staff_attendance_report", "staff_attendance_individual"].includes(type);
-            const needsStudent = type === "student_attendance_individual";
+            const needsStudent = ["student_attendance_individual", "student_grade_sheet"].includes(type);
             const needsStaff = type === "staff_attendance_individual";
 
             if (needsClass && classGroup) classGroup.style.display = "flex";
@@ -3935,6 +3936,23 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             togglePcInputs();
             openModal("printCenterModal");
         }
+        // ✅ Percentage → Grade letter helper
+        function _pctToGradeLetter(pct) {
+            const p = Number(pct || 0);
+            if (p >= 90) return "A+";
+            if (p >= 80) return "A";
+            if (p >= 70) return "B";
+            if (p >= 60) return "C";
+            if (p >= 50) return "D";
+            if (p >= 40) return "E";
+            return "F";
+        }
+        function _gradeLetterColor(pct) {
+            const p = Number(pct || 0);
+            if (p >= 80) return "#065F46";
+            if (p >= 60) return "#92400E";
+            return "#991B1B";
+        }
         async function runPrintCenter() {
             const type = document.getElementById("pcType").value;
             const className = document.getElementById("pcClass")?.value || "";
@@ -3948,6 +3966,267 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             try {
                 if (!students || students.length === 0) students = await apiRequest("/students");
                 const school = await getSchoolProfile();
+                
+                /* ============================================================
+                   ✅ CLASS GRADE SHEET (MARKSHEET)
+                   ============================================================ */
+                if (type === "class_grade_sheet") {
+                    const classStudents = students.filter(s => s.class_name === className);
+                    if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
+
+                    // Fetch all grades
+                    let allGrades = [];
+                    try {
+                        allGrades = await apiRequest("/grades");
+                    } catch (e) { showAlert("Grades load nahi ho saki: " + e.message, "error"); return; }
+
+                    const studentIds = new Set(classStudents.map(s => s.id));
+                    const classGrades = allGrades.filter(g => studentIds.has(g.student_id));
+
+                    if (classGrades.length === 0) {
+                        showAlert(`Class ${className} mein koi grades nahi hain`, "error");
+                        closeModal("printCenterModal");
+                        return;
+                    }
+
+                    // Get unique subjects (sorted)
+                    const subjects = [...new Set(classGrades.map(g => g.subject).filter(Boolean))].sort();
+
+                    // Build marks map: keep latest (highest id) per student+subject
+                    const marksMap = {};
+                    classGrades.forEach(g => {
+                        const sid = g.student_id;
+                        const subj = g.subject;
+                        if (!marksMap[sid]) marksMap[sid] = {};
+                        const existing = marksMap[sid][subj];
+                        if (!existing || (g.id || 0) > (existing.id || 0)) {
+                            marksMap[sid][subj] = {
+                                marks: g.marks_obtained,
+                                total: g.total_marks,
+                                pct: g.percentage,
+                                id: g.id,
+                            };
+                        }
+                    });
+
+                    // Sort students by roll number
+                    const sortedStudents = classStudents.slice().sort((a, b) => {
+                        const ra = parseInt(a.roll_number) || 999999;
+                        const rb = parseInt(b.roll_number) || 999999;
+                        return ra - rb;
+                    });
+
+                    // Header row (subjects)
+                    const subjectHeaders = subjects.map(sub => `<th style="text-align:center; font-size:11px;">${sub}</th>`).join("");
+
+                    // Body rows
+                    let classTotalObt = 0;
+                    let classTotalMax = 0;
+                    let studentsWithGrades = 0;
+
+                    const rowsHtml = sortedStudents.map(s => {
+                        const marks = marksMap[s.id] || {};
+                        let totalObt = 0;
+                        let totalMax = 0;
+
+                        const cells = subjects.map(sub => {
+                            const m = marks[sub];
+                            if (m) {
+                                totalObt += Number(m.marks || 0);
+                                totalMax += Number(m.total || 0);
+                                const letter = _pctToGradeLetter(m.pct);
+                                const letterColor = _gradeLetterColor(m.pct);
+                                return `<td style="text-align:center;">${m.marks}<br><span style="font-size:10px; color:${letterColor}; font-weight:700;">${letter}</span></td>`;
+                            }
+                            return `<td style="text-align:center; color:#ccc;">—</td>`;
+                        }).join("");
+
+                        if (totalMax > 0) {
+                            classTotalObt += totalObt;
+                            classTotalMax += totalMax;
+                            studentsWithGrades++;
+                        }
+
+                        const pct = totalMax > 0 ? Math.round((totalObt / totalMax) * 10000) / 100 : 0;
+
+                        return `<tr>
+                            <td>${s.roll_number || "-"}</td>
+                            <td>${s.name}</td>
+                            ${cells}
+                            <td style="text-align:center;"><strong>${totalObt}/${totalMax || "-"}</strong></td>
+                            <td style="text-align:right;"><strong>${pct}%</strong></td>
+                        </tr>`;
+                    }).join("");
+
+                    // Class average per subject
+                    const subjectAverages = subjects.map(sub => {
+                        let subObt = 0, subMax = 0, count = 0;
+                        sortedStudents.forEach(s => {
+                            const m = (marksMap[s.id] || {})[sub];
+                            if (m) {
+                                subObt += Number(m.marks || 0);
+                                subMax += Number(m.total || 0);
+                                count++;
+                            }
+                        });
+                        return {
+                            avg: count > 0 && subMax > 0 ? Math.round((subObt / count) * 100) / 100 : null,
+                        };
+                    });
+                    const avgCells = subjectAverages.map(a =>
+                        `<td style="text-align:center; color:#666;">${a.avg !== null ? a.avg : "—"}</td>`
+                    ).join("");
+                    const overallPct = classTotalMax > 0
+                        ? Math.round((classTotalObt / classTotalMax) * 10000) / 100
+                        : 0;
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Class Grade Sheet</h2>
+                            <div style="font-size:13px; margin-top:6px;">
+                                <strong>Class:</strong> ${className} · <strong>Total Students:</strong> ${sortedStudents.length}
+                            </div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;">Generated: ${new Date().toLocaleDateString("en-GB")}</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll</th>
+                                    <th>Student Name</th>
+                                    ${subjectHeaders}
+                                    <th style="text-align:center;">Total</th>
+                                    <th style="text-align:right;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                            <tfoot>
+                                <tr style="background:#f2f2f2; font-weight:700;">
+                                    <td colspan="2">Class Average</td>
+                                    ${avgCells}
+                                    <td style="text-align:center;">—</td>
+                                    <td style="text-align:right;">${overallPct}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="footer">
+                            ${studentsWithGrades} of ${sortedStudents.length} students have grades recorded · ${school.name || "School"}
+                        </div>
+                    `;
+                    openPrintWindow(`Grade Sheet - Class ${className}`, bodyHtml, { landscape: true });
+                    closeModal("printCenterModal");
+                    return;
+                }
+                
+                /* ============================================================
+                   ✅ INDIVIDUAL STUDENT GRADE SHEET
+                   ============================================================ */
+                if (type === "student_grade_sheet") {
+                    const studentId = parseInt(document.getElementById("pcStudent").value);
+                    if (!studentId) { showAlert("Student select karein", "error"); return; }
+
+                    const student = students.find(s => s.id === studentId);
+                    if (!student) { showAlert("Student not found", "error"); return; }
+
+                    let allGrades = [];
+                    try {
+                        allGrades = await apiRequest("/grades");
+                    } catch (e) { showAlert("Grades load nahi ho saki: " + e.message, "error"); return; }
+
+                    const myGrades = allGrades.filter(g => g.student_id === studentId);
+
+                    if (myGrades.length === 0) {
+                        showAlert(`${student.name} ki koi grades nahi hain`, "error");
+                        closeModal("printCenterModal");
+                        return;
+                    }
+
+                    // Sort by subject, keep latest per subject
+                    const latestBySubject = {};
+                    myGrades.forEach(g => {
+                        const subj = g.subject || "—";
+                        if (!latestBySubject[subj] || (g.id || 0) > (latestBySubject[subj].id || 0)) {
+                            latestBySubject[subj] = g;
+                        }
+                    });
+
+                    const subjects = Object.keys(latestBySubject).sort();
+
+                    let totalObt = 0;
+                    let totalMax = 0;
+
+                    const rowsHtml = subjects.map(sub => {
+                        const g = latestBySubject[sub];
+                        const obt = Number(g.marks_obtained || 0);
+                        const max = Number(g.total_marks || 0);
+                        totalObt += obt;
+                        totalMax += max;
+                        const pct = g.percentage != null
+                            ? Number(g.percentage)
+                            : (max > 0 ? Math.round((obt / max) * 10000) / 100 : 0);
+                        const letter = _pctToGradeLetter(pct);
+                        const color = _gradeLetterColor(pct);
+                        return `<tr>
+                            <td>${sub}</td>
+                            <td style="text-align:center;">${obt} / ${max}</td>
+                            <td style="text-align:right; color:${color};"><strong>${pct}%</strong></td>
+                            <td style="text-align:center; color:${color};"><strong>${letter}</strong></td>
+                            <td>${g.exam_date || "-"}</td>
+                        </tr>`;
+                    }).join("");
+
+                    const overallPct = totalMax > 0
+                        ? Math.round((totalObt / totalMax) * 10000) / 100
+                        : 0;
+                    const overallLetter = _pctToGradeLetter(overallPct);
+                    const overallColor = _gradeLetterColor(overallPct);
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Individual Student Grade Sheet</h2>
+                        </div>
+                        <div class="meta">
+                            <div>
+                                <strong>Student:</strong> ${student.name}<br>
+                                <strong>Father:</strong> ${student.father_name || "-"}<br>
+                                <strong>Class:</strong> ${student.class_name || "-"} · <strong>Roll:</strong> ${student.roll_number || "-"}
+                            </div>
+                            <div style="text-align:right;">
+                                <strong>Generated:</strong> ${new Date().toLocaleDateString("en-GB")}
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th style="text-align:center;">Marks</th>
+                                    <th style="text-align:right;">Percentage</th>
+                                    <th style="text-align:center;">Grade</th>
+                                    <th>Exam Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                            <tfoot>
+                                <tr style="background:#f2f2f2; font-weight:700;">
+                                    <td>Overall</td>
+                                    <td style="text-align:center;">${totalObt} / ${totalMax}</td>
+                                    <td style="text-align:right; color:${overallColor};">${overallPct}%</td>
+                                    <td style="text-align:center; color:${overallColor};">${overallLetter}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="footer">This is a computer-generated grade sheet from ${school.name || "the school"}.</div>
+                    `;
+                    openPrintWindow(`Grade Sheet - ${student.name}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
 
                 /* ============ 1. INDIVIDUAL STUDENT ATTENDANCE ============ */
                 if (type === "student_attendance_individual") {
@@ -5929,9 +6208,13 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             catch (error) { cachedSchoolProfile = { name: "School", address: "", phone: "", email: "" }; }
             return cachedSchoolProfile;
         }
-        function openPrintWindow(title, bodyHtml) {
-            const printWindow = window.open("", "_blank", "width=800,height=900");
-            printWindow.document.write(`<html><head><title>${title}</title><style>body { font-family: Arial, sans-serif; padding: 30px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 14px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }</style></head><body>${bodyHtml}</body></html>`);
+        function openPrintWindow(title, bodyHtml, options = {}) {
+            const landscape = options.landscape === true;
+            const pageCss = landscape
+                ? '@page { size: A4 landscape; margin: 10mm; }'
+                : '@page { size: A4 portrait; margin: 15mm; }';
+            const printWindow = window.open("", "_blank", "width=1100,height=800");
+            printWindow.document.write(`<html><head><title>${title}</title><style>${pageCss} body { font-family: Arial, sans-serif; padding: 20px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 13px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; } @media print { body { padding: 0; } }</style></head><body>${bodyHtml}</body></html>`);
             printWindow.document.close();
             printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
         }
