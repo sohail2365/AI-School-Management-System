@@ -212,15 +212,31 @@ def get_next_roll_number(
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
-    """Auto-generate next roll number for a class (continuous: 1, 2, 3...)."""
+    """
+    Auto-generate next roll number.
+    Roll is CONTINUOUS across sections of the same parent class:
+      - "5"    → parent "5"
+      - "5-A"  → parent "5"
+      - "5-B"  → parent "5"
+    So 5-A students get 1..30, then 5-B students get 31..60, etc.
+    """
     if not class_name:
         raise HTTPException(status_code=422, detail="Class name required")
 
+    # Extract parent class: everything before first "-"
+    parent_class = class_name.split("-")[0].strip() if "-" in class_name else class_name.strip()
+
+    # Match either exact parent OR parent + "-section"
+    from sqlalchemy import or_
+    like_pattern = f"{parent_class}-%"
     students = (
         db.query(Student.roll_number)
         .filter(
             Student.school_id == token["school_id"],
-            Student.class_name == class_name,
+            or_(
+                Student.class_name == parent_class,
+                Student.class_name.like(like_pattern),
+            ),
         )
         .all()
     )
@@ -236,6 +252,7 @@ def get_next_roll_number(
 
     return {
         "class_name": class_name,
+        "parent_class": parent_class,
         "next_roll_number": str(next_roll),
         "existing_count": len(numeric_rolls),
     }
