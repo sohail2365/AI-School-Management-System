@@ -21,6 +21,41 @@ from backend.utils.rbac import require_roles
 
 router = APIRouter(prefix="/students", tags=["students"])
 
+# ==================== HELPERS ====================
+def _natural_class_sort_key(class_name) -> tuple:
+    """
+    Natural sort for class names, section-aware:
+      KG / KG-i / KG-ii / Nursery      → (0, 0, "KG...")
+      1 / 1-A / 1-B                    → (1, 1, "")
+      5 / 5-A / 5-B                    → (1, 5, "a" / "b")
+      10 / 10-A / 10-B                 → (1, 10, ...)
+      other strings                     → (2, 0, lower)
+    """
+    if class_name is None:
+        return (999, 0, "")
+    s = str(class_name).strip()
+    if not s:
+        return (999, 0, "")
+    upper = s.upper()
+    if upper.startswith("KG") or upper.startswith("NURSERY") \
+       or upper.startswith("PLAYGROUP") or upper.startswith("PREP"):
+        return (0, 0, upper)
+    m = re.match(r"^(\d+)", s)
+    if m:
+        num = int(m.group(1))
+        rest = s[m.end():].lstrip("-_ ").lower()
+        return (1, num, rest)
+    return (2, 0, s.lower())
+
+
+def _safe_roll_key(roll) -> int:
+    """Coerce roll number to int safely."""
+    if roll is None:
+        return 999999
+    try:
+        return int(str(roll).strip())
+    except (ValueError, TypeError):
+        return 999999
 
 # ==================== HELPERS ====================
 def _to_title_case(text: str | None) -> str | None:
@@ -168,15 +203,9 @@ def list_students(
 
     students = query.all()
 
-    # ✅ Sort by class (natural) → roll number (numeric)
+    # ✅ Sort by class (natural, section-aware) → roll number (numeric)
     def _sort_key(s):
-        cls_parts = re.split(r"(\d+)", s.class_name or "")
-        cls_key = tuple(int(p) if p.isdigit() else p.lower() for p in cls_parts if p)
-        try:
-            roll_key = int(str(s.roll_number).strip())
-        except (ValueError, TypeError):
-            roll_key = 999999
-        return (cls_key, roll_key)
+        return (_natural_class_sort_key(s.class_name), _safe_roll_key(s.roll_number))
 
     return sorted(students, key=_sort_key)
 
@@ -198,7 +227,7 @@ def students_classes_summary(
         parts = re.split(r"(\d+)", name or "")
         return [int(p) if p.isdigit() else p.lower() for p in parts if p]
 
-    rows = sorted(rows, key=lambda r: _sort_key(r.class_name))
+    rows = sorted(rows, key=lambda r: _natural_class_sort_key(r.class_name))
     return [
         {"class_name": r.class_name, "student_count": r.student_count}
         for r in rows
