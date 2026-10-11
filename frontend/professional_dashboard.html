@@ -1136,27 +1136,47 @@
                 </div>
 
                 <div class="view" id="gradesView">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">📈 Grades Management</h3>
-                            <button class="btn btn-primary" onclick="openAddGradeModal()">➕ Add Grade</button>
-                        </div>
-                        <div class="card-body">
-                            <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
-                                <label style="font-size: 14px; font-weight: 600; color: var(--dark);">Filter by subject:</label>
-                                <select id="gradeSubjectFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; min-width: 160px; background: var(--bg-primary); color: var(--dark);" onchange="filterGrades()"><option value="">All Subjects</option></select>
-                                <button class="btn btn-sm btn-secondary" onclick="clearGradeFilter()">Clear</button>
+                    <!-- Class Grid -->
+                    <div id="gradesClassGrid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">📈 Grades — Select a Class</h3>
+                                <button class="btn btn-primary" onclick="openAddGradeModal()">➕ Add Grade</button>
                             </div>
-                            <div class="table-responsive">
-                                <table>
-                                    <thead><tr><th>Student Name</th><th>Subject</th><th>Marks</th><th>Percentage</th><th>Grade</th><th>Exam Date</th><th>Actions</th></tr></thead>
-                                    <tbody id="gradesTable"></tbody>
-                                </table>
+                            <div class="card-body">
+                                <div id="gradesClassCards" class="class-grid">
+                                    <div style="color:var(--gray); text-align:center; padding:30px;">Loading classes...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Class Detail View -->
+                    <div id="gradesDetailView" style="display:none;">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="view-header-bar">
+                                    <button class="btn btn-sm btn-secondary" onclick="backToGradeClasses()">← Back</button>
+                                    <h3 class="card-title" id="gradesDetailTitle">Grades</h3>
+                                </div>
+                                <button class="btn btn-primary" onclick="openAddGradeModal()">➕ Add Grade</button>
+                            </div>
+                            <div class="card-body">
+                                <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+                                    <input type="text" id="gradeSearchInput" placeholder="🔍 Search by student name..." style="flex:1; min-width:200px; padding:10px 14px; border:2px solid var(--border); border-radius:10px; font-size:14px; background:var(--bg-primary); color:var(--dark);" oninput="debounceFilterGradeRecords()">
+                                    <select id="gradeSubjectFilter" style="padding: 10px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; min-width: 160px; background: var(--bg-primary); color: var(--dark);" onchange="filterGrades()"><option value="">All Subjects</option></select>
+                                    <button class="btn btn-secondary" onclick="clearGradeFilter()">Clear</button>
+                                </div>
+                                <div id="gradeClassSummary" style="display:flex; gap:14px; margin-bottom:16px; flex-wrap:wrap;"></div>
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead><tr><th>Roll</th><th>Student Name</th><th>Subject</th><th>Marks</th><th>Percentage</th><th>Grade</th><th>Exam Date</th><th>Actions</th></tr></thead>
+                                        <tbody id="gradesTable"></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="view" id="staffView">
                     <div class="card">
                         <div class="card-body" style="padding-bottom: 0;">
@@ -1425,9 +1445,10 @@
                                     <option value="staff_attendance_report">👥 All Staff Monthly Attendance</option>
                                     <option value="staff_attendance_individual">🧑 Individual Staff Attendance</option>
                                     <option value="unpaid_fees_report">💰 Unpaid Fees Report (all students)</option>
+                                    <option value="fee_receipts">🧾 Fee Receipts (paid fees)</option>
+                                    <option value="class_grade_sheet">🎯 Class Grade Sheet (Marksheet)</option>
                                     <option value="report_cards">📋 Report Cards (all students)</option>
                                     <option value="id_cards">🪪 Student ID Cards</option>
-                                    <option value="fee_receipts">🧾 Fee Receipts (paid fees)</option>
                                     <option value="class_list">📝 Class Student List</option>
                                 </select>
                             </div>
@@ -3066,32 +3087,174 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         let cachedGradeRecords = [];
         let cachedStudentsForGrades = [];
         let currentGradeSubjectFilter = "";
+        let currentGradeClass = null;
+        let gradeSearchTimeout = null;
         function gradeBadgeClass(letter) { if (letter === "A") return "badge-success"; if (letter === "B") return "badge-info"; if (letter === "C" || letter === "D") return "badge-warning"; return "badge-danger"; }
-        async function loadGrades(filters = {}) {
+
+        // ==================== CLASS-WISE GRADES NAVIGATION ====================
+        async function loadGrades() {
+            if (currentGradeClass) {
+                await loadGradesInClass(currentGradeClass);
+            } else {
+                showGradeClassGrid();
+                await loadGradeClasses();
+            }
+        }
+
+        async function loadGradeClasses() {
+            const c = document.getElementById("gradesClassCards");
+            if (!c) return;
             try {
-                const studentsData = await apiRequest("/students");
+                const classes = await apiRequest("/students/classes-summary");
+                renderGradeClassCards(classes);
+            } catch (e) {
+                console.error(e);
+                c.innerHTML = '<p style="color:var(--danger);text-align:center;padding:30px;">Could not load classes.</p>';
+            }
+        }
+
+        function renderGradeClassCards(classes) {
+            const c = document.getElementById("gradesClassCards");
+            if (!c) return;
+            if (!classes || !classes.length) {
+                c.innerHTML = '<div style="color:var(--gray);text-align:center;padding:40px;">No students yet.</div>';
+                return;
+            }
+            c.innerHTML = classes.map(x =>
+                '<div class="class-card" onclick="openGradeClass(\'' + (x.class_name||'').replace(/\x27/g, "\\'") + '\')">' +
+                '<div class="class-card-title">Class ' + x.class_name + '</div>' +
+                '<div class="class-card-count">' + x.student_count + ' student' + (x.student_count !== 1 ? "s" : "") + '</div>' +
+                '<div class="class-card-stat">View Grades →</div>' +
+                '</div>'
+            ).join("");
+        }
+
+        function showGradeClassGrid() {
+            const g = document.getElementById("gradesClassGrid");
+            const d = document.getElementById("gradesDetailView");
+            if (g) g.style.display = "block";
+            if (d) d.style.display = "none";
+        }
+
+        async function openGradeClass(cn) {
+            currentGradeClass = cn;
+            document.getElementById("gradesClassGrid").style.display = "none";
+            document.getElementById("gradesDetailView").style.display = "block";
+            document.getElementById("gradesDetailTitle").textContent = "Class " + cn + " — Grade Records";
+            await loadGradesInClass(cn);
+        }
+
+        function backToGradeClasses() {
+            currentGradeClass = null;
+            currentGradeSubjectFilter = "";
+            const si = document.getElementById("gradeSearchInput"); if (si) si.value = "";
+            const sf = document.getElementById("gradeSubjectFilter"); if (sf) sf.value = "";
+            showGradeClassGrid();
+        }
+
+        async function loadGradesInClass(cn, filters = {}) {
+            try {
+                // ✅ Fetch students + grades
+                const studentsData = await apiRequest("/students?class=" + encodeURIComponent(cn));
                 cachedStudentsForGrades = studentsData;
-                document.getElementById("gradeStudent").innerHTML = '<option>Select Student</option>' + studentsData.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+
                 const params = new URLSearchParams();
                 if (filters.subject) params.set("subject", filters.subject);
                 const query = params.toString() ? `?${params.toString()}` : "";
-                const records = await apiRequest(`/grades${query}`);
+                const allGrades = await apiRequest(`/grades${query}`);
+
+                // Filter grades to only this class's students
+                const studentIds = new Set(studentsData.map(s => s.id));
+                const records = allGrades.filter(g => studentIds.has(g.student_id));
                 cachedGradeRecords = records;
+
+                // Populate Add Grade dropdown (all students, or class-specific? all)
+                const allStudents = await apiRequest("/students");
+                const gs = document.getElementById("gradeStudent");
+                if (gs) gs.innerHTML = '<option>Select Student</option>' + allStudents.map(s => `<option value="${s.id}">${s.name} (${s.class_name})</option>`).join("");
+
+                // Subject filter
+                if (!filters.subject) populateGradeSubjectFilter(records);
+
+                // Summary cards
+                renderGradeClassSummary(records);
+
+                // Render table
                 const table = document.getElementById("gradesTable");
                 const tableEl = table.closest('table');
-                if (records.length === 0) {
+                const search = filters.search || "";
+                let displayRows = records;
+                if (search) {
+                    const q = search.toLowerCase();
+                    displayRows = records.filter(g => {
+                        const st = studentsData.find(s => s.id === g.student_id);
+                        return st && st.name.toLowerCase().includes(q);
+                    });
+                }
+
+                // Sort by roll number then subject
+                displayRows = displayRows.slice().sort((a, b) => {
+                    const sa = studentsData.find(s => s.id === a.student_id) || {};
+                    const sb = studentsData.find(s => s.id === b.student_id) || {};
+                    const ra = parseInt(sa.roll_number) || 999999;
+                    const rb = parseInt(sb.roll_number) || 999999;
+                    if (ra !== rb) return ra - rb;
+                    return String(a.subject || "").localeCompare(String(b.subject || ""));
+                });
+
+                if (displayRows.length === 0) {
                     showEmptyState('gradesTable', 'trending-up', 'No grade records yet', 'Add grades for students to see performance here.', 'Add Grade', 'openAddGradeModal()');
                 } else {
                     if (typeof clearEmptyState === 'function') clearEmptyState('gradesTable');
                     if (tableEl) tableEl.style.display = '';
-                    table.innerHTML = records.map(g => {
+                    table.innerHTML = displayRows.map(g => {
                         const student = studentsData.find(s => s.id === g.student_id);
-                        return `<tr><td>${student?.name || "Unknown"}</td><td>${g.subject}</td><td>${g.marks_obtained} / ${g.total_marks}</td><td>${g.percentage}%</td><td><span class="badge ${gradeBadgeClass(g.grade)}">${g.grade || "-"}</span></td><td>${g.exam_date || "-"}</td><td><div class="action-buttons"><button class="btn btn-sm btn-secondary" onclick="editGrade(${g.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteGrade(${g.id})">Delete</button></div></td></tr>`;
+                        return `<tr>
+                            <td>${student?.roll_number || "-"}</td>
+                            <td>${student?.name || "Unknown"}</td>
+                            <td>${g.subject}</td>
+                            <td>${g.marks_obtained} / ${g.total_marks}</td>
+                            <td>${g.percentage}%</td>
+                            <td><span class="badge ${gradeBadgeClass(g.grade)}">${g.grade || "-"}</span></td>
+                            <td>${g.exam_date || "-"}</td>
+                            <td><div class="action-buttons"><button class="btn btn-sm btn-secondary" onclick="editGrade(${g.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteGrade(${g.id})">Delete</button></div></td>
+                        </tr>`;
                     }).join("");
                 }
-                if (!filters.subject) populateGradeSubjectFilter(records);
-            } catch (error) { console.error("Error loading grades:", error); }
+            } catch (error) {
+                console.error("Error loading grades:", error);
+            }
         }
+
+        function renderGradeClassSummary(records) {
+            const el = document.getElementById("gradeClassSummary");
+            if (!el) return;
+            if (!records || records.length === 0) { el.innerHTML = ""; return; }
+            const totalRecords = records.length;
+            const avgPct = records.reduce((sum, g) => sum + Number(g.percentage || 0), 0) / totalRecords;
+            const uniqueStudents = new Set(records.map(g => g.student_id)).size;
+            const uniqueSubjects = new Set(records.map(g => g.subject).filter(Boolean)).size;
+
+            el.innerHTML = `
+                <div style="padding:12px 18px; border-radius:12px; background:var(--primary-lighter); text-align:center; min-width:120px;">
+                    <div style="font-size:20px; font-weight:800; color:var(--primary-dark);">${totalRecords}</div>
+                    <div style="font-size:11px; color:var(--gray);">Grade Records</div>
+                </div>
+                <div style="padding:12px 18px; border-radius:12px; background:#D1FAE5; text-align:center; min-width:120px;">
+                    <div style="font-size:20px; font-weight:800; color:#065F46;">${avgPct.toFixed(1)}%</div>
+                    <div style="font-size:11px; color:var(--gray);">Class Average</div>
+                </div>
+                <div style="padding:12px 18px; border-radius:12px; background:var(--accent-lighter); text-align:center; min-width:120px;">
+                    <div style="font-size:20px; font-weight:800; color:var(--accent-dark);">${uniqueStudents}</div>
+                    <div style="font-size:11px; color:var(--gray);">Students w/ Grades</div>
+                </div>
+                <div style="padding:12px 18px; border-radius:12px; background:#EDE9FE; text-align:center; min-width:120px;">
+                    <div style="font-size:20px; font-weight:800; color:#4F36A8;">${uniqueSubjects}</div>
+                    <div style="font-size:11px; color:var(--gray);">Subjects</div>
+                </div>
+            `;
+        }
+
         function populateGradeSubjectFilter(records) {
             const subjectFilter = document.getElementById("gradeSubjectFilter");
             if (!subjectFilter) return;
@@ -3100,8 +3263,33 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             subjectFilter.innerHTML = '<option value="">All Subjects</option>' + uniqueSubjects.map(s => `<option value="${s}">${s}</option>`).join("");
             subjectFilter.value = currentValue;
         }
-        function filterGrades() { currentGradeSubjectFilter = document.getElementById("gradeSubjectFilter").value; loadGrades({ subject: currentGradeSubjectFilter || undefined }); }
-        function clearGradeFilter() { document.getElementById("gradeSubjectFilter").value = ""; currentGradeSubjectFilter = ""; loadGrades(); }
+
+        function filterGrades() {
+            currentGradeSubjectFilter = document.getElementById("gradeSubjectFilter").value;
+            if (currentGradeClass) {
+                loadGradesInClass(currentGradeClass, { subject: currentGradeSubjectFilter || undefined });
+            }
+        }
+
+        function debounceFilterGradeRecords() {
+            clearTimeout(gradeSearchTimeout);
+            gradeSearchTimeout = setTimeout(() => {
+                if (!currentGradeClass) return;
+                const q = document.getElementById("gradeSearchInput").value.trim();
+                loadGradesInClass(currentGradeClass, {
+                    subject: currentGradeSubjectFilter || undefined,
+                    search: q || undefined,
+                });
+            }, 350);
+        }
+
+        function clearGradeFilter() {
+            const sf = document.getElementById("gradeSubjectFilter"); if (sf) sf.value = "";
+            const si = document.getElementById("gradeSearchInput"); if (si) si.value = "";
+            currentGradeSubjectFilter = "";
+            if (currentGradeClass) loadGradesInClass(currentGradeClass);
+        }
+
         async function saveGrade() {
             try {
                 const editingId = document.getElementById("addGradeModal").dataset.editingId;
@@ -3111,19 +3299,23 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 if (editingId) { await apiRequest(`/grades/${editingId}`, { method: "PUT", body: JSON.stringify({ subject: payload.subject, marks_obtained: payload.marks_obtained, total_marks: payload.total_marks }) }); showAlert("Grade updated successfully"); }
                 else { await apiRequest("/grades", { method: "POST", body: JSON.stringify(payload) }); showAlert("Grade added successfully"); }
                 closeModal("addGradeModal");
-                await loadGrades({ subject: currentGradeSubjectFilter || undefined });
+                if (currentGradeClass) await loadGradesInClass(currentGradeClass, { subject: currentGradeSubjectFilter || undefined });
+                else await loadGrades();
             } catch (error) { console.error("Error saving grade:", error); }
         }
-        function openAddGradeModal() {
+
+        async function openAddGradeModal() {
+            // Prefetch students
+            try { const allStudents = await apiRequest("/students"); cachedStudentsForGrades = allStudents; document.getElementById("gradeStudent").innerHTML = '<option>Select Student</option>' + allStudents.map(s => `<option value="${s.id}">${s.name} (${s.class_name})</option>`).join(""); } catch (e) {}
             document.getElementById("addGradeModal").dataset.editingId = "";
             document.getElementById("gradeModalTitle").textContent = "Add Grade";
             document.getElementById("gradeSaveBtn").textContent = "Save Grade";
-            document.getElementById("gradeStudent").value = "Select Student";
             document.getElementById("gradeSubject").value = "";
             document.getElementById("gradeMarks").value = "";
             document.getElementById("gradeTotalMarks").value = "100";
             openModal("addGradeModal");
         }
+
         function editGrade(id) {
             const record = cachedGradeRecords.find(g => g.id === id);
             if (!record) return;
@@ -3136,11 +3328,25 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.getElementById("gradeTotalMarks").value = record.total_marks;
             openModal("addGradeModal");
         }
+
         async function deleteGrade(id) {
             if (!confirm("Are you sure you want to delete this grade record?")) return;
-            try { await apiRequest(`/grades/${id}`, { method: "DELETE" }); showAlert("Deleted successfully"); await loadGrades({ subject: currentGradeSubjectFilter || undefined }); }
-            catch (error) { console.error("Error deleting grade:", error); }
+            try {
+                await apiRequest(`/grades/${id}`, { method: "DELETE" });
+                showAlert("Deleted successfully");
+                if (currentGradeClass) await loadGradesInClass(currentGradeClass, { subject: currentGradeSubjectFilter || undefined });
+                else await loadGrades();
+            } catch (error) { console.error("Error deleting grade:", error); }
         }
+
+        // ✅ Reset class context when switching away from grades view
+        const _origLoadViewDataForGrades = window.loadViewData;
+        window.loadViewData = async function(v) {
+            if (v !== "grades" && typeof currentGradeClass !== "undefined") {
+                currentGradeClass = null;
+            }
+            if (typeof _origLoadViewDataForGrades === "function") return _origLoadViewDataForGrades(v);
+        };
 
         let cachedStaffList = [];
         let cachedStaffAttendance = [];
@@ -4122,6 +4328,150 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                         <div class="footer">This is a computer-generated report from ${school.name || "the school"}.</div>
                     `;
                     openPrintWindow(`Unpaid Fees - Class ${className}`, bodyHtml);
+                    closeModal("printCenterModal");
+                    return;
+                }
+                
+                /* ============ CLASS GRADE SHEET (MARKSHEET) ============ */
+                if (type === "class_grade_sheet") {
+                    const classStudents = students.filter(s => s.class_name === className);
+                    if (classStudents.length === 0) { showAlert("No students in this class", "error"); return; }
+
+                    // Fetch all grades
+                    let allGrades = [];
+                    try {
+                        allGrades = await apiRequest("/grades");
+                    } catch (e) { showAlert("Grades load nahi ho saki: " + e.message, "error"); return; }
+
+                    const studentIds = new Set(classStudents.map(s => s.id));
+                    const classGrades = allGrades.filter(g => studentIds.has(g.student_id));
+
+                    if (classGrades.length === 0) {
+                        showAlert(`Class ${className} mein koi grades nahi hain`, "error");
+                        closeModal("printCenterModal");
+                        return;
+                    }
+
+                    // Get unique subjects
+                    const subjects = [...new Set(classGrades.map(g => g.subject).filter(Boolean))].sort();
+
+                    // Build marks map: keep latest (highest id) per student+subject
+                    const marksMap = {};
+                    classGrades.forEach(g => {
+                        const sid = g.student_id;
+                        const subj = g.subject;
+                        if (!marksMap[sid]) marksMap[sid] = {};
+                        const existing = marksMap[sid][subj];
+                        if (!existing || (g.id || 0) > (existing.id || 0)) {
+                            marksMap[sid][subj] = {
+                                marks: g.marks_obtained,
+                                total: g.total_marks,
+                                pct: g.percentage,
+                                id: g.id,
+                            };
+                        }
+                    });
+
+                    // Sort students by roll
+                    const sortedStudents = classStudents.slice().sort((a, b) => {
+                        const ra = parseInt(a.roll_number) || 999999;
+                        const rb = parseInt(b.roll_number) || 999999;
+                        return ra - rb;
+                    });
+
+                    // Header row: subjects
+                    const subjectHeaders = subjects.map(sub => `<th style="text-align:center; font-size:11px;">${sub}</th>`).join("");
+
+                    // Body rows
+                    let classTotalObt = 0;
+                    let classTotalMax = 0;
+                    let studentsWithGrades = 0;
+
+                    const rowsHtml = sortedStudents.map(s => {
+                        const marks = marksMap[s.id] || {};
+                        let totalObt = 0;
+                        let totalMax = 0;
+
+                        const cells = subjects.map(sub => {
+                            const m = marks[sub];
+                            if (m) {
+                                totalObt += Number(m.marks || 0);
+                                totalMax += Number(m.total || 0);
+                                return `<td style="text-align:center;">${m.marks}</td>`;
+                            }
+                            return `<td style="text-align:center; color:#ccc;">—</td>`;
+                        }).join("");
+
+                        if (totalMax > 0) {
+                            classTotalObt += totalObt;
+                            classTotalMax += totalMax;
+                            studentsWithGrades++;
+                        }
+
+                        const pct = totalMax > 0 ? Math.round((totalObt / totalMax) * 10000) / 100 : 0;
+
+                        return `<tr>
+                            <td>${s.roll_number || "-"}</td>
+                            <td>${s.name}</td>
+                            ${cells}
+                            <td style="text-align:center;"><strong>${totalObt}/${totalMax || "-"}</strong></td>
+                            <td style="text-align:right;"><strong>${pct}%</strong></td>
+                        </tr>`;
+                    }).join("");
+
+                    // Class average per subject
+                    const subjectAverages = subjects.map(sub => {
+                        let subObt = 0, subMax = 0, count = 0;
+                        sortedStudents.forEach(s => {
+                            const m = (marksMap[s.id] || {})[sub];
+                            if (m) { subObt += Number(m.marks || 0); subMax += Number(m.total || 0); count++; }
+                        });
+                        return {
+                            avg: subMax > 0 ? Math.round((subObt / count) * 100) / 100 : null,
+                            count
+                        };
+                    });
+                    const avgCells = subjectAverages.map(a => `<td style="text-align:center; color:#666;">${a.avg !== null ? a.avg : "—"}</td>`).join("");
+                    const overallPct = classTotalMax > 0 ? Math.round((classTotalObt / classTotalMax) * 10000) / 100 : 0;
+
+                    const bodyHtml = `
+                        <div class="header">
+                            <h1>${school.name || "School"}</h1>
+                            <div>${school.address || ""}</div>
+                            ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                            <h2 style="margin-top:14px;">Class Grade Sheet</h2>
+                            <div style="font-size:13px; margin-top:6px;">
+                                <strong>Class:</strong> ${className} · <strong>Total Students:</strong> ${sortedStudents.length}
+                            </div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;">Generated: ${new Date().toLocaleDateString("en-GB")}</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll</th>
+                                    <th>Student Name</th>
+                                    ${subjectHeaders}
+                                    <th style="text-align:center;">Total</th>
+                                    <th style="text-align:right;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                            <tfoot>
+                                <tr style="background:#f2f2f2; font-weight:700;">
+                                    <td colspan="2">Class Average</td>
+                                    ${avgCells}
+                                    <td style="text-align:center;">—</td>
+                                    <td style="text-align:right;">${overallPct}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="footer">
+                            ${studentsWithGrades} of ${sortedStudents.length} students have grades recorded · ${school.name || "School"}
+                        </div>
+                    `;
+                    openPrintWindow(`Grade Sheet - Class ${className}`, bodyHtml);
                     closeModal("printCenterModal");
                     return;
                 }
