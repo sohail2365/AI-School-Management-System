@@ -8,9 +8,11 @@ from backend.database import init_db, engine, SessionLocal, get_db
 from backend.config import settings
 from backend.models.school import School
 from backend.models.user import User, UserRole
+from backend.models.exam import Exam, ExamEntry 
 from backend.utils.password import hash_password
 from datetime import datetime
 
+from backend.routes import exams as exams_router
 from backend.routes import auth, students, attendance, grades, fees, dashboard, reports, announcements, schools, staff
 from backend.routes.filters import router as filters_router
 from backend.routes.settings import router as settings_router
@@ -304,7 +306,8 @@ app.include_router(parent_router, tags=["parent-portal"])
 print("âœ… Parent portal routes loaded")
 app.include_router(imports_router, tags=["imports"])
 print("âœ… Bulk import routes loaded")
-
+app.include_router(exams_router.router, tags=["exams"])
+print("✅ Exam routes loaded")
 
 @app.get("/health")
 async def health_check():

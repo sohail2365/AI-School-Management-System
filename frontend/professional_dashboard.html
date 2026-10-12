@@ -1070,6 +1070,7 @@
                 <li><a class="menu-link" data-view="messages"><span class="icon">💬</span> Messages</a></li>
                 <li><a class="menu-link" href="student-documents.html"><span class="icon">🪪</span> Student Documents</a></li>
                 <li><a class="menu-link" data-view="announcements"><span class="icon">📢</span> Announcements</a></li>
+                <li><a class="menu-link" data-view="datesheet"><span class="icon">📅</span> Datesheet</a></li>
                 <li><a class="menu-link" data-view="tools"><span class="icon">🛠️</span> Tools</a></li>
                 <li><a class="menu-link" data-view="settings"><span class="icon">⚙️</span> Settings</a></li>
             </ul>
@@ -1524,6 +1525,37 @@
                         <div class="card-body"><div style="display: grid; gap: 20px;" id="announcementsList"></div></div>
                     </div>
                 </div>
+                <!-- ==================== DATESHEET VIEW ==================== -->
+                <div class="view" id="datesheetView">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📅 Exams &amp; Datesheets</h3>
+                            <button class="btn btn-primary" onclick="openNewExamModal()">➕ New Exam</button>
+                        </div>
+                        <div class="card-body">
+                            <p style="color:var(--gray); font-size:0.9rem; margin-bottom:16px;">
+                                Create an exam, then add a datesheet for each class separately. Print individually with school logo.
+                            </p>
+                            <div id="examsList"><div style="color:var(--gray); text-align:center; padding:30px;">Loading…</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== EXAM DETAIL VIEW ==================== -->
+                <div class="view" id="examDetailView">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="view-header-bar">
+                                <button class="btn btn-sm btn-secondary" onclick="backToExamsList()">← Back</button>
+                                <h3 class="card-title" id="examDetailTitle">Exam</h3>
+                            </div>
+                            <button class="btn btn-primary" onclick="openExamEntriesModal()">➕ Add Class Datesheet</button>
+                        </div>
+                        <div class="card-body" id="examDetailBody">
+                            <div style="color:var(--gray); text-align:center; padding:30px;">Loading…</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="view" id="toolsView">
                     <div class="card">
@@ -1689,19 +1721,25 @@
                             </div>
                             <div class="form-group" id="pcClassGroup">
                                 <label>Class</label>
-                                <select id="pcClass"><option value="">Select Class</option></select>
+                                <select id="pcClass" onchange="onPcClassChange()"><option value="">Select Class</option></select>
                             </div>
                             <div class="form-group" id="pcMonthGroup" style="display:none;">
                                 <label>Month</label>
                                 <input type="month" id="pcMonth">
                             </div>
                             <div class="form-group" id="pcStudentGroup" style="display:none;">
-                                <label>Student</label>
-                                <select id="pcStudent"><option value="">Select Student</option></select>
+                                <label>Search Student</label>
+                                <input type="text" id="pcStudentSearch" placeholder="🔍 Type name or roll number..." oninput="filterPcStudentOptions(this.value)" autocomplete="off" style="margin-bottom:8px; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:var(--bg-primary); color:var(--dark); width:100%;">
+                                <select id="pcStudent" size="6" style="width:100%; min-height:140px; padding:6px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:var(--bg-primary); color:var(--dark);">
+                                    <option value="">— Select class above first —</option>
+                                </select>
                             </div>
                             <div class="form-group" id="pcStaffGroup" style="display:none;">
-                                <label>Staff Member</label>
-                                <select id="pcStaff"><option value="">Select Staff</option></select>
+                                <label>Search Staff</label>
+                                <input type="text" id="pcStaffSearch" placeholder="🔍 Type name or designation..." oninput="filterPcStaffOptions(this.value)" autocomplete="off" style="margin-bottom:8px; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:var(--bg-primary); color:var(--dark); width:100%;">
+                                <select id="pcStaff" size="6" style="width:100%; min-height:140px; padding:6px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:var(--bg-primary); color:var(--dark);">
+                                    <option value="">— Loading staff… —</option>
+                                </select>
                             </div>
                         </div>
                         <p style="font-size:0.85rem; color:var(--gray); margin-top:8px;">ℹ️ Print preview opens in a new tab.</p>
@@ -2098,6 +2136,65 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 <button class="ai-quick-chip" onclick="aiQuickAsk('Top 5 students by grades dikhao')">⭐ Top students</button>
                 <button class="ai-quick-chip" onclick="aiQuickAsk('Kaunse students ki fees 30 din se zyada overdue hai?')">⚠️ Overdue fees</button>
                 <button class="ai-quick-chip" onclick="aiQuickAsk('Inactive staff members dikhao')">🧑 Inactive staff</button>
+            </div>
+        </div>
+    </div>
+    <!-- ============ NEW / EDIT EXAM MODAL ============ -->
+    <div class="modal" id="newExamModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('newExamModal')">✕</span>
+            <div class="modal-header" id="newExamModalTitle">New Exam</div>
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Exam Name *</label>
+                    <input type="text" id="newExamName" placeholder="e.g. First Term 2026">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Notes (optional)</label>
+                    <textarea id="newExamNotes" rows="2" placeholder="e.g. Mid-term exams, all subjects compulsory"></textarea>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="newExamSaveBtn" onclick="saveNewExam()">💾 Save Exam</button>
+                <button class="btn btn-secondary" onclick="closeModal('newExamModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ EXAM ENTRIES MODAL ============ -->
+    <div class="modal" id="examEntriesModal">
+        <div class="modal-content modal-xl">
+            <span class="modal-close" onclick="closeModal('examEntriesModal')">✕</span>
+            <div class="modal-header" id="examEntriesModalTitle">Add Datesheet</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Class *</label>
+                    <input type="text" id="eeClassName" placeholder="e.g. 10-A" list="classSuggestions">
+                </div>
+                <div class="form-group" style="display:flex; align-items:flex-end;">
+                    <button class="btn btn-secondary" onclick="eeLoadExisting()">🔄 Load Existing</button>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;">
+                <div style="display:grid; grid-template-columns: 2fr 1.2fr 1.4fr 1fr 0.8fr 40px; gap:8px; padding:8px 10px; background:var(--bg-secondary); border-radius:10px; font-size:0.78rem; font-weight:700; color:var(--primary-dark); text-transform:uppercase; letter-spacing:0.5px;">
+                    <div>Subject *</div>
+                    <div>Date *</div>
+                    <div>Time</div>
+                    <div>Day (auto)</div>
+                    <div>Marks</div>
+                    <div></div>
+                </div>
+                <div id="eeRows" style="display:flex; flex-direction:column; gap:6px; margin-top:6px;"></div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <button class="btn btn-secondary btn-sm" onclick="eeAddRow()">➕ Add Row</button>
+            </div>
+
+            <div class="btn-group" style="border-top:1px solid var(--border); padding-top:16px; margin-top:16px;">
+                <button class="btn btn-primary" onclick="saveExamEntries()">💾 Save Datesheet</button>
+                <button class="btn btn-secondary" onclick="closeModal('examEntriesModal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -2588,7 +2685,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
             document.querySelector(`[data-view="${viewName}"]`).classList.add("active");
             closeSidebar();
-            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", tools: "Tools", settings: "Settings" };
+            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", datesheet: "Datesheet", tools: "Tools", settings: "Settings" };
             animatePageTitle(titles[viewName] || "Dashboard");
             loadViewData(viewName);
         }
@@ -2604,6 +2701,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     case "staff": await loadStaffTab(); break;
                     case "messages": await loadAdminMessageThreads(); break;
                     case "announcements": await loadAnnouncements(); break;
+                    case "datesheet": await loadExams(); break;
                     case "tools": loadToolsView(); break;
                     case "settings": await loadSettings(); break;
                 }
@@ -4070,6 +4168,353 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             else listEl.innerHTML = withPhones.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:8px;"><span>${s.name} — ${s.phone}</span><button class="btn btn-sm btn-whatsapp" onclick="sendWhatsappToStudent(${s.id})">📱 Send</button></div>`).join("");
             openModal("whatsappBulkModal");
         }
+        // ==================== DATESHEET / EXAMS ====================
+        let _cachedExams = [];
+        let _currentExamId = null;
+        let _currentExamData = null;
+        let _eeRowCounter = 0;
+
+        async function loadExams() {
+            const box = document.getElementById("examsList");
+            if (!box) return;
+            box.innerHTML = '<div style="color:var(--gray); text-align:center; padding:30px;">Loading…</div>';
+            try {
+                _cachedExams = await apiRequest("/exams");
+                renderExamsList();
+            } catch (e) {
+                box.innerHTML = `<div style="color:var(--danger); text-align:center; padding:30px;">${e.message}</div>`;
+            }
+        }
+
+        function renderExamsList() {
+            const box = document.getElementById("examsList");
+            if (!box) return;
+            if (!_cachedExams.length) {
+                box.innerHTML = `<div style="text-align:center; padding:40px; color:var(--gray);">
+                    <div style="font-size:48px; margin-bottom:10px;">📅</div>
+                    <p style="font-size:0.95rem;">Abhi tak koi exam nahi. <b>New Exam</b> click karein.</p>
+                </div>`;
+                return;
+            }
+            box.innerHTML = _cachedExams.map(ex => `
+                <div style="border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px; background:var(--bg-secondary); transition: all 0.2s ease;"
+                     onmouseover="this.style.boxShadow='0 8px 24px rgba(124,92,224,0.12)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.boxShadow=''; this.style.transform='';">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:220px;">
+                            <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; color:var(--primary-dark); margin-bottom:6px;">📝 ${ex.name}</div>
+                            ${ex.notes ? `<div style="color:var(--gray); font-size:0.85rem; margin-bottom:6px;">${ex.notes}</div>` : ""}
+                            <div style="font-size:0.8rem; color:var(--gray);">
+                                <span class="badge badge-info" style="margin-right:6px;">${ex.classes.length} class${ex.classes.length !== 1 ? "es" : ""}</span>
+                                <span class="badge badge-success">${ex.entry_count} entr${ex.entry_count !== 1 ? "ies" : "y"}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start;">
+                            <button class="btn btn-sm btn-primary" onclick="openExamDetail(${ex.id})">📋 Manage</button>
+                            <button class="btn btn-sm btn-secondary" onclick="openEditExamModal(${ex.id})">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteExam(${ex.id})">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function openNewExamModal() {
+            document.getElementById("newExamModalTitle").textContent = "New Exam";
+            document.getElementById("newExamSaveBtn").textContent = "💾 Save Exam";
+            document.getElementById("newExamModal").dataset.editingId = "";
+            document.getElementById("newExamName").value = "";
+            document.getElementById("newExamNotes").value = "";
+            openModal("newExamModal");
+            setTimeout(() => document.getElementById("newExamName").focus(), 150);
+        }
+
+        function openEditExamModal(examId) {
+            const ex = _cachedExams.find(e => e.id === examId);
+            if (!ex) return;
+            document.getElementById("newExamModalTitle").textContent = "Edit Exam";
+            document.getElementById("newExamSaveBtn").textContent = "💾 Update Exam";
+            document.getElementById("newExamModal").dataset.editingId = examId;
+            document.getElementById("newExamName").value = ex.name || "";
+            document.getElementById("newExamNotes").value = ex.notes || "";
+            openModal("newExamModal");
+        }
+
+        async function saveNewExam() {
+            const editingId = document.getElementById("newExamModal").dataset.editingId;
+            const name = document.getElementById("newExamName").value.trim();
+            const notes = document.getElementById("newExamNotes").value.trim() || null;
+            if (!name) { showAlert("Exam name required", "error"); return; }
+            try {
+                if (editingId) {
+                    await apiRequest(`/exams/${editingId}`, { method: "PUT", body: JSON.stringify({ name, notes }) });
+                    showAlert("Exam updated");
+                } else {
+                    await apiRequest("/exams", { method: "POST", body: JSON.stringify({ name, notes }) });
+                    showAlert("Exam created");
+                }
+                closeModal("newExamModal");
+                await loadExams();
+                if (_currentExamId) await openExamDetail(_currentExamId);
+            } catch (e) { showAlert(e.message, "error"); }
+        }
+
+        async function deleteExam(examId) {
+            if (!confirm("Poora exam delete karna hai? Iske saare datesheets bhi delete honge.")) return;
+            try {
+                await apiRequest(`/exams/${examId}`, { method: "DELETE" });
+                showAlert("Exam deleted");
+                if (_currentExamId === examId) backToExamsList();
+                else await loadExams();
+            } catch (e) { showAlert(e.message, "error"); }
+        }
+
+        async function openExamDetail(examId) {
+            _currentExamId = examId;
+            _activateView("examDetailView");
+            document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+            const link = document.querySelector('[data-view="datesheet"]');
+            if (link) link.classList.add("active");
+            animatePageTitle("Exam Details");
+
+            const body = document.getElementById("examDetailBody");
+            body.innerHTML = '<div style="color:var(--gray); text-align:center; padding:30px;">Loading…</div>';
+
+            try {
+                // Fetch exam details via entries endpoint (works without separate GET /exams/{id})
+                const allEntries = await apiRequest(`/exams/${examId}/entries`);
+                _currentExamData = allEntries;
+                document.getElementById("examDetailTitle").textContent = allEntries.exam.name;
+
+                renderExamDetail();
+            } catch (e) {
+                body.innerHTML = `<div style="color:var(--danger); text-align:center; padding:30px;">${e.message}</div>`;
+            }
+        }
+
+        function renderExamDetail() {
+            const body = document.getElementById("examDetailBody");
+            const ex = _currentExamData.exam;
+            const entries = _currentExamData.entries || [];
+
+            // Group by class
+            const byClass = {};
+            entries.forEach(e => {
+                if (!byClass[e.class_name]) byClass[e.class_name] = [];
+                byClass[e.class_name].push(e);
+            });
+            const classNames = Object.keys(byClass).sort((a, b) => {
+                const ca = String(a).localeCompare(String(b), undefined, { numeric: true });
+                return ca;
+            });
+
+            // All classes from students (so user can add missing)
+            const allClasses = [...new Set((students || []).map(s => s.class_name).filter(Boolean))];
+
+            if (!classNames.length) {
+                body.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:var(--gray);">
+                        <div style="font-size:48px; margin-bottom:10px;">📋</div>
+                        <p style="font-size:0.95rem;">Is exam mein abhi koi class ki datesheet nahi hai.</p>
+                        <button class="btn btn-primary" style="margin-top:14px;" onclick="openExamEntriesModal()">➕ Add First Class Datesheet</button>
+                    </div>`;
+                return;
+            }
+
+            body.innerHTML = `
+                ${ex.notes ? `<div style="background:var(--bg-secondary); padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:0.88rem; color:var(--gray);"><b>Notes:</b> ${ex.notes}</div>` : ""}
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
+                    ${classNames.map(cn => `
+                        <div style="border:1px solid var(--border); border-radius:12px; padding:16px; background:var(--bg-secondary);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; color:var(--primary-dark);">Class ${cn}</div>
+                                <span class="badge badge-info">${byClass[cn].length} subject${byClass[cn].length !== 1 ? "s" : ""}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:var(--gray); margin-bottom:12px;">
+                                ${byClass[cn][0].exam_date} → ${byClass[cn][byClass[cn].length-1].exam_date}
+                            </div>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="btn btn-sm btn-primary" onclick="openExamEntriesModal('${cn.replace(/'/g, "\\'")}')">✏️ Edit</button>
+                                <button class="btn btn-sm btn-secondary" onclick="printDatesheet('${cn.replace(/'/g, "\\'")}')">🖨️ Print</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteClassEntries('${cn.replace(/'/g, "\\'")}')">🗑️</button>
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function backToExamsList() {
+            _currentExamId = null;
+            _currentExamData = null;
+            _activateView("datesheetView");
+            document.querySelectorAll(".menu-link").forEach(l => l.classList.remove("active"));
+            const link = document.querySelector('[data-view="datesheet"]');
+            if (link) link.classList.add("active");
+            animatePageTitle("Datesheet");
+            loadExams();
+        }
+
+        // ==================== ENTRIES MODAL ====================
+        async function openExamEntriesModal(prefillClass) {
+            if (!_currentExamId) { showAlert("Pehle koi exam open karein", "error"); return; }
+            if (!students || students.length === 0) {
+                try { students = await apiRequest("/students"); } catch (e) {}
+            }
+
+            document.getElementById("eeClassName").value = prefillClass || "";
+            document.getElementById("eeRows").innerHTML = "";
+            _eeRowCounter = 0;
+            eeAddRow(); // start with 1 empty row
+
+            // Populate class suggestions
+            const dl = document.getElementById("classSuggestions");
+            if (dl && students) {
+                const classes = [...new Set(students.map(s => s.class_name).filter(Boolean))].sort();
+                dl.innerHTML = classes.map(c => `<option value="${c}">`).join("");
+            }
+
+            openModal("examEntriesModal");
+        }
+
+        function eeAddRow(subject = "", date = "", time = "", marks = "") {
+            _eeRowCounter++;
+            const id = `ee_row_${_eeRowCounter}`;
+            const row = document.createElement("div");
+            row.id = id;
+            row.style.cssText = "display:grid; grid-template-columns: 2fr 1.2fr 1.4fr 1fr 0.8fr 40px; gap:8px; align-items:center;";
+            row.innerHTML = `
+                <input type="text" class="ee-subject" placeholder="e.g. Math" value="${String(subject).replace(/"/g, '&quot;')}" style="padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-primary); color:var(--dark);">
+                <input type="date" class="ee-date" value="${date}" oninput="eeAutoDay(this)" style="padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-primary); color:var(--dark);">
+                <input type="text" class="ee-time" placeholder="9:00-11:00" value="${String(time).replace(/"/g, '&quot;')}" style="padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-primary); color:var(--dark);">
+                <input type="text" class="ee-day" placeholder="Monday" value="" readonly style="padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-secondary); color:var(--gray); cursor:not-allowed;">
+                <input type="number" class="ee-marks" placeholder="100" value="${marks}" style="padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-primary); color:var(--dark);">
+                <button onclick="document.getElementById('${id}').remove()" title="Remove" style="background:#EF4444; color:#fff; border:none; border-radius:8px; height:36px; cursor:pointer; font-size:16px;">✕</button>
+            `;
+            document.getElementById("eeRows").appendChild(row);
+        }
+
+        function eeAutoDay(dateInput) {
+            const row = dateInput.closest("div");
+            const dayField = row.querySelector(".ee-day");
+            if (!dateInput.value) { dayField.value = ""; return; }
+            try {
+                const d = new Date(dateInput.value + "T00:00:00");
+                dayField.value = d.toLocaleDateString("en-US", { weekday: "long" });
+            } catch (e) { dayField.value = ""; }
+        }
+
+        async function eeLoadExisting() {
+            const cls = document.getElementById("eeClassName").value.trim();
+            if (!cls) { showAlert("Pehle class likhein", "error"); return; }
+            if (!_currentExamId) return;
+            try {
+                const data = await apiRequest(`/exams/${_currentExamId}/entries?class_name=${encodeURIComponent(cls)}`);
+                const entries = data.entries || [];
+                document.getElementById("eeRows").innerHTML = "";
+                _eeRowCounter = 0;
+                if (!entries.length) {
+                    showAlert(`Class ${cls} ki koi existing datesheet nahi mili`, "error");
+                    eeAddRow();
+                    return;
+                }
+                entries.forEach(e => eeAddRow(e.subject, e.exam_date, e.exam_time || "", e.total_marks || ""));
+                showAlert(`Loaded ${entries.length} entries`);
+            } catch (e) { showAlert(e.message, "error"); }
+        }
+
+        async function saveExamEntries() {
+            const cls = document.getElementById("eeClassName").value.trim();
+            if (!cls) { showAlert("Class required", "error"); return; }
+            if (!_currentExamId) return;
+
+            const rows = document.querySelectorAll("#eeRows > div");
+            const entries = [];
+            for (const row of rows) {
+                const subject = row.querySelector(".ee-subject").value.trim();
+                const examDate = row.querySelector(".ee-date").value;
+                if (!subject && !examDate) continue; // skip empty rows
+                if (!subject || !examDate) { showAlert("Har row mein Subject aur Date zaroori hai", "error"); return; }
+                entries.push({
+                    subject,
+                    exam_date: examDate,
+                    exam_time: row.querySelector(".ee-time").value.trim() || null,
+                    day: row.querySelector(".ee-day").value || null,
+                    total_marks: parseInt(row.querySelector(".ee-marks").value) || null,
+                    sort_order: entries.length,
+                });
+            }
+            if (!entries.length) { showAlert("Kam se kam 1 entry zaroori hai", "error"); return; }
+
+            try {
+                await apiRequest(`/exams/${_currentExamId}/entries?class_name=${encodeURIComponent(cls)}`, {
+                    method: "POST",
+                    body: JSON.stringify(entries),
+                });
+                showAlert(`${entries.length} entries saved for Class ${cls}`);
+                closeModal("examEntriesModal");
+                await openExamDetail(_currentExamId);
+            } catch (e) { showAlert(e.message, "error"); }
+        }
+
+        async function deleteClassEntries(className) {
+            if (!_currentExamId) return;
+            if (!confirm(`Class ${className} ki poori datesheet delete karni hai?`)) return;
+            try {
+                // Fetch entries, delete one by one
+                const data = await apiRequest(`/exams/${_currentExamId}/entries?class_name=${encodeURIComponent(className)}`);
+                for (const e of data.entries) {
+                    await apiRequest(`/exams/entries/${e.id}`, { method: "DELETE" });
+                }
+                showAlert("Datesheet deleted");
+                await openExamDetail(_currentExamId);
+            } catch (e) { showAlert(e.message, "error"); }
+        }
+
+        // ==================== PRINT DATESHEET ====================
+        async function printDatesheet(className) {
+            if (!_currentExamData) return;
+            const school = await getSchoolProfile();
+            const ex = _currentExamData.exam;
+            const entries = (_currentExamData.entries || []).filter(e => e.class_name === className);
+            if (!entries.length) { showAlert("Is class ki koi datesheet nahi", "error"); return; }
+
+            const rows = entries.map(e => `
+                <tr>
+                    <td style="text-align:center;">${e.subject}</td>
+                    <td style="text-align:center;">${e.exam_date}</td>
+                    <td style="text-align:center;">${e.day || ""}</td>
+                    <td style="text-align:center;">${e.exam_time || "-"}</td>
+                    <td style="text-align:center;">${e.total_marks || "-"}</td>
+                </tr>
+            `).join("");
+
+            const bodyHtml = `
+                <div class="header">
+                    <h1>${school.name || "School"}</h1>
+                    <div>${school.address || ""}</div>
+                    ${school.phone ? `<div style="font-size:12px;">📞 ${school.phone}</div>` : ""}
+                    <h2 style="margin-top:14px;">DATESHEET</h2>
+                    <div style="font-size:15px; margin-top:6px; font-weight:700; color:#444;">${ex.name}</div>
+                    <div style="font-size:13px; margin-top:4px;">Class: <b>${className}</b></div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">Subject</th>
+                            <th style="text-align:center;">Date</th>
+                            <th style="text-align:center;">Day</th>
+                            <th style="text-align:center;">Time</th>
+                            <th style="text-align:center;">Total Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                ${ex.notes ? `<div style="margin-top:16px; padding:10px 14px; background:#f8f8f8; border-left:4px solid #333; font-size:13px;"><b>Note:</b> ${ex.notes}</div>` : ""}
+                <div class="footer">Best of luck! · ${school.name || "School"} — ${new Date().toLocaleDateString("en-GB")}</div>
+            `;
+            openPrintWindow(`Datesheet - ${ex.name} - Class ${className}`, bodyHtml);
+        }
 
         // ==================== TOOLS ====================
         function loadToolsView() {}
@@ -4239,37 +4684,107 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             }
         }
 
+        let _pcAllStudents = [];   // all students of currently-selected class
+
         async function loadPrintCenterStudents() {
+            const cls = document.getElementById("pcClass")?.value || "";
             const sel = document.getElementById("pcStudent");
+            const search = document.getElementById("pcStudentSearch");
             if (!sel) return;
+
+            if (!cls) {
+                sel.innerHTML = '<option value="">— Select class above first —</option>';
+                if (search) { search.disabled = true; search.value = ""; }
+                _pcAllStudents = [];
+                return;
+            }
+            if (search) { search.disabled = false; search.value = ""; }
+
             sel.innerHTML = '<option value="">Loading…</option>';
             try {
                 if (!students || students.length === 0) students = await apiRequest("/students");
-                const sorted = [...students].sort((a, b) => {
-                    const ca = String(a.class_name || "").localeCompare(String(b.class_name || ""), undefined, { numeric: true });
-                    if (ca !== 0) return ca;
-                    const ra = parseInt(a.roll_number) || 999999;
-                    const rb = parseInt(b.roll_number) || 999999;
-                    return ra - rb;
-                });
-                sel.innerHTML = '<option value="">Select Student</option>' +
-                    sorted.map(s => `<option value="${s.id}">${s.class_name || "?"} · Roll ${s.roll_number || "-"} · ${s.name}</option>`).join("");
+                _pcAllStudents = students
+                    .filter(s => s.class_name === cls)
+                    .sort((a, b) => {
+                        const ra = parseInt(a.roll_number) || 999999;
+                        const rb = parseInt(b.roll_number) || 999999;
+                        return ra - rb;
+                    });
+
+                if (_pcAllStudents.length === 0) {
+                    sel.innerHTML = '<option value="">No students in this class</option>';
+                    return;
+                }
+                renderPcStudentOptions(_pcAllStudents);
             } catch (e) {
                 sel.innerHTML = '<option value="">Failed to load</option>';
             }
         }
 
+        function renderPcStudentOptions(list) {
+            const sel = document.getElementById("pcStudent");
+            if (!sel) return;
+            if (!list.length) {
+                sel.innerHTML = '<option value="">No matches</option>';
+                return;
+            }
+            sel.innerHTML = list.map(s =>
+                `<option value="${s.id}">Roll ${s.roll_number || "-"} · ${s.name}</option>`
+            ).join("");
+        }
+
+        function filterPcStudentOptions(query) {
+            const q = (query || "").trim().toLowerCase();
+            if (!q) { renderPcStudentOptions(_pcAllStudents); return; }
+            const filtered = _pcAllStudents.filter(s =>
+                (s.name || "").toLowerCase().includes(q) ||
+                String(s.roll_number || "").toLowerCase().includes(q)
+            );
+            renderPcStudentOptions(filtered);
+        }
+
+        function onPcClassChange() {
+            // Reload students for the newly-selected class
+            loadPrintCenterStudents();
+        }
+
+        let _pcAllStaff = [];
+
         async function loadPrintCenterStaff() {
             const sel = document.getElementById("pcStaff");
+            const search = document.getElementById("pcStaffSearch");
             if (!sel) return;
             sel.innerHTML = '<option value="">Loading…</option>';
+            if (search) search.value = "";
             try {
                 const data = await apiRequest("/staff");
-                sel.innerHTML = '<option value="">Select Staff</option>' +
-                    data.map(s => `<option value="${s.id}">${s.name} (${s.designation || "-"})</option>`).join("");
+                _pcAllStaff = [...data].sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+                renderPcStaffOptions(_pcAllStaff);
             } catch (e) {
                 sel.innerHTML = '<option value="">Failed to load</option>';
             }
+        }
+
+        function renderPcStaffOptions(list) {
+            const sel = document.getElementById("pcStaff");
+            if (!sel) return;
+            if (!list.length) {
+                sel.innerHTML = '<option value="">No matches</option>';
+                return;
+            }
+            sel.innerHTML = list.map(s =>
+                `<option value="${s.id}">${s.name} (${s.designation || "-"})</option>`
+            ).join("");
+        }
+
+        function filterPcStaffOptions(query) {
+            const q = (query || "").trim().toLowerCase();
+            if (!q) { renderPcStaffOptions(_pcAllStaff); return; }
+            const filtered = _pcAllStaff.filter(s =>
+                (s.name || "").toLowerCase().includes(q) ||
+                (s.designation || "").toLowerCase().includes(q)
+            );
+            renderPcStaffOptions(filtered);
         }
 
         function openPrintCenterModal() {
@@ -4574,8 +5089,11 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 /* ============ 1. INDIVIDUAL STUDENT ATTENDANCE ============ */
                 if (type === "student_attendance_individual") {
                     const studentId = parseInt(document.getElementById("pcStudent").value);
-                    const monthInput = document.getElementById("pcMonth").value;
-                    if (!studentId || !monthInput) { showAlert("Student aur month select karein", "error"); return; }
+                    const monthInput = document.getElementById("pcMonth")?.value;
+                    if (!studentId) { showAlert("Pehle class select karein, phir list se student choose karein", "error"); return; }
+                    if (document.getElementById("pcMonthGroup")?.style.display !== "none" && !monthInput) {
+                        showAlert("Month bhi select karein", "error"); return;
+                    }
                     const student = students.find(s => s.id === studentId);
                     if (!student) { showAlert("Student not found", "error"); return; }
 
@@ -6648,7 +7166,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             if (link) link.classList.add("active");
             closeSidebar();
 
-            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", tools: "Tools", settings: "Settings" };
+            const titles = { dashboard: "Dashboard", students: "Student Management", fees: "Fees Management", attendance: "Attendance Management", grades: "Grades Management", staff: "Staff Management", messages: "Parent Messages", announcements: "Announcements", datesheet: "Datesheet", tools: "Tools", settings: "Settings" };
             animatePageTitle(titles[target] || "Dashboard");
 
             // Manually load target view data
