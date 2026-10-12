@@ -46,6 +46,187 @@
             --shadow-lg: 0 16px 40px rgba(124, 92, 224, 0.18);
             --shadow-accent: 0 8px 24px rgba(245, 165, 92, 0.35);
         }
+        /* ============================================================
+           🎨 THEMES — Level 1 (v2 — professional filled)
+           ============================================================ */
+
+        /* Default: Purple (in :root already). Add metric gradients to :root. */
+        :root {
+            --metric-1-bg: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            --metric-2-bg: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+            --metric-3-bg: linear-gradient(135deg, #10B981 0%, #047857 100%);
+            --metric-4-bg: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        /* 🔵 Ocean — deep navy + coral pop */
+        [data-theme="blue"] {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-deep: #1E3A8A;
+            --primary-light: #60A5FA;
+            --primary-lighter: #DBEAFE;
+            --primary-rgb: 37, 99, 235;
+            --accent: #FB7185;
+            --accent-dark: #E11D48;
+            --accent-light: #FDA4AF;
+            --accent-lighter: #FFE4E6;
+
+            --metric-1-bg: linear-gradient(135deg, #3B82F6 0%, #1E3A8A 100%);
+            --metric-2-bg: linear-gradient(135deg, #6366F1 0%, #3730A3 100%);
+            --metric-3-bg: linear-gradient(135deg, #06B6D4 0%, #0E7490 100%);
+            --metric-4-bg: linear-gradient(135deg, #F43F5E 0%, #9F1239 100%);
+        }
+
+        /* 🟢 Forest — emerald + gold */
+        [data-theme="green"] {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-deep: #064E3B;
+            --primary-light: #34D399;
+            --primary-lighter: #D1FAE5;
+            --primary-rgb: 5, 150, 105;
+            --accent: #F59E0B;
+            --accent-dark: #D97706;
+            --accent-light: #FCD34D;
+            --accent-lighter: #FEF3C7;
+
+            --metric-1-bg: linear-gradient(135deg, #10B981 0%, #065F46 100%);
+            --metric-2-bg: linear-gradient(135deg, #059669 0%, #064E3B 100%);
+            --metric-3-bg: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%);
+            --metric-4-bg: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+        }
+
+        /* 🟠 Sunset — warm orange + purple depth */
+        [data-theme="orange"] {
+            --primary: #EA580C;
+            --primary-dark: #C2410C;
+            --primary-deep: #9A3412;
+            --primary-light: #FB923C;
+            --primary-lighter: #FFEDD5;
+            --primary-rgb: 234, 88, 12;
+            --accent: #7C3AED;
+            --accent-dark: #6D28D9;
+            --accent-light: #A78BFA;
+            --accent-lighter: #EDE9FE;
+
+            --metric-1-bg: linear-gradient(135deg, #F97316 0%, #C2410C 100%);
+            --metric-2-bg: linear-gradient(135deg, #FB923C 0%, #9A3412 100%);
+            --metric-3-bg: linear-gradient(135deg, #10B981 0%, #047857 100%);
+            --metric-4-bg: linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%);
+        }
+
+        /* 🔴 Ruby — deep red + champagne */
+        [data-theme="red"] {
+            --primary: #DC2626;
+            --primary-dark: #B91C1C;
+            --primary-deep: #7F1D1D;
+            --primary-light: #F87171;
+            --primary-lighter: #FEE2E2;
+            --primary-rgb: 220, 38, 38;
+            --accent: #FBBF24;
+            --accent-dark: #D97706;
+            --accent-light: #FDE68A;
+            --accent-lighter: #FEF3C7;
+
+            --metric-1-bg: linear-gradient(135deg, #EF4444 0%, #991B1B 100%);
+            --metric-2-bg: linear-gradient(135deg, #F97316 0%, #9A3412 100%);
+            --metric-3-bg: linear-gradient(135deg, #10B981 0%, #047857 100%);
+            --metric-4-bg: linear-gradient(135deg, #FBBF24 0%, #B45309 100%);
+        }
+
+        /* 🌌 Midnight — indigo depth + cyan glow */
+        [data-theme="midnight"] {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --primary-deep: #312E81;
+            --primary-light: #818CF8;
+            --primary-lighter: #E0E7FF;
+            --primary-rgb: 79, 70, 229;
+            --accent: #06B6D4;
+            --accent-dark: #0891B2;
+            --accent-light: #67E8F9;
+            --accent-lighter: #CFFAFE;
+
+            --metric-1-bg: linear-gradient(135deg, #6366F1 0%, #312E81 100%);
+            --metric-2-bg: linear-gradient(135deg, #8B5CF6 0%, #4C1D95 100%);
+            --metric-3-bg: linear-gradient(135deg, #06B6D4 0%, #0E7490 100%);
+            --metric-4-bg: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+        }
+
+        /* ============ THEME PICKER UI ============ */
+        #themePickerPanel {
+            position: fixed;
+            top: 84px;
+            right: 130px;
+            width: 290px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            padding: 16px;
+            z-index: 1199;
+            display: none;
+            animation: slideDown 0.22s ease;
+        }
+        #themePickerPanel.open { display: block; }
+
+        .theme-picker-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .theme-swatch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .theme-swatch:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+        }
+        .theme-swatch.active {
+            background: var(--primary-lighter);
+            border-color: var(--primary);
+        }
+
+        .swatch-color {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+            border: 2px solid #fff;
+        }
+
+        .swatch-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        @media (max-width: 640px) {
+            #themePickerPanel {
+                right: 12px;
+                left: 12px;
+                width: auto;
+            }
+        }
 
         html, body { height: 100%; }
 
@@ -407,59 +588,96 @@
             gap: 18px;
             margin-bottom: 26px;
         }
+        /* ============ METRIC CARDS — Filled Premium ============ */
         .metric-card {
-            background: #ffffff;
-            padding: 22px 24px;
+            background: var(--metric-1-bg);
+            padding: 24px 26px;
             border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(124, 92, 224, 0.08);
-            border: 1px solid rgba(124, 92, 224, 0.08);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            border: none;
+            transition: transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1), box-shadow 0.28s ease;
             position: relative;
             overflow: hidden;
+            color: #fff;
+            isolation: isolate;
         }
+
+        /* Diagonal shine layer (top-left highlight) */
         .metric-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            border-radius: 20px 20px 0 0;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(255,255,255,0.28) 0%, transparent 45%),
+                linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.09) 50%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
+
+        /* Soft floating orb (bottom-right) */
         .metric-card::after {
             content: '';
             position: absolute;
-            top: -50px; right: -50px;
-            width: 120px; height: 120px;
+            bottom: -60px; right: -60px;
+            width: 160px; height: 160px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(124, 92, 224, 0.08), transparent 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
             pointer-events: none;
+            z-index: 0;
         }
+
+        /* Per-card gradients — one per metric type */
+        .metric-card                   { background: var(--metric-1-bg); }
+        .metric-card.secondary         { background: var(--metric-2-bg); }
+        .metric-card.success           { background: var(--metric-3-bg); }
+        .metric-card.warning           { background: var(--metric-4-bg); }
+
         .metric-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(124, 92, 224, 0.18);
-            border-color: rgba(124, 92, 224, 0.2);
+            transform: translateY(-6px) scale(1.015);
+            box-shadow: 0 22px 44px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22);
         }
-        .metric-card.secondary::before { background: linear-gradient(90deg, #8B7FE8, #A78BFA); }
-        .metric-card.success::before { background: linear-gradient(90deg, var(--success), #34D399); }
-        .metric-card.warning::before { background: linear-gradient(90deg, var(--accent), #FFB978); }
+
         .metric-label {
-            font-size: 12.5px;
-            color: var(--gray);
-            margin-bottom: 10px;
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-weight: 600;
-        }
-        .metric-value {
-            font-size: 32px;
-            font-weight: 800;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary-dark), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: 1.4px;
+            font-weight: 700;
             position: relative;
             z-index: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-value {
+            font-size: 34px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+            -webkit-text-fill-color: #ffffff;
+            background: none;
+            background-clip: unset;
+            -webkit-background-clip: unset;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        /* Subtle shimmer pass on load */
+        @keyframes metricShimmer {
+            0%   { transform: translateX(-120%); }
+            60%  { transform: translateX(120%); }
+            100% { transform: translateX(120%); }
+        }
+        .metric-card .shimmer-layer {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+            animation: metricShimmer 2.2s ease-out 0.4s 1;
+            pointer-events: none;
+            z-index: 2;
         }
 
         .card {
@@ -878,6 +1096,9 @@
                     <button class="header-icon-btn" id="calcHeaderBtn" onclick="toggleCalculator()" title="Calculator" aria-label="Open Calculator">
                         <span>🧮</span><span class="header-btn-label">Calculator</span>
                     </button>
+                    <button class="header-icon-btn" id="themeHeaderBtn" onclick="toggleThemePicker(event)" title="Choose theme" aria-label="Choose theme">
+                        <span>🎨</span><span class="header-btn-label">Theme</span>
+                    </button>
                     <a href="teacher-login.html" target="_blank" class="portal-link">🧑‍💻 Teacher</a>
                     <a href="parent-login.html" target="_blank" class="portal-link">👨‍👩‍👧 Parent</a>
                     <div class="user-avatar" id="userAvatar">U</div>
@@ -894,10 +1115,10 @@
             <div class="content">
                 <div class="view active" id="dashboardView">
                     <div class="metrics-grid" id="metricsGrid">
-                        <div class="metric-card"><div class="metric-label">Total Students</div><div class="metric-value" id="metricStudents">0</div></div>
-                        <div class="metric-card secondary"><div class="metric-label">Total Fees Due</div><div class="metric-value" id="metricFeesDue">Rs. 0</div></div>
-                        <div class="metric-card success"><div class="metric-label">Fees Collected</div><div class="metric-value" id="metricFeesCollected">Rs. 0</div></div>
-                        <div class="metric-card warning"><div class="metric-label">Attendance Rate</div><div class="metric-value" id="metricAttendance">0%</div></div>
+                        <div class="metric-card"><div class="shimmer-layer"></div><div class="metric-label">Total Students</div><div class="metric-value" id="metricStudents">0</div></div>
+                        <div class="metric-card secondary"><div class="shimmer-layer"></div><div class="metric-label">Total Fees Due</div><div class="metric-value" id="metricFeesDue">Rs. 0</div></div>
+                        <div class="metric-card success"><div class="shimmer-layer"></div><div class="metric-label">Fees Collected</div><div class="metric-value" id="metricFeesCollected">Rs. 0</div></div>
+                        <div class="metric-card warning"><div class="shimmer-layer"></div><div class="metric-label">Attendance Rate</div><div class="metric-value" id="metricAttendance">0%</div></div>
                     </div>
                     <div class="card">
                         <div class="card-header">
@@ -1880,6 +2101,37 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             </div>
         </div>
     </div>
+    <!-- ============ THEME PICKER ============ -->
+    <div id="themePickerPanel">
+        <div class="theme-picker-title">🎨 Choose Theme</div>
+        <div class="theme-grid">
+            <div class="theme-swatch" data-theme="purple" onclick="applyTheme('purple')">
+                <div class="swatch-color" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9);"></div>
+                <div class="swatch-label">Purple</div>
+            </div>
+            <div class="theme-swatch" data-theme="blue" onclick="applyTheme('blue')">
+                <div class="swatch-color" style="background: linear-gradient(135deg, #3B82F6, #1E3A8A);"></div>
+                <div class="swatch-label">Ocean</div>
+            </div>
+            <div class="theme-swatch" data-theme="green" onclick="applyTheme('green')">
+                <div class="swatch-color" style="background: linear-gradient(135deg, #10B981, #064E3B);"></div>
+                <div class="swatch-label">Forest</div>
+            </div>
+            <div class="theme-swatch" data-theme="orange" onclick="applyTheme('orange')">
+                <div class="swatch-color" style="background: linear-gradient(135deg, #F97316, #9A3412);"></div>
+                <div class="swatch-label">Sunset</div>
+            </div>
+            <div class="theme-swatch" data-theme="red" onclick="applyTheme('red')">
+                <div class="swatch-color" style="background: linear-gradient(135deg, #EF4444, #991B1B);"></div>
+                <div class="swatch-label">Ruby</div>
+            </div>
+            <div class="theme-swatch" data-theme="midnight" onclick="applyTheme('midnight')">
+                <div class="swatch-color" style="background: linear-gradient(135deg, #6366F1, #06B6D4);"></div>
+                <div class="swatch-label">Midnight</div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ============ CALCULATOR ============ -->
     <div id="calcPanel">
@@ -5453,6 +5705,53 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 showAlert("Fee structure saved. Naye students par yeh fee auto-apply hogi.");
             } catch (e) { showAlert("Could not save fees: " + e.message, "error"); }
         }
+        // ==================== THEMES (Level 1 — colors only) ====================
+        const AVAILABLE_THEMES = ["purple", "blue", "green", "orange", "red", "midnight"];
+
+        function applyTheme(theme) {
+            if (!AVAILABLE_THEMES.includes(theme)) theme = "purple";
+            if (theme === "purple") {
+                document.documentElement.removeAttribute("data-theme");
+            } else {
+                document.documentElement.setAttribute("data-theme", theme);
+            }
+            try { localStorage.setItem("schoolhub_theme", theme); } catch (e) {}
+            document.querySelectorAll(".theme-swatch").forEach(s => {
+                s.classList.toggle("active", s.dataset.theme === theme);
+            });
+        }
+
+        function loadSavedTheme() {
+            let saved = "purple";
+            try { saved = localStorage.getItem("schoolhub_theme") || "purple"; } catch (e) {}
+            applyTheme(saved);
+        }
+
+        function toggleThemePicker(event) {
+            if (event) event.stopPropagation();
+            const panel = document.getElementById("themePickerPanel");
+            const btn = document.getElementById("themeHeaderBtn");
+            if (!panel) return;
+            const isOpen = panel.classList.toggle("open");
+            if (btn) btn.classList.toggle("active", isOpen);
+            if (isOpen) {
+                const calcPanel = document.getElementById("calcPanel");
+                const calcBtn = document.getElementById("calcHeaderBtn");
+                if (calcPanel && calcPanel.classList.contains("open")) {
+                    calcPanel.classList.remove("open");
+                    if (calcBtn) calcBtn.classList.remove("active");
+                }
+            }
+        }
+
+        document.addEventListener("click", (e) => {
+            const panel = document.getElementById("themePickerPanel");
+            const btn = document.getElementById("themeHeaderBtn");
+            if (!panel || !panel.classList.contains("open")) return;
+            if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
+            panel.classList.remove("open");
+            if (btn) btn.classList.remove("active");
+        });
 
         // ==================== DARK MODE ====================
         function applyDarkMode(enabled) {
@@ -6200,7 +6499,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             try {
                 const savedDark = localStorage.getItem("schoolhub_dark_mode") === "1";
                 applyDarkMode(savedDark);
-
+                loadSavedTheme();
                 const token = getToken();
                 if (!token) { window.location.href = "index.html"; return; }
                 if (isTokenExpired(token)) {
