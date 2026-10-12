@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models.school import School
 from backend.models.exam import Exam, ExamEntry
-from backend.auth import require_roles   # ← apne auth helper ka correct path
+from backend.utils.rbac import require_roles   # ← apne auth helper ka correct path
 
 router = APIRouter(prefix="/exams", tags=["exams"])
 
