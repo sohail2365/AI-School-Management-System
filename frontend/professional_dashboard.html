@@ -3697,19 +3697,31 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
 
         let cachedAnnouncements = [];
         async function loadAnnouncements() {
+            const list = document.getElementById("announcementsList");
             try {
                 const data = await apiRequest("/announcements");
                 cachedAnnouncements = data;
-                const list = document.getElementById("announcementsList");
-                if (data.length === 0) {
-                    showEmptyState('announcementsList', 'megaphone', 'No announcements yet', 'Post an announcement to share news with parents and staff.', 'Add Announcement', 'openAddAnnouncementModal()');
+
+                if (!data || data.length === 0) {
+                    showEmptyState('announcementsList', 'megaphone', 'No announcements yet',
+                        'Post an announcement to share news with parents and staff.',
+                        'Add Announcement', 'openAddAnnouncementModal()');
                     return;
                 }
+
                 if (typeof clearEmptyState === 'function') clearEmptyState('announcementsList');
+
                 list.innerHTML = data.map(a => {
                     const aud = a.audience || "both";
-                    const badgeText = aud === "teachers" ? "🧑‍🏫 Teachers" : aud === "parents" ? "👨‍👩‍👧 Parents" : "👥 Everyone";
-                    const badgeClass = aud === "teachers" ? "badge-info" : aud === "parents" ? "badge-warning" : "badge-success";
+                    const badgeText = aud === "teachers" ? "🧑‍🏫 Teachers"
+                                    : aud === "parents"  ? "👨‍👩‍👧 Parents"
+                                    : "👥 Everyone";
+                    const badgeClass = aud === "teachers" ? "badge-info"
+                                    : aud === "parents"  ? "badge-warning"
+                                    : "badge-success";
+                    const createdTxt = a.created_at
+                        ? new Date(a.created_at).toLocaleDateString()
+                        : "-";
                     return `<div style="border: 1px solid var(--border); padding: 20px; border-radius: 14px; background: var(--bg-secondary);">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
                             <h4 style="color: var(--primary);">${a.title}</h4>
@@ -3717,7 +3729,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                         </div>
                         <p style="color: var(--gray); margin-bottom: 15px;">${a.content}</p>
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap:wrap; gap:8px;">
-                            <small style="color: #999;">Created: ${new Date(a.created_at).toLocaleDateString()}</small>
+                            <small style="color: #999;">Created: ${createdTxt}</small>
                             <div class="action-buttons">
                                 <button class="btn btn-sm btn-whatsapp" onclick="openWhatsappBulkForAnnouncement(${a.id})">📱 WhatsApp</button>
                                 <button class="btn btn-sm btn-secondary" onclick="editAnnouncement(${a.id})">Edit</button>
@@ -3725,8 +3737,25 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                             </div>
                         </div>
                     </div>`;
-        }).join("");
-            } catch (error) { console.error("Error loading announcements:", error); }
+                }).join("");
+
+            } catch (error) {
+                console.error("Error loading announcements:", error);
+                if (list) {
+                    list.innerHTML = `
+                        <div style="padding:28px; text-align:center; color:#991B1B; background:#FEE2E2;
+                                    border-radius:14px; border:1px solid #FECACA;">
+                            <div style="font-size:32px; margin-bottom:10px;">⚠️</div>
+                            <strong style="font-size:1.05rem;">Announcements load nahi ho sake</strong>
+                            <p style="margin-top:8px; font-size:0.9rem;">${error.message}</p>
+                            <p style="margin-top:10px; font-size:0.83rem; color:#7F1D1D; opacity:0.75;">
+                                Backend team se rabta karein — <code>/announcements</code> endpoint mein masla hai.
+                            </p>
+                            <button class="btn btn-sm btn-secondary" style="margin-top:14px;"
+                                    onclick="loadAnnouncements()">🔄 Retry</button>
+                        </div>`;
+                }
+            }
         }
         async function saveAnnouncement() {
             try {
