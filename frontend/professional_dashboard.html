@@ -4658,7 +4658,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             if (studentGroup) studentGroup.style.display = "none";
             if (staffGroup) staffGroup.style.display = "none";
 
-            const needsClass = ["class_list", "report_cards", "id_cards", "fee_receipts", "unpaid_fees_report", "attendance_report"].includes(type);
+            const needsClass = ["class_list", "report_cards", "id_cards", "fee_receipts", "unpaid_fees_report", "attendance_report", "student_attendance_individual", "student_grade_sheet"].includes(type);
             const needsMonth = ["attendance_report", "student_attendance_individual", "staff_attendance_report", "staff_attendance_individual"].includes(type);
             const needsStudent = ["student_attendance_individual", "student_grade_sheet"].includes(type);
             const needsStaff = type === "staff_attendance_individual";
