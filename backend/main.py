@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+﻿from fastapi import FastAPI, Request, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -142,6 +142,7 @@ async def startup():
             "parent_allow_messages": "parent_allow_messages BOOLEAN NOT NULL DEFAULT TRUE",
             "payment_info": "payment_info TEXT",
             "background_image_url": "background_image_url VARCHAR(500)",
+            "logo_url": "logo_url VARCHAR(500)",
             "background_image_enabled": "background_image_enabled BOOLEAN NOT NULL DEFAULT TRUE",
             "background_overlay": "background_overlay INTEGER NOT NULL DEFAULT 82",
             "fee_structure": "fee_structure TEXT",

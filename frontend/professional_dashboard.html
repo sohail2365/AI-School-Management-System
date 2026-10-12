@@ -1660,7 +1660,29 @@
                             </div>
                         </div>
                     </div>
+                    <!-- School Logo -->
+                    <div class="card" style="margin-top:20px;">
+                        <div class="card-header"><h3 class="card-title">🏫 School Logo</h3></div>
+                        <div class="card-body">
+                            <p style="color:var(--gray); font-size:0.9rem; margin-bottom:14px;">
+                                Apne school ka logo upload karein. Yeh logo admin, teacher, aur parent portals ke saath-saath saare printed reports mein bhi show hoga.
+                            </p>
 
+                            <div id="logoPreviewContainer" style="margin-bottom:16px; padding:20px; background:var(--bg-secondary); border-radius:12px; border:1px solid var(--border); text-align:center;">
+                                <div id="logoPreview" style="color:var(--gray); font-size:0.9rem;">Loading…</div>
+                            </div>
+
+                            <input type="file" id="logoInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" style="margin-bottom:10px;">
+                            <p style="font-size:0.78rem; color:var(--gray); margin-bottom:12px;">
+                                Max 2 MB · PNG, JPG, WEBP ya SVG · Square ya rectangular dono chalega
+                            </p>
+
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-primary" onclick="uploadSchoolLogo()">⬆️ Upload Logo</button>
+                                <button class="btn btn-secondary" onclick="removeSchoolLogo()">🗑️ Remove</button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card" style="margin-top:20px;">
                         <div class="card-header"><h3 class="card-title">🔑 Teacher Logins</h3></div>
                         <div class="card-body">
@@ -5124,6 +5146,100 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 showAlert("Save failed: " + error.message, "error");
             }
         }
+        /* ============================================================
+           ✅ SCHOOL LOGO (Admin + all portals + print)
+           ============================================================ */
+        let _cachedLogoUrl = null;   // cache for print + sidebar
+
+        async function fetchSchoolLogoUrl() {
+            if (_cachedLogoUrl !== null) return _cachedLogoUrl;
+            try {
+                const data = await apiRequest("/settings/logo");
+                _cachedLogoUrl = data.url || null;
+            } catch (e) {
+                _cachedLogoUrl = null;
+            }
+            return _cachedLogoUrl;
+        }
+
+        async function loadSchoolLogoPreview() {
+            const container = document.getElementById("logoPreview");
+            if (!container) return;
+            _cachedLogoUrl = null;   // force fresh fetch
+            try {
+                const url = await fetchSchoolLogoUrl();
+                if (url) {
+                    container.innerHTML = `
+                        <img src="${url}" alt="School Logo"
+                             style="max-height:80px; max-width:220px; object-fit:contain; display:block; margin:0 auto;"
+                             onerror="this.parentElement.innerHTML='<div style=\\'color:var(--danger);font-size:0.9rem;\\'>Logo load nahi ho saka</div>';" />
+                    `;
+                } else {
+                    container.innerHTML = '<div style="color:var(--gray); font-size:0.9rem;">Abhi tak koi logo upload nahi hua. Current SVG default use ho raha hai.</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div style="color:var(--gray); font-size:0.9rem;">Preview load nahi ho saka.</div>';
+            }
+        }
+
+        async function uploadSchoolLogo() {
+            const input = document.getElementById("logoInput");
+            const file = input.files[0];
+            if (!file) { showAlert("Pehle ek image choose karein", "error"); return; }
+            if (file.size > 2 * 1024 * 1024) { showAlert("File 2 MB se choti honi chahiye", "error"); return; }
+
+            const form = new FormData();
+            form.append("file", file);
+            try {
+                await apiRequest("/settings/logo", { method: "POST", body: form });
+                showAlert("Logo upload ho gaya! ✅", "success");
+                input.value = "";
+                _cachedLogoUrl = null;
+                await loadSchoolLogoPreview();
+                await applySchoolLogoToSidebar();
+            } catch (e) {
+                showAlert("Upload failed: " + e.message, "error");
+            }
+        }
+
+        async function removeSchoolLogo() {
+            if (!confirm("School logo remove karna hai?")) return;
+            try {
+                await apiRequest("/settings/logo", { method: "DELETE" });
+                showAlert("Logo removed", "success");
+                _cachedLogoUrl = null;
+                await loadSchoolLogoPreview();
+                await applySchoolLogoToSidebar();
+            } catch (e) {
+                showAlert("Remove failed: " + e.message, "error");
+            }
+        }
+
+        /* Applies logo to sidebar — replaces the SVG brain icon if logo exists */
+        async function applySchoolLogoToSidebar() {
+            const logoIconEl = document.querySelector(".logo-icon");
+            if (!logoIconEl) return;
+
+            // Keep a cached copy of the original SVG for fallback
+            if (!window._originalLogoHTML) {
+                window._originalLogoHTML = logoIconEl.innerHTML;
+            }
+
+            try {
+                const url = await fetchSchoolLogoUrl();
+                if (url) {
+                    logoIconEl.innerHTML = `
+                        <img src="${url}" alt="School Logo"
+                             style="width:100%; height:100%; object-fit:contain; border-radius:50%;"
+                             onerror="this.parentElement.innerHTML = window._originalLogoHTML || '';" />
+                    `;
+                    logoIconEl.style.animation = "none";   // stop pulsing on static image
+                } else {
+                    logoIconEl.innerHTML = window._originalLogoHTML;
+                    logoIconEl.style.animation = "";
+                }
+            } catch (e) { /* silent — keep default SVG */ }
+        }
         async function loadSettings() {
             try {
                 const s = await apiRequest("/settings/school");
@@ -5153,6 +5269,8 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             } catch (e) {}
             await applyPortalBackground();
             await loadCustomFieldsPreview();
+            await loadSchoolLogoPreview();
+            await applySchoolLogoToSidebar();
         }
         async function saveParentPortalSettings() {
             try {
@@ -6084,6 +6202,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
 
                 startLiveClock();
                 applyPortalBackground();
+                await applySchoolLogoToSidebar();
                 await loadDashboard();
 
                 const displayName = localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || "User";
@@ -6224,15 +6343,56 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             catch (error) { cachedSchoolProfile = { name: "School", address: "", phone: "", email: "" }; }
             return cachedSchoolProfile;
         }
-        function openPrintWindow(title, bodyHtml, options = {}) {
+        async function openPrintWindow(title, bodyHtml, options = {}) {
             const landscape = options.landscape === true;
             const pageCss = landscape
                 ? '@page { size: A4 landscape; margin: 10mm; }'
                 : '@page { size: A4 portrait; margin: 15mm; }';
+
+            // ✅ Prepend logo above header content
+            let logoHtml = "";
+            try {
+                const logoUrl = await fetchSchoolLogoUrl();
+                if (logoUrl) {
+                    logoHtml = `<div style="text-align:center; margin-bottom:14px;">
+                        <img src="${logoUrl}" alt="Logo"
+                             style="max-height:70px; max-width:200px; object-fit:contain;"
+                             crossorigin="anonymous" />
+                    </div>`;
+                }
+            } catch (e) { /* no logo, skip */ }
+
             const printWindow = window.open("", "_blank", "width=1100,height=800");
-            printWindow.document.write(`<html><head><title>${title}</title><style>${pageCss} body { font-family: Arial, sans-serif; padding: 20px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 13px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; } @media print { body { padding: 0; } }</style></head><body>${bodyHtml}</body></html>`);
+            printWindow.document.write(`<html><head><title>${title}</title><style>${pageCss} body { font-family: Arial, sans-serif; padding: 20px; color: #222; background:#fff; } h1, h2, h3 { margin: 0 0 6px 0; } table { width: 100%; border-collapse: collapse; margin-top: 12px; } th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 13px; } th { background: #f2f2f2; } .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; } .meta { display: flex; justify-content: space-between; margin: 16px 0; font-size: 14px; } .total-row td { font-weight: 700; } .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; } @media print { body { padding: 0; } }</style></head><body>${logoHtml}${bodyHtml}</body></html>`);
             printWindow.document.close();
-            printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
+
+            // Wait for images to load before printing (prevents blank logo)
+            printWindow.onload = () => {
+                const imgs = printWindow.document.images;
+                if (imgs.length === 0) {
+                    printWindow.focus();
+                    printWindow.print();
+                    return;
+                }
+                let loaded = 0;
+                const tryPrint = () => {
+                    loaded++;
+                    if (loaded >= imgs.length) {
+                        printWindow.focus();
+                        printWindow.print();
+                    }
+                };
+                for (let img of imgs) {
+                    if (img.complete) tryPrint();
+                    else {
+                        img.addEventListener("load", tryPrint);
+                        img.addEventListener("error", tryPrint);
+                    }
+                }
+                setTimeout(() => {
+                    try { printWindow.focus(); printWindow.print(); } catch (e) {}
+                }, 2000);
+            };
         }
         async function printReportCard() {
             if (!currentProfileData) return;
