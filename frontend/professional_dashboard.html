@@ -158,7 +158,7 @@
             letter-spacing: 0.5px;
         }
         .logo-icon {
-            width: 60px; height: 60px;
+            width: 84px; height: 84px;
             border-radius: 50%;
             background: linear-gradient(135deg, #FFF8F0, #FFE6C7);
             display: flex;
@@ -166,6 +166,23 @@
             justify-content: center;
             box-shadow: 0 8px 24px rgba(245, 165, 92, 0.4), 0 0 0 6px rgba(255, 255, 255, 0.08);
             animation: logoPulse 3s ease-in-out infinite;
+            transition: background 0.3s ease, padding 0.3s ease;
+            overflow: hidden;
+        }
+
+        /* ✅ When custom logo is uploaded, remove the white circle bg + glow */
+        .logo-icon.has-custom-logo {
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+            animation: none;
+        }
+        .logo-icon.has-custom-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0;
+            display: block;
         }
         .logo-icon svg { width: 34px; height: 34px; filter: drop-shadow(0 2px 4px rgba(124, 92, 224, 0.3)); }
         @keyframes logoPulse {
@@ -924,9 +941,7 @@
                                 <button class="btn btn-sm btn-secondary" onclick="backToFeeClasses()">← Back</button>
                                 <h3 class="card-title" id="feesStudentsTitle">Fee Summary</h3>
                             </div>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                <button class="btn btn-secondary" onclick="openAddFeeModal()">➕ Add Fee</button>
-                            </div>
+
                         </div>
                         <div class="card-body">
                             <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
@@ -1046,7 +1061,6 @@
                                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                     <button class="btn btn-whatsapp" onclick="openWhatsappBulkForFamilies()">👪 Family Reminders</button>
                                     <button class="btn btn-secondary" onclick="openBulkFeeModal()">🏫 Generate for Class</button>
-                                    <button class="btn btn-primary" onclick="openAddFeeModal()">➕ Add Fee</button>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -1066,7 +1080,6 @@
                                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                     <button class="btn btn-whatsapp" onclick="openWhatsappBulkForUnpaidFees()">📱 Remind Unpaid</button>
                                     <button class="btn btn-secondary" onclick="exportFeesToCSV()">📥 Export CSV</button>
-                                    <button class="btn btn-primary" onclick="openAddFeeModal()">➕ Add Fee</button>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -1668,7 +1681,7 @@
                                 Apne school ka logo upload karein. Yeh logo admin, teacher, aur parent portals ke saath-saath saare printed reports mein bhi show hoga.
                             </p>
 
-                            <div id="logoPreviewContainer" style="margin-bottom:16px; padding:20px; background:var(--bg-secondary); border-radius:12px; border:1px solid var(--border); text-align:center;">
+                            <div id="logoPreviewContainer" style="margin-bottom:16px; padding:24px; background:var(--bg-secondary); border-radius:12px; border:1px solid var(--border); text-align:center; min-height:140px; display:flex; align-items:center; justify-content:center;">
                                 <div id="logoPreview" style="color:var(--gray); font-size:0.9rem;">Loading…</div>
                             </div>
 
@@ -2772,11 +2785,23 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     return mm === currentMonth || mm.toLowerCase() === monthNameNow.toLowerCase();
                 };
 
-                const current = data.fees.filter(f => isCurrentMonth(f.month));
-                const arrears = data.fees.filter(f => !isCurrentMonth(f.month) && f.status !== "paid" && f.due_amount > 0);
-                const additional = data.fees.filter(f => f.fee_type === "additional");
-                const history = data.fees.filter(f => f.status === "paid" && !isCurrentMonth(f.month));
+                const isCurrent = (f) => {
+                    if (!f.month) return true;
+                    const mm = String(f.month).trim();
+                    return mm === currentMonth || mm.toLowerCase() === monthNameNow.toLowerCase();
+                };
 
+                // Helper: is this a pending fee from a PAST month?
+                const isPastPending = (f) => {
+                    if (f.status === "paid") return false;
+                    if (!f.due_amount || f.due_amount <= 0) return false;
+                    if (!f.month) return false;   // no-month handled by current
+                    return !isCurrent(f);
+                };
+
+                const current = data.fees.filter(isCurrent);
+                const arrears = data.fees.filter(isPastPending);
+                const history = data.fees.filter(f => f.status === "paid" && !isCurrent(f));
                 const feeRow = (f) => {
                     const badge = feeBadgeClass(f.status);
                     const typeBadge = f.fee_type === "additional"
@@ -2861,7 +2886,6 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                     </div>
                     ${tableBlock("📅 Current Month", current, "Is month ki koi fee nahi hai.")}
                     ${tableBlock("⏳ Previous Arrears", arrears, "🎉 No pending arrears — all clear!")}
-                    ${additional.length > 0 ? tableBlock("➕ Additional Charges (all)", additional, "") : ""}
                     <h4 style="margin: 20px 0 8px;">💵 Payment History</h4>
                     ${paymentsHtml}
                     ${history.length > 0 ? tableBlock("✅ Cleared (past months)", history, "") : ""}
@@ -5170,10 +5194,10 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
                 const url = await fetchSchoolLogoUrl();
                 if (url) {
                     container.innerHTML = `
-                        <img src="${url}" alt="School Logo"
-                             style="max-height:80px; max-width:220px; object-fit:contain; display:block; margin:0 auto;"
-                             onerror="this.parentElement.innerHTML='<div style=\\'color:var(--danger);font-size:0.9rem;\\'>Logo load nahi ho saka</div>';" />
-                    `;
+                    <img src="${url}" alt="School Logo"
+                         style="max-height:110px; max-width:280px; object-fit:contain; display:block; margin:0 auto;"
+                         onerror="this.parentElement.innerHTML='<div style=\\'color:var(--danger);font-size:0.9rem;\\'>Logo load nahi ho saka</div>';" />
+                `;
                 } else {
                     container.innerHTML = '<div style="color:var(--gray); font-size:0.9rem;">Abhi tak koi logo upload nahi hua. Current SVG default use ho raha hai.</div>';
                 }
@@ -5228,15 +5252,14 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             try {
                 const url = await fetchSchoolLogoUrl();
                 if (url) {
+                    logoIconEl.classList.add("has-custom-logo");
                     logoIconEl.innerHTML = `
                         <img src="${url}" alt="School Logo"
-                             style="width:100%; height:100%; object-fit:contain; border-radius:50%;"
-                             onerror="this.parentElement.innerHTML = window._originalLogoHTML || '';" />
+                             onerror="this.parentElement.classList.remove('has-custom-logo'); this.parentElement.innerHTML = window._originalLogoHTML || '';" />
                     `;
-                    logoIconEl.style.animation = "none";   // stop pulsing on static image
                 } else {
+                    logoIconEl.classList.remove("has-custom-logo");
                     logoIconEl.innerHTML = window._originalLogoHTML;
-                    logoIconEl.style.animation = "";
                 }
             } catch (e) { /* silent — keep default SVG */ }
         }
