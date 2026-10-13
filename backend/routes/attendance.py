@@ -1,7 +1,9 @@
+import re
 from datetime import date as dt_date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -11,6 +13,33 @@ from backend.schemas.attendance import AttendanceCreate, AttendanceOut, Attendan
 from backend.utils.rbac import require_roles
 
 router = APIRouter(prefix="/attendance", tags=["attendance"])
+
+
+# ==================== HELPERS ====================
+def _natural_class_sort_key(class_name) -> tuple:
+    """
+    Natural sort for class names, section-aware:
+      KG / KG-i / Nursery / Prep       → (0, 0, "KG...")
+      1 / 1-A / 1-B                    → (1, 1, "")
+      5 / 5-A / 5-B                    → (1, 5, "a" / "b")
+      10 / 10-A / 10-B                 → (1, 10, ...)
+      other strings                    → (2, 0, lower)
+    """
+    if class_name is None:
+        return (999, 0, "")
+    s = str(class_name).strip()
+    if not s:
+        return (999, 0, "")
+    upper = s.upper()
+    if upper.startswith("KG") or upper.startswith("NURSERY") \
+       or upper.startswith("PLAYGROUP") or upper.startswith("PREP"):
+        return (0, 0, upper)
+    m = re.match(r"^(\d+)", s)
+    if m:
+        num = int(m.group(1))
+        rest = s[m.end():].lstrip("-_ ").lower()
+        return (1, num, rest)
+    return (2, 0, s.lower())
 
 
 # ==================== BULK ATTENDANCE SCHEMAS ====================
@@ -34,9 +63,6 @@ def attendance_classes_summary(
     db: Session = Depends(get_db),
 ):
     """Per-class attendance snapshot for a given date (defaults to today)."""
-    import re
-    from sqlalchemy import func
-
     target_date = date or dt_date.today()
 
     class_rows = (
@@ -79,8 +105,7 @@ def attendance_classes_summary(
             entry["present"] += 1
 
     def _sort_key(name):
-        parts = re.split(r"(\d+)", name or "")
-        return [int(p) if p.isdigit() else p.lower() for p in parts if p]
+        return _natural_class_sort_key(name)
 
     result = []
     for row in sorted(class_rows, key=lambda r: _sort_key(r.class_name)):
