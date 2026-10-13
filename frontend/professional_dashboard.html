@@ -156,7 +156,7 @@
         /* ============ THEME PICKER UI ============ */
         #themePickerPanel {
             position: fixed;
-            top: 84px;
+            top: 130px;
             right: 130px;
             width: 290px;
             background: var(--bg-primary);
@@ -882,7 +882,7 @@
         #overlaySliderContainer .slider-tip { font-size: 0.78rem; color: var(--gray); margin-top: 10px; margin-bottom: 0; line-height: 1.5; }
 
         /* ============ CALCULATOR ============ */
-        #calcPanel { position: fixed; right: 24px; top: 84px; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); background: var(--bg-primary); border-radius: 20px; box-shadow: 0 24px 60px rgba(79, 54, 168, 0.3); border: 1px solid rgba(124, 92, 224, 0.1); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(-12px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.24s ease, opacity 0.24s ease; }
+        #calcPanel { position: fixed; right: 24px; top: 130px; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); background: var(--bg-primary); border-radius: 20px; box-shadow: 0 24px 60px rgba(79, 54, 168, 0.3); border: 1px solid rgba(124, 92, 224, 0.1); z-index: 1199; display: flex; flex-direction: column; overflow: hidden; transform: translateY(-12px) scale(0.97); opacity: 0; pointer-events: none; transition: transform 0.24s ease, opacity 0.24s ease; }
         #calcPanel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
         #calcHeader { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
         #calcHeaderIcon { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
@@ -6449,12 +6449,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             const isOpen = panel.classList.toggle("open");
             if (btn) btn.classList.toggle("active", isOpen);
             if (isOpen) {
-                const calcPanel = document.getElementById("calcPanel");
-                const calcBtn = document.getElementById("calcHeaderBtn");
-                if (calcPanel && calcPanel.classList.contains("open")) {
-                    calcPanel.classList.remove("open");
-                    if (calcBtn) calcBtn.classList.remove("active");
-                }
+                closeAllHeaderPanels("theme");
             }
         }
 
@@ -6483,6 +6478,33 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
         // ==================== CALCULATOR ====================
         let calcExpression = "";
         let calcJustEvaluated = false;
+
+        // ✅ Global helper — closes all other header panels
+        function closeAllHeaderPanels(except) {
+            const panels = {
+                calc: { el: document.getElementById("calcPanel"), btn: document.getElementById("calcHeaderBtn") },
+                theme: { el: document.getElementById("themePickerPanel"), btn: document.getElementById("themeHeaderBtn") },
+            };
+            Object.keys(panels).forEach((key) => {
+                if (key === except) return;
+                const { el, btn } = panels[key];
+                if (el && el.classList.contains("open")) {
+                    el.classList.remove("open");
+                    if (btn) btn.classList.remove("active");
+                }
+            });
+            // ✅ Close the user profile dropdown (from profile-dropdown.js)
+            const userDropdown = document.querySelector(".profile-dropdown-menu");
+            if (userDropdown) {
+                // ✅ Match profile-dropdown.js's own close styling (no display:none!)
+                userDropdown.style.opacity = "0";
+                userDropdown.style.transform = "translateY(-8px) scale(0.96)";
+                userDropdown.style.pointerEvents = "none";
+            }
+            // Also dispatch a custom event in case profile-dropdown.js listens for it
+            document.dispatchEvent(new CustomEvent("schoolhub:close-header-panels", { detail: { except } }));
+        }
+
         function toggleCalculator() {
             const panel = document.getElementById("calcPanel");
             const btn = document.getElementById("calcHeaderBtn");
@@ -6490,6 +6512,7 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             const isOpen = panel.classList.toggle("open");
             if (btn) btn.classList.toggle("active", isOpen);
             if (isOpen) {
+                closeAllHeaderPanels("calc");   // ✅ close others
                 const aiModal = document.getElementById("adminAIChatModal");
                 if (aiModal && aiModal.classList.contains("show")) closeModal("adminAIChatModal");
                 updateCalcDisplay();
