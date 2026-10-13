@@ -84,6 +84,7 @@ class StaffAttendance(Base):
 
     date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     is_present: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="present")
     remarks: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

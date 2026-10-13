@@ -1449,7 +1449,10 @@
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">✅ Staff Attendance</h3>
-                                <button class="btn btn-primary" onclick="openMarkStaffAttendanceModal()">➕ Mark Attendance</button>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn btn-success" onclick="openBulkStaffAttendance()">📋 Bulk Register</button>
+                                    <button class="btn btn-primary" onclick="openMarkStaffAttendanceModal()">➕ Mark Individual</button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
@@ -2195,6 +2198,56 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             <div class="btn-group" style="border-top:1px solid var(--border); padding-top:16px; margin-top:16px;">
                 <button class="btn btn-primary" onclick="saveExamEntries()">💾 Save Datesheet</button>
                 <button class="btn btn-secondary" onclick="closeModal('examEntriesModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- ============ BULK STAFF ATTENDANCE MODAL ============ -->
+    <div class="modal" id="bulkStaffAttendanceModal">
+        <div class="modal-content modal-xl">
+            <span class="modal-close" onclick="closeModal('bulkStaffAttendanceModal')">✕</span>
+            <div class="modal-header">📋 Bulk Staff Attendance</div>
+
+            <div class="form-grid" style="margin-bottom:14px;">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="bsaDate" onchange="loadBulkStaffAttendanceForDate()">
+                </div>
+                <div class="form-group" style="justify-content:flex-end;">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-secondary btn-sm" onclick="bsaGoToDate(-1)">◀ Yesterday</button>
+                        <button class="btn btn-secondary btn-sm" onclick="bsaGoToToday()">Today</button>
+                        <button class="btn btn-secondary btn-sm" onclick="bsaGoToDate(1)">Tomorrow ▶</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+                <button class="btn btn-sm btn-success" onclick="bsaSetAll('present')">✅ All Present</button>
+                <button class="btn btn-sm btn-danger" onclick="bsaSetAll('absent')">❌ All Absent</button>
+                <button class="btn btn-sm btn-warning" onclick="bsaClearAll()">🔄 Clear All</button>
+                <div style="margin-left:auto; font-size:0.9rem; color:var(--gray); align-self:center; font-weight:600;" id="bsaSummary"></div>
+            </div>
+
+            <div style="max-height:55vh; overflow-y:auto; border:1px solid var(--border); border-radius:12px;">
+                <table>
+                    <thead style="position:sticky; top:0; z-index:1;">
+                        <tr>
+                            <th style="width:60px;">#</th>
+                            <th>Staff Name</th>
+                            <th>Designation</th>
+                            <th style="width:260px; text-align:center;">Status</th>
+                            <th style="width:180px;">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bsaTableBody">
+                        <tr><td colspan="5" style="text-align:center; padding:30px; color:var(--gray);">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn-group" style="border-top:1px solid var(--border); padding-top:16px; margin-top:16px;">
+                <button class="btn btn-primary" onclick="saveBulkStaffAttendance()">💾 Save All</button>
+                <button class="btn btn-secondary" onclick="closeModal('bulkStaffAttendanceModal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -4168,6 +4221,149 @@ Assalam-o-Alaikum! Main aapka AI assistant hoon. Kisi bhi student, teacher, clas
             else listEl.innerHTML = withPhones.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:8px;"><span>${s.name} — ${s.phone}</span><button class="btn btn-sm btn-whatsapp" onclick="sendWhatsappToStudent(${s.id})">📱 Send</button></div>`).join("");
             openModal("whatsappBulkModal");
         }
+        // ==================== BULK STAFF ATTENDANCE ====================
+        let _bsaStaffList = [];       // [{ id, name, designation, status, remarks }]
+
+        async function openBulkStaffAttendance() {
+            // Default to today
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById("bsaDate").value = today;
+            openModal("bulkStaffAttendanceModal");
+            await loadBulkStaffAttendanceForDate();
+        }
+
+        function bsaGoToToday() {
+            document.getElementById("bsaDate").value = new Date().toISOString().slice(0, 10);
+            loadBulkStaffAttendanceForDate();
+        }
+
+        function bsaGoToDate(offsetDays) {
+            const current = document.getElementById("bsaDate").value || new Date().toISOString().slice(0, 10);
+            const d = new Date(current + "T00:00:00");
+            d.setDate(d.getDate() + offsetDays);
+            document.getElementById("bsaDate").value = d.toISOString().slice(0, 10);
+            loadBulkStaffAttendanceForDate();
+        }
+
+        async function loadBulkStaffAttendanceForDate() {
+            const date = document.getElementById("bsaDate").value;
+            if (!date) return;
+            const tbody = document.getElementById("bsaTableBody");
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--gray);">Loading…</td></tr>`;
+
+            try {
+                const data = await apiRequest(`/staff/attendance/bulk?date=${encodeURIComponent(date)}`);
+                _bsaStaffList = data.staff || [];
+
+                if (_bsaStaffList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--gray);">No active staff found</td></tr>`;
+                    document.getElementById("bsaSummary").textContent = "";
+                    return;
+                }
+
+                renderBsaTable();
+                updateBsaSummary();
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--danger);">${e.message}</td></tr>`;
+            }
+        }
+
+        function renderBsaTable() {
+            const tbody = document.getElementById("bsaTableBody");
+            tbody.innerHTML = _bsaStaffList.map((s, idx) => {
+                const st = s.status || "unmarked";
+                const isP = st === "present";
+                const isA = st === "absent";
+                const isHD = st === "half_day";
+
+                return `<tr>
+                    <td style="color:var(--gray);">${idx + 1}</td>
+                    <td><strong>${s.name}</strong></td>
+                    <td style="color:var(--gray); font-size:0.9rem;">${s.designation || "-"}</td>
+                    <td>
+                        <div style="display:flex; gap:4px; justify-content:center; flex-wrap:wrap;">
+                            <button class="btn btn-sm ${isP ? 'btn-success' : 'btn-secondary'}" style="${isP ? '' : 'opacity:0.55;'}" onclick="bsaSetStatus(${idx}, 'present')" title="Present">✅ Present</button>
+                            <button class="btn btn-sm ${isA ? 'btn-danger' : 'btn-secondary'}" style="${isA ? '' : 'opacity:0.55;'}" onclick="bsaSetStatus(${idx}, 'absent')" title="Absent">❌ Absent</button>
+                            <button class="btn btn-sm ${isHD ? 'btn-warning' : 'btn-secondary'}" style="${isHD ? '' : 'opacity:0.55;'}" onclick="bsaSetStatus(${idx}, 'half_day')" title="Half Day">◐ Half</button>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text" placeholder="Optional" value="${(s.remarks || '').replace(/"/g, '&quot;')}"
+                               oninput="_bsaStaffList[${idx}].remarks = this.value"
+                               style="width:100%; padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:0.85rem; background:var(--bg-primary); color:var(--dark);">
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function bsaSetStatus(idx, status) {
+            if (!_bsaStaffList[idx]) return;
+            // If clicking same status, reset to unmarked
+            if (_bsaStaffList[idx].status === status) {
+                _bsaStaffList[idx].status = "unmarked";
+            } else {
+                _bsaStaffList[idx].status = status;
+            }
+            renderBsaTable();
+            updateBsaSummary();
+        }
+
+        function bsaSetAll(status) {
+            _bsaStaffList.forEach(s => s.status = status);
+            renderBsaTable();
+            updateBsaSummary();
+        }
+
+        function bsaClearAll() {
+            _bsaStaffList.forEach(s => s.status = "unmarked");
+            renderBsaTable();
+            updateBsaSummary();
+        }
+
+        function updateBsaSummary() {
+            const p = _bsaStaffList.filter(s => s.status === "present").length;
+            const a = _bsaStaffList.filter(s => s.status === "absent").length;
+            const h = _bsaStaffList.filter(s => s.status === "half_day").length;
+            const u = _bsaStaffList.filter(s => !s.status || s.status === "unmarked").length;
+            document.getElementById("bsaSummary").innerHTML =
+                `✅ ${p} · ❌ ${a} · ◐ ${h} · ⚪ ${u}`;
+        }
+
+        async function saveBulkStaffAttendance() {
+            const date = document.getElementById("bsaDate").value;
+            if (!date) { showAlert("Date required", "error"); return; }
+
+            // Only send entries where status != unmarked
+            const entries = _bsaStaffList
+                .filter(s => s.status && s.status !== "unmarked")
+                .map(s => ({
+                    staff_id: s.id,
+                    status: s.status,
+                    remarks: (s.remarks || "").trim() || null,
+                }));
+
+            if (entries.length === 0) {
+                showAlert("Koi entry mark nahi ki. Kam se kam ek staff ka status select karein.", "error");
+                return;
+            }
+
+            try {
+                const result = await apiRequest("/staff/attendance/bulk", {
+                    method: "POST",
+                    body: JSON.stringify({ date, entries }),
+                });
+                showAlert(`✅ ${result.saved} attendance record(s) saved`);
+                closeModal("bulkStaffAttendanceModal");
+
+                // Refresh staff attendance table if visible
+                if (currentStaffSubtab === "attendance") {
+                    await loadStaffAttendance();
+                }
+            } catch (e) {
+                showAlert("Save failed: " + e.message, "error");
+            }
+        }
+
         // ==================== DATESHEET / EXAMS ====================
         let _cachedExams = [];
         let _currentExamId = null;

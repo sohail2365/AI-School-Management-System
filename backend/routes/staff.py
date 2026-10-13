@@ -233,7 +233,137 @@ def list_staff_attendance(
         query = query.filter(StaffAttendance.staff_id == staff_id)
     return query.order_by(StaffAttendance.date.desc(), StaffAttendance.id.desc()).all()
 
+# ==================== BULK STAFF ATTENDANCE ====================
 
+class BulkStaffAttendanceItem(BaseModel):
+    staff_id: int
+    status: str  # 'present' | 'absent' | 'half_day'
+    remarks: str | None = None
+
+
+class BulkStaffAttendanceRequest(BaseModel):
+    date: str            # ISO date YYYY-MM-DD
+    entries: list[BulkStaffAttendanceItem]
+
+
+@router.post("/attendance/bulk")
+def bulk_submit_staff_attendance(
+    payload: BulkStaffAttendanceRequest,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Save staff attendance for many staff at once.
+    Existing records for (staff_id, date) are overwritten.
+    """
+    school_id = token["school_id"]
+
+    # Validate date
+    try:
+        dt = date.fromisoformat(payload.date)
+    except Exception:
+        raise HTTPException(status_code=422, detail="Invalid date format (use YYYY-MM-DD)")
+
+    valid_statuses = {"present", "absent", "half_day"}
+
+    # Validate staff belong to this school
+    staff_ids = [e.staff_id for e in payload.entries]
+    if not staff_ids:
+        raise HTTPException(status_code=422, detail="No entries provided")
+
+    staff_members = db.query(Staff).filter(
+        Staff.school_id == school_id,
+        Staff.id.in_(staff_ids),
+    ).all()
+    valid_ids = {s.id for s in staff_members}
+
+    saved = 0
+    skipped = 0
+
+    for entry in payload.entries:
+        if entry.staff_id not in valid_ids:
+            skipped += 1
+            continue
+        status = (entry.status or "").lower()
+        if status not in valid_statuses:
+            skipped += 1
+            continue
+
+        # Upsert
+        existing = db.query(StaffAttendance).filter(
+            StaffAttendance.staff_id == entry.staff_id,
+            StaffAttendance.date == dt,
+        ).first()
+
+        # is_present: half_day counts as present for backward compat
+        is_present = status in ("present", "half_day")
+
+        if existing:
+            existing.is_present = is_present
+            existing.status = status
+            existing.remarks = entry.remarks
+        else:
+            db.add(StaffAttendance(
+                staff_id=entry.staff_id,
+                date=dt,
+                is_present=is_present,
+                status=status,
+                remarks=entry.remarks,
+            ))
+        saved += 1
+
+    db.commit()
+    return {
+        "message": f"Saved {saved} attendance record(s)",
+        "saved": saved,
+        "skipped": skipped,
+    }
+
+
+@router.get("/attendance/bulk")
+def get_bulk_staff_attendance(
+    date_str: str = Query(..., alias="date"),
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Get all staff with their attendance status for a given date.
+    Returns present/absent/half_day for each staff (or 'unmarked').
+    """
+    school_id = token["school_id"]
+
+    try:
+        dt = date.fromisoformat(date_str)
+    except Exception:
+        raise HTTPException(status_code=422, detail="Invalid date format")
+
+    # All staff
+    staff = db.query(Staff).filter(
+        Staff.school_id == school_id,
+        Staff.status == StaffStatus.active,
+    ).order_by(Staff.name).all()
+
+    # Existing records for that date
+    records = db.query(StaffAttendance).filter(
+        StaffAttendance.staff_id.in_([s.id for s in staff]),
+        StaffAttendance.date == dt,
+    ).all() if staff else []
+
+    rec_map = {r.staff_id: r for r in records}
+
+    return {
+        "date": date_str,
+        "staff": [
+            {
+                "id": s.id,
+                "name": s.name,
+                "designation": s.designation or "",
+                "status": (rec_map[s.id].status if s.id in rec_map else "unmarked"),
+                "remarks": (rec_map[s.id].remarks if s.id in rec_map else None),
+            }
+            for s in staff
+        ],
+    }
 @router.post("/attendance", response_model=StaffAttendanceOut, status_code=status.HTTP_201_CREATED)
 def mark_staff_attendance(
     payload: StaffAttendanceCreate,
