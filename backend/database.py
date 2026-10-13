@@ -34,9 +34,20 @@ else:
     # limits (Supabase/Neon free tiers cap concurrent connections).
     from sqlalchemy.pool import NullPool
 
+    # ✅ CRITICAL: Disable psycopg prepared statement caching.
+    # Supabase uses PgBouncer in transaction mode. psycopg3 by default
+    # prepares statements after 5 uses and caches them per-connection.
+    # When PgBouncer reuses a connection across different clients, the
+    # cached statement name (e.g. "_pg3_0") collides → "DuplicatePreparedStatement".
+    # prepare_threshold=None disables this caching entirely → fixes it.
+    _pg_connect_args = {}
+    if DATABASE_URL.startswith("postgresql"):
+        _pg_connect_args["prepare_threshold"] = None
+
     engine = create_engine(
         DATABASE_URL,
         poolclass=NullPool,
+        connect_args=_pg_connect_args,
         echo=False,
     )
 
