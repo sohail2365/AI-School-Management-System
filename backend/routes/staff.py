@@ -1,7 +1,8 @@
 import secrets
-from datetime import date as dt_date
+from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -16,6 +17,7 @@ from backend.schemas.staff import (
     StaffSalaryPaymentCreate,
     StaffSalaryPaymentOut,
     StaffUpdate,
+    StaffStatus as StaffStatusSchema,
 )
 from backend.utils.password import hash_password
 from backend.utils.rbac import require_roles
@@ -221,7 +223,7 @@ def create_teacher_login(
 
 @router.get("/attendance/list", response_model=list[StaffAttendanceOut])
 def list_staff_attendance(
-    date: dt_date | None = None,
+    date: date | None = None,
     staff_id: int | None = None,
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
@@ -304,6 +306,7 @@ def bulk_submit_staff_attendance(
             existing.remarks = entry.remarks
         else:
             db.add(StaffAttendance(
+                school_id=school_id,       
                 staff_id=entry.staff_id,
                 date=dt,
                 is_present=is_present,
@@ -370,7 +373,7 @@ def mark_staff_attendance(
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
-    if payload.date > dt_date.today():
+    if payload.date > date.today():
         raise HTTPException(status_code=422, detail="Attendance can only be marked for current or past dates")
 
     staff = (
@@ -391,13 +394,20 @@ def mark_staff_attendance(
         .first()
     )
     if existing:
-        raise HTTPException(status_code=409, detail="Attendance already marked for this date")
+        # ✅ Upsert instead of 409
+        existing.is_present = payload.is_present
+        existing.status = "present" if payload.is_present else "absent"
+        existing.remarks = payload.remarks
+        db.commit()
+        db.refresh(existing)
+        return existing
 
     record = StaffAttendance(
         school_id=token["school_id"],
         staff_id=payload.staff_id,
         date=payload.date,
         is_present=payload.is_present,
+        status="present" if payload.is_present else "absent",
         remarks=payload.remarks,
     )
     db.add(record)
@@ -559,7 +569,7 @@ def pay_salary(
         staff_id=payload.staff_id,
         month=payload.month,
         amount_paid=payload.amount_paid,
-        payment_date=payload.payment_date or dt_date.today(),
+        payment_date=payload.payment_date or date.today(),
         payment_method=payload.payment_method,
     )
     db.add(payment)
