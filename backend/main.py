@@ -163,6 +163,11 @@ async def startup():
             "user_id": "user_id INTEGER",
         })
 
+                # ==================== STAFF ATTENDANCE — add status column ====================
+        _ensure_columns(inspector, existing_tables, "staff_attendance", {
+            "status": "status VARCHAR(20) NOT NULL DEFAULT 'present'",
+        })
+
         # ==================== STUDENTS ====================
         _ensure_columns(inspector, existing_tables, "students", {
             "photo_url": "photo_url VARCHAR(500)",
