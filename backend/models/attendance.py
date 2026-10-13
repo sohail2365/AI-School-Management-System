@@ -34,6 +34,10 @@ class Attendance(Base):
         nullable=True,
     )
 
+    # ✅ NEW: bulk attendance lock
+    is_locked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
+    locked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False

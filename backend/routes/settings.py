@@ -352,3 +352,113 @@ def update_background_overlay(
         "message": f"Background intensity set to {payload.overlay}%.",
         "overlay": payload.overlay,
     }
+
+# ==================== ✅ NEW: CUSTOM FIELDS ====================
+import json
+from backend.schemas.settings import CustomFieldsPayload
+
+
+@router.get("/custom-fields")
+def get_custom_fields(
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+    if not school.custom_fields:
+        return {"fields": []}
+    try:
+        return {"fields": json.loads(school.custom_fields)}
+    except Exception:
+        return {"fields": []}
+
+
+@router.put("/custom-fields")
+def update_custom_fields(
+    payload: CustomFieldsPayload,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+
+    valid_types = ["text", "number", "date", "textarea", "dropdown", "checkbox"]
+    seen_keys = set()
+
+    for i, field in enumerate(payload.fields):
+        if not field.key.strip():
+            raise HTTPException(422, f"Field #{i+1}: key required")
+        if not field.label.strip():
+            raise HTTPException(422, f"Field #{i+1}: label required")
+        if field.type not in valid_types:
+            raise HTTPException(422, f"Field #{i+1}: invalid type '{field.type}'")
+        if field.type == "dropdown" and (not field.options or len(field.options) == 0):
+            raise HTTPException(422, f"Field '{field.label}': dropdown needs at least 1 option")
+
+        key = field.key.strip().lower().replace(" ", "_")
+        key = "".join(c for c in key if c.isalnum() or c == "_")
+        if key in seen_keys:
+            raise HTTPException(422, f"Duplicate field key: '{key}'")
+        seen_keys.add(key)
+        field.key = key
+
+    school.custom_fields = json.dumps([f.model_dump() for f in payload.fields], ensure_ascii=False)
+    db.commit()
+    return {"success": True, "count": len(payload.fields)}
+
+# ==================== ✅ SCHOOL LOGO ====================
+
+@router.post("/logo")
+def upload_school_logo(
+    file: UploadFile = File(...),
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """Upload school logo — replaces the previous one. Shown in all portals + print headers."""
+    school = _get_school_or_404(db, token["school_id"])
+
+    # Validate extension / content type
+    allowed_types = ("image/png", "image/jpeg", "image/jpg", "image/webp", "image/svg+xml")
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Only PNG, JPG, WEBP or SVG allowed. Got: {file.content_type}",
+        )
+
+    # Reuse existing upload helper with a dedicated "logo" subfolder
+    path = upload_school_file(file, token["school_id"], subfolder="logo")
+
+    school.logo_url = path
+    db.commit()
+    db.refresh(school)
+
+    return {
+        "message": "School logo uploaded.",
+        "url": get_signed_url(path, expires_in=3600),
+    }
+
+
+@router.delete("/logo")
+def remove_school_logo(
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """Remove school logo (file stays in storage, only DB ref is cleared)."""
+    school = _get_school_or_404(db, token["school_id"])
+    school.logo_url = None
+    db.commit()
+    return {"message": "School logo removed.", "url": None}
+
+
+@router.get("/logo")
+def get_school_logo(
+    token: dict = Depends(require_roles(["admin", "teacher", "parent", "staff", "student"])),
+    db: Session = Depends(get_db),
+):
+    """Return signed URL for the school logo (or null if none set)."""
+    school = db.query(School).filter(School.id == token["school_id"]).first()
+    if not school or not school.logo_url:
+        return {"url": None}
+    return {"url": get_signed_url(school.logo_url, expires_in=3600)}

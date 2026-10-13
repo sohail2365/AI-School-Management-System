@@ -1,4 +1,5 @@
 from datetime import date, datetime
+import json
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 
@@ -20,6 +21,13 @@ class StudentBase(BaseModel):
     phone: Optional[str] = Field(default=None, max_length=20)
     address: Optional[str] = None
     parent_email: Optional[EmailStr] = None
+
+    # ✅ NEW FIELDS
+    admission_date: Optional[date] = None
+    b_form_number: Optional[str] = Field(default=None, max_length=50)
+    admission_fee: Optional[float] = None
+    monthly_fee_override: Optional[float] = None
+
     @field_validator("date_of_birth")
     @classmethod
     def validate_dob(cls, v):
@@ -27,23 +35,21 @@ class StudentBase(BaseModel):
             raise ValueError("DOB cannot be a future date")
         return v
 
+    @field_validator("admission_date")
+    @classmethod
+    def validate_admission_date(cls, v):
+        if v and v > date.today():
+            raise ValueError("Admission date cannot be in the future")
+        return v
 
-    # =========================
-    # VALIDATION: GENDER (FIXED BUG)
-    # =========================
     @field_validator("gender")
     @classmethod
     def validate_gender(cls, v):
         if v is None:
             return None
-
         v = str(v).strip().lower()
-
         if v in ["male", "female", "other"]:
             return v
-
-        # Normalize invalid frontend values like:
-        # "Not Specified", "N/A", etc.
         return None
 
 
@@ -51,7 +57,7 @@ class StudentBase(BaseModel):
 # CREATE SCHEMA
 # =========================
 class StudentCreate(StudentBase):
-    pass
+    custom_fields_data: Optional[dict] = None
 
 
 # =========================
@@ -72,18 +78,21 @@ class StudentUpdate(BaseModel):
     address: Optional[str] = None
     parent_email: Optional[EmailStr] = None
 
+    # ✅ NEW FIELDS
+    admission_date: Optional[date] = None
+    b_form_number: Optional[str] = Field(default=None, max_length=50)
+    admission_fee: Optional[float] = None
+    monthly_fee_override: Optional[float] = None
+    custom_fields_data: Optional[dict] = None
 
     @field_validator("gender")
     @classmethod
     def validate_gender(cls, v):
         if v is None:
             return None
-
         v = str(v).strip().lower()
-
         if v in ["male", "female", "other"]:
             return v
-
         return None
 
 
@@ -96,15 +105,31 @@ class StudentOut(StudentBase):
     user_id: Optional[int] = None
     parent_user_id: Optional[int] = None
     photo_url: Optional[str] = None
+
+    # ✅ NEW FIELDS
+    custom_fields_data: Optional[dict] = None
+
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("custom_fields_data", mode="before")
+    @classmethod
+    def parse_custom_fields(cls, v):
+        """Convert JSON string from DB into dict for frontend."""
+        if v is None:
+            return None
+        if isinstance(v, dict):
+            return v
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except Exception:
+                return None
+        return None
 
     class Config:
         from_attributes = True
 
 
 class StudentCreateResponse(StudentOut):
-    # Set only when this request just auto-provisioned a NEW parent login
-    # (i.e. parent_email was set and no login existed for it yet). The admin
-    # must copy this now — it is never retrievable again after this response.
     parent_temp_password: Optional[str] = None

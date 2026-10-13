@@ -12,10 +12,15 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Pass-through only — no caching, no offline fallback.
-  // On network failure, return a proper network error (not a fake 503)
-  // so the browser handles it natively without console spam.
-  event.respondWith(
-    fetch(event.request).catch(() => Response.error())
-  );
+  const url = new URL(event.request.url);
+
+  // ✅ API calls ko SW se bypass karo — seedha network pe jao
+  if (url.origin !== self.location.origin ||
+      url.pathname.startsWith("/api/") ||
+      /\/(announcements|students|fees|attendance|grades|staff|dashboard|settings|ai)/.test(url.pathname)) {
+      return;
+  }
+
+  // baaki static files ke liye existing cache-first logic rakho
+  event.respondWith(/* ... aapka existing code ... */);
 });

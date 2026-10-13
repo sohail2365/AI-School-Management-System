@@ -1,6 +1,7 @@
-from datetime import date as dt_date
+from datetime import date as dt_date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -12,18 +13,263 @@ from backend.utils.rbac import require_roles
 router = APIRouter(prefix="/attendance", tags=["attendance"])
 
 
-@router.get("/register/{class_name}")
-def attendance_register(
-    class_name: str,
-    month: str,  # format: YYYY-MM
+# ==================== BULK ATTENDANCE SCHEMAS ====================
+class BulkAttendanceRecord(BaseModel):
+    student_id: int
+    is_present: bool
+    remarks: str | None = None
+
+
+class BulkAttendanceSubmit(BaseModel):
+    class_name: str
+    date: dt_date
+    records: list[BulkAttendanceRecord]
+
+
+# ==================== CLASS-WISE NAVIGATION ====================
+@router.get("/classes-summary")
+def attendance_classes_summary(
+    date: dt_date | None = None,
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
-    """
-    Class-wise monthly attendance register: every student in the class as
-    rows, every day of the month as columns (P/A/blank). Built for printing
-    the traditional paper register format schools are used to.
-    """
+    """Per-class attendance snapshot for a given date (defaults to today)."""
+    import re
+    from sqlalchemy import func
+
+    target_date = date or dt_date.today()
+
+    class_rows = (
+        db.query(Student.class_name, func.count(Student.id).label("student_count"))
+        .filter(Student.school_id == token["school_id"])
+        .group_by(Student.class_name)
+        .all()
+    )
+
+    attendance_rows = (
+        db.query(Attendance)
+        .filter(
+            Attendance.school_id == token["school_id"],
+            Attendance.date == target_date,
+        )
+        .all()
+    )
+
+    student_ids = {a.student_id for a in attendance_rows}
+    students_map = {}
+    if student_ids:
+        pairs = (
+            db.query(Student.id, Student.class_name)
+            .filter(
+                Student.school_id == token["school_id"],
+                Student.id.in_(student_ids),
+            )
+            .all()
+        )
+        students_map = {sid: cname for sid, cname in pairs}
+
+    per_class = {}
+    for a in attendance_rows:
+        cls = students_map.get(a.student_id)
+        if cls is None:
+            continue
+        entry = per_class.setdefault(cls, {"marked": 0, "present": 0})
+        entry["marked"] += 1
+        if a.is_present:
+            entry["present"] += 1
+
+    def _sort_key(name):
+        parts = re.split(r"(\d+)", name or "")
+        return [int(p) if p.isdigit() else p.lower() for p in parts if p]
+
+    result = []
+    for row in sorted(class_rows, key=lambda r: _sort_key(r.class_name)):
+        stats = per_class.get(row.class_name, {"marked": 0, "present": 0})
+        marked = stats["marked"]
+        present = stats["present"]
+        result.append({
+            "class_name": row.class_name,
+            "student_count": row.student_count,
+            "marked_count": marked,
+            "present_count": present,
+            "absent_count": marked - present,
+            "attendance_rate": round((present / marked) * 100, 2) if marked else 0.0,
+        })
+    return result
+
+
+# ==================== BULK ATTENDANCE REGISTER ====================
+@router.get("/register/{class_name}/{date_str}")
+def get_attendance_register(
+    class_name: str,
+    date_str: str,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """Get all students in a class + their attendance for a date."""
+    try:
+        year, month, day = map(int, date_str.split("-"))
+        target_date = dt_date(year, month, day)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Date must be YYYY-MM-DD")
+
+    students = (
+        db.query(Student)
+        .filter(Student.school_id == token["school_id"], Student.class_name == class_name)
+        .order_by(Student.roll_number)
+        .all()
+    )
+
+    records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.school_id == token["school_id"],
+            Attendance.date == target_date,
+            Attendance.student_id.in_([s.id for s in students]),
+        )
+        .all()
+    ) if students else []
+
+    existing = {r.student_id: r for r in records}
+    is_locked = any(r.is_locked for r in records) if records else False
+
+    return {
+        "class_name": class_name,
+        "date": date_str,
+        "is_locked": is_locked,
+        "students": [
+            {
+                "student_id": s.id,
+                "name": s.name,
+                "roll_number": s.roll_number,
+                "is_present": existing[s.id].is_present if s.id in existing else True,
+                "remarks": existing[s.id].remarks if s.id in existing else None,
+                "has_record": s.id in existing,
+            }
+            for s in students
+        ],
+    }
+
+
+@router.post("/bulk-submit")
+def bulk_submit_attendance(
+    payload: BulkAttendanceSubmit,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
+    """Bulk submit attendance for a class. Marks records as locked."""
+    if payload.date > dt_date.today():
+        raise HTTPException(status_code=422, detail="Cannot mark attendance for future dates")
+
+    student_ids = [r.student_id for r in payload.records]
+    valid_students = {
+        s.id for s in db.query(Student.id).filter(
+            Student.school_id == token["school_id"],
+            Student.class_name == payload.class_name,
+            Student.id.in_(student_ids),
+        ).all()
+    }
+
+    now = datetime.utcnow()
+    created = 0
+    updated = 0
+
+    for rec in payload.records:
+        if rec.student_id not in valid_students:
+            continue
+
+        existing = (
+            db.query(Attendance)
+            .filter(
+                Attendance.school_id == token["school_id"],
+                Attendance.student_id == rec.student_id,
+                Attendance.date == payload.date,
+            )
+            .first()
+        )
+
+        if existing:
+            existing.is_present = rec.is_present
+            existing.remarks = rec.remarks
+            existing.is_locked = True
+            existing.locked_at = now
+            existing.marked_by_user_id = token.get("user_id")
+            updated += 1
+        else:
+            db.add(Attendance(
+                school_id=token["school_id"],
+                student_id=rec.student_id,
+                date=payload.date,
+                is_present=rec.is_present,
+                remarks=rec.remarks,
+                is_locked=True,
+                locked_at=now,
+                marked_by_user_id=token.get("user_id"),
+            ))
+            created += 1
+
+    db.commit()
+    return {
+        "success": True,
+        "created": created,
+        "updated": updated,
+        "total": created + updated,
+        "message": f"Attendance saved and locked. {created + updated} records.",
+    }
+
+
+@router.post("/unlock")
+def unlock_attendance(
+    class_name: str,
+    date_str: str,
+    token: dict = Depends(require_roles(["admin"])),
+    db: Session = Depends(get_db),
+):
+    """Admin-only: unlock attendance for a class+date so teacher can re-edit."""
+    try:
+        year, month, day = map(int, date_str.split("-"))
+        target_date = dt_date(year, month, day)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Date must be YYYY-MM-DD")
+
+    students = (
+        db.query(Student.id)
+        .filter(Student.school_id == token["school_id"], Student.class_name == class_name)
+        .all()
+    )
+    sids = [s.id for s in students]
+    if not sids:
+        raise HTTPException(status_code=404, detail="No students in this class")
+
+    records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.school_id == token["school_id"],
+            Attendance.student_id.in_(sids),
+            Attendance.date == target_date,
+        )
+        .all()
+    )
+
+    count = 0
+    for r in records:
+        if r.is_locked:
+            r.is_locked = False
+            r.locked_at = None
+            count += 1
+
+    db.commit()
+    return {"success": True, "unlocked": count, "message": f"{count} records unlocked."}
+
+
+# ==================== EXISTING ENDPOINTS (with lock checks) ====================
+@router.get("/register/{class_name}")
+def attendance_register(
+    class_name: str,
+    month: str,
+    token: dict = Depends(require_roles(["admin", "teacher"])),
+    db: Session = Depends(get_db),
+):
     try:
         year, mon = month.split("-")
         year, mon = int(year), int(mon)
@@ -41,7 +287,6 @@ def attendance_register(
     if not students:
         raise HTTPException(status_code=404, detail="No students found in this class")
 
-    # Month boundaries
     month_start = dt_date(year, mon, 1)
     month_end = dt_date(year + 1, 1, 1) if mon == 12 else dt_date(year, mon + 1, 1)
     days_in_month = (month_end - month_start).days
@@ -58,7 +303,6 @@ def attendance_register(
         .all()
     )
 
-    # student_id -> {day_number: is_present}
     by_student: dict[int, dict[int, bool]] = {}
     for r in records:
         by_student.setdefault(r.student_id, {})[r.date.day] = r.is_present
@@ -85,12 +329,11 @@ def attendance_register(
     }
 
 
-# ✅ NEW: List all attendance records for the school (optional date / student filters).
-# Purely additive — does not change any existing endpoint.
 @router.get("", response_model=list[AttendanceOut])
 def list_attendance(
     date: dt_date | None = None,
     student_id: int | None = None,
+    class_name: str | None = None,
     token: dict = Depends(require_roles(["admin", "teacher"])),
     db: Session = Depends(get_db),
 ):
@@ -99,6 +342,14 @@ def list_attendance(
         query = query.filter(Attendance.date == date)
     if student_id:
         query = query.filter(Attendance.student_id == student_id)
+    if class_name:
+        sids = [r.id for r in db.query(Student.id).filter(
+            Student.school_id == token["school_id"],
+            Student.class_name == class_name,
+        ).all()]
+        if not sids:
+            return []
+        query = query.filter(Attendance.student_id.in_(sids))
     return query.order_by(Attendance.date.desc(), Attendance.id.desc()).all()
 
 
@@ -181,7 +432,6 @@ def mark_attendance(
     return record
 
 
-# ✅ NEW: Update an existing attendance record. Purely additive.
 @router.put("/{attendance_id}", response_model=AttendanceOut)
 def update_attendance(
     attendance_id: int,
@@ -197,6 +447,15 @@ def update_attendance(
     if not record:
         raise HTTPException(status_code=404, detail="Attendance record not found")
 
+    # ✅ Lock check — teacher cannot edit locked, admin can
+    if record.is_locked:
+        user_role = (token.get("role") or "").lower()
+        if user_role != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Attendance is locked. Contact admin to unlock.",
+            )
+
     data = payload.model_dump(exclude_unset=True)
     for key, value in data.items():
         setattr(record, key, value)
@@ -206,7 +465,6 @@ def update_attendance(
     return record
 
 
-# ✅ NEW: Delete an attendance record. Purely additive.
 @router.delete("/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_attendance(
     attendance_id: int,
@@ -281,12 +539,10 @@ def attendance_report_class(
         total = len(records)
         present = sum(1 for r in records if r.is_present)
         pct = round((present / total) * 100, 2) if total else 0.0
-        result.append(
-            {
-                "student_id": s.id,
-                "student_name": s.name,
-                "attendance_percentage": pct,
-            }
-        )
+        result.append({
+            "student_id": s.id,
+            "student_name": s.name,
+            "attendance_percentage": pct,
+        })
 
     return {"class_name": class_name, "students": result}

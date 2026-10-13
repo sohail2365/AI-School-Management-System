@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+﻿from fastapi import FastAPI, Request, Depends
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,9 +8,11 @@ from backend.database import init_db, engine, SessionLocal, get_db
 from backend.config import settings
 from backend.models.school import School
 from backend.models.user import User, UserRole
+from backend.models.exam import Exam, ExamEntry 
 from backend.utils.password import hash_password
 from datetime import datetime
 
+from backend.routes import exams as exams_router
 from backend.routes import auth, students, attendance, grades, fees, dashboard, reports, announcements, schools, staff
 from backend.routes.filters import router as filters_router
 from backend.routes.settings import router as settings_router
@@ -21,45 +23,27 @@ from backend.routes.test_records import router as test_records_router
 from backend.routes.teacher import router as teacher_router
 from backend.routes.backup import router as backup_router
 from backend.routes.parent import router as parent_router
+from backend.routes.imports import router as imports_router
 
-# ✅ ERROR MONITORING (Sentry) — initialized before the app is created so it
-# captures everything, including startup failures. Fully optional: without
-# SENTRY_DSN set, this block is a no-op and the app behaves exactly as before.
+# âœ… ERROR MONITORING (Sentry)
 if settings.SENTRY_DSN:
     try:
         import sentry_sdk
-
         sentry_sdk.init(
             dsn=settings.SENTRY_DSN,
             environment=settings.SENTRY_ENVIRONMENT,
-            # Only error events — no performance tracing, keeps free-tier
-            # quota for what matters (errors) and adds no request overhead.
             traces_sample_rate=0.0,
-            # Don't attach request bodies/local variables — school data
-            # (student names, fees) must not end up in a third-party tool.
             send_default_pii=False,
         )
-        print(f"✅ Sentry error monitoring enabled ({settings.SENTRY_ENVIRONMENT})")
-    except Exception as _sentry_err:  # monitoring must never break the app
-        print(f"⚠️ Sentry init failed (continuing without it): {_sentry_err}")
+        print(f"âœ… Sentry error monitoring enabled ({settings.SENTRY_ENVIRONMENT})")
+    except Exception as _sentry_err:
+        print(f"âš ï¸ Sentry init failed (continuing without it): {_sentry_err}")
 
-# ✅ NON-DESTRUCTIVE AUTO-MIGRATION
-# Base.metadata.create_all() only creates NEW tables — it never adds new
-# columns to a table that already exists in school.db. So when a model gains
-# a field (e.g. Staff.role), existing databases break with
-# "table X has no column named Y" until the column is added manually.
-# This helper adds any missing columns WITHOUT touching existing rows/data.
-#
-# IMPORTANT (cold-start latency): this runs on EVERY serverless cold start,
-# and each DB round-trip costs real time against a free-tier Supabase
-# Postgres instance. Checking columns ONE AT A TIME (7 separate
-# inspector.get_columns() calls) was adding up to 7 extra round-trips before
-# any request could be served — batched here to ONE get_columns() call per
-# TABLE (4 calls total) instead of per COLUMN, since several columns landed
-# on the same table (schools, staff, users).
+
+# âœ… NON-DESTRUCTIVE AUTO-MIGRATION
 def _ensure_columns(inspector, existing_tables: set[str], table_name: str, columns: dict[str, str]):
     if table_name not in existing_tables:
-        return  # table doesn't exist yet — create_all() will create it fully
+        return
     try:
         existing_columns = {col["name"] for col in inspector.get_columns(table_name)}
         missing = {name: ddl for name, ddl in columns.items() if name not in existing_columns}
@@ -68,10 +52,11 @@ def _ensure_columns(inspector, existing_tables: set[str], table_name: str, colum
         with engine.connect() as conn:
             for column_name, column_ddl in missing.items():
                 conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {column_ddl}"))
-                print(f"✅ Migrated: added missing column '{column_name}' to '{table_name}'")
+                print(f"âœ… Migrated: added missing column '{column_name}' to '{table_name}'")
             conn.commit()
     except Exception as e:
-        print(f"⚠️ Migration check failed for table '{table_name}': {e}")
+        print(f"âš ï¸ Migration check failed for table '{table_name}': {e}")
+
 
 app = FastAPI(
     title="School Management System",
@@ -98,15 +83,16 @@ app.add_middleware(
     max_age=3600,
 )
 
+
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
     response = await call_next(request)
-    # Baseline hardening headers — cheap, safe, and standard practice.
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
     return response
+
 
 @app.middleware("http")
 async def error_handling_middleware(request: Request, call_next):
@@ -114,30 +100,19 @@ async def error_handling_middleware(request: Request, call_next):
         response = await call_next(request)
         return response
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f"âŒ Error: {str(e)}")
         print(traceback.format_exc())
-        # This middleware swallows the exception (returns a JSON 500 instead
-        # of re-raising), so Sentry's automatic integration never sees it —
-        # capture it explicitly here.
         if settings.SENTRY_DSN:
             try:
                 import sentry_sdk
                 sentry_sdk.capture_exception(e)
-                # CRITICAL on Vercel: the function freezes as soon as the
-                # response is returned, so Sentry's background sender never
-                # runs. flush() blocks (max 3s) until the event is actually
-                # delivered — without this, no error ever reaches Sentry.
                 sentry_sdk.flush(timeout=3)
             except Exception:
-                pass  # monitoring must never break the response
+                pass
         response = JSONResponse(
             status_code=500,
             content={"detail": f"Internal server error: {str(e)}"}
         )
-        # ✅ FIX: error_handling_middleware runs OUTSIDE CORSMiddleware, so its
-        # responses were missing CORS headers — browsers then reported a
-        # confusing "blocked by CORS policy" instead of the real 500 error.
-        # Manually echo the CORS headers here so the real error reaches the frontend.
         origin = request.headers.get("origin")
         if origin:
             response.headers["Access-Control-Allow-Origin"] = origin
@@ -145,19 +120,19 @@ async def error_handling_middleware(request: Request, call_next):
             response.headers["Vary"] = "Origin"
         return response
 
-# ✅ AUTO DATABASE INITIALIZATION ON STARTUP
+
+# âœ… AUTO DATABASE INITIALIZATION ON STARTUP
 @app.on_event("startup")
 async def startup():
     try:
         print("\n" + "="*60)
-        print("🚀 INITIALIZING DATABASE...")
+        print("ðŸš€ INITIALIZING DATABASE...")
         print("="*60)
 
-        # Heal any existing database that was created before these columns existed.
-        # One inspector + one get_table_names() call, reused across all tables.
         inspector = inspect(engine)
         existing_tables = set(inspector.get_table_names())
 
+        # ==================== SCHOOLS ====================
         _ensure_columns(inspector, existing_tables, "schools", {
             "city": "city VARCHAR(50)",
             "is_active": "is_active BOOLEAN NOT NULL DEFAULT TRUE",
@@ -169,46 +144,67 @@ async def startup():
             "parent_allow_messages": "parent_allow_messages BOOLEAN NOT NULL DEFAULT TRUE",
             "payment_info": "payment_info TEXT",
             "background_image_url": "background_image_url VARCHAR(500)",
+            "logo_url": "logo_url VARCHAR(500)",
             "background_image_enabled": "background_image_enabled BOOLEAN NOT NULL DEFAULT TRUE",
             "background_overlay": "background_overlay INTEGER NOT NULL DEFAULT 82",
+            "fee_structure": "fee_structure TEXT",
+            "fee_due_day": "fee_due_day INTEGER",
+            "custom_fields": "custom_fields TEXT",
         })
+
+        # ==================== ANNOUNCEMENTS ====================
+        _ensure_columns(inspector, existing_tables, "announcements", {
+            "audience": "audience VARCHAR(20) NOT NULL DEFAULT 'both'",
+        })
+
+        # ==================== STAFF ====================
         _ensure_columns(inspector, existing_tables, "staff", {
             "role": "role VARCHAR(20) NOT NULL DEFAULT 'teacher'",
             "user_id": "user_id INTEGER",
         })
+
+        # ==================== STUDENTS ====================
         _ensure_columns(inspector, existing_tables, "students", {
             "photo_url": "photo_url VARCHAR(500)",
             "parent_email": "parent_email VARCHAR(150)",
             "parent_user_id": "parent_user_id INTEGER",
+            # âœ… NEW (using FLOAT for cross-compatibility)
+            "admission_date": "admission_date DATE",
+            "b_form_number": "b_form_number VARCHAR(50)",
+            "admission_fee": "admission_fee FLOAT",
+            "monthly_fee_override": "monthly_fee_override FLOAT",
+            "custom_fields_data": "custom_fields_data TEXT",
         })
+
+        # ==================== USERS ====================
         _ensure_columns(inspector, existing_tables, "users", {
             "failed_login_attempts": "failed_login_attempts INTEGER NOT NULL DEFAULT 0",
             "locked_until": "locked_until TIMESTAMP",
         })
+                # ==================== FEES ====================
+        _ensure_columns(inspector, existing_tables, "fees", {
+            "fee_type": "fee_type VARCHAR(20) NOT NULL DEFAULT 'monthly'",
+        })
+        # ==================== ATTENDANCE ====================
         _ensure_columns(inspector, existing_tables, "attendance", {
             "marked_by_user_id": "marked_by_user_id INTEGER",
+            "is_locked": "is_locked BOOLEAN NOT NULL DEFAULT FALSE",
+            "locked_at": "locked_at TIMESTAMP",
         })
 
-        # ⚠️ SECURITY: these two secrets, if left at their placeholder default,
-        # let anyone forge admin tokens or access the super-admin panel for
-        # EVERY school on this deployment. Loud warning instead of silently
-        # continuing — fix by setting real random values in Vercel's env vars.
+        # âš ï¸ SECURITY WARNINGS
         if settings.JWT_SECRET == "replace_with_a_strong_random_secret":
-            print("🚨🚨🚨 SECURITY WARNING: JWT_SECRET is still the default placeholder! "
+            print("ðŸš¨ðŸš¨ðŸš¨ SECURITY WARNING: JWT_SECRET is still the default placeholder! "
                   "Anyone can forge login tokens. Set a real random JWT_SECRET immediately.")
         if not settings.SUPER_ADMIN_SECRET:
-            print("⚠️  SUPER_ADMIN_SECRET is not set — the super-admin panel route is unreachable "
+            print("âš ï¸  SUPER_ADMIN_SECRET is not set â€” the super-admin panel route is unreachable "
                   "(fails closed), which is safe, but set it if you actually use that panel.")
 
         # Initialize all tables
         init_db()
-        print("✅ Database tables created/verified")
-        
-        # Demo account is only created in DEBUG mode (local development).
-        # In production (DEBUG=False, the default), this is skipped entirely —
-        # a publicly-known login (admin@school.com / admin123) has no place
-        # on a server hosting real schools' data, especially since this
-        # source code is on a public GitHub repo.
+        print("âœ… Database tables created/verified")
+
+        # Demo account â€” only in DEBUG mode
         if settings.DEBUG:
             db = SessionLocal()
             try:
@@ -216,13 +212,11 @@ async def startup():
                 existing_user = db.query(User).filter(User.email == "admin@school.com").first()
 
                 if existing_school and existing_user:
-                    print("✅ Demo data already exists")
+                    print("âœ… Demo data already exists")
                     print(f"   School: {existing_school.name}")
                     print(f"   Admin: {existing_user.email}")
                 else:
-                    print("\n📝 Creating Demo Data...")
-
-                    # Create demo school
+                    print("\nðŸ“ Creating Demo Data...")
                     school = School(
                         name="Demo School",
                         email="admin@school.com",
@@ -234,9 +228,8 @@ async def startup():
                     db.add(school)
                     db.commit()
                     db.refresh(school)
-                    print(f"✅ School created: {school.name} (ID: {school.id})")
+                    print(f"âœ… School created: {school.name} (ID: {school.id})")
 
-                    # Create demo admin user
                     admin_user = User(
                         school_id=school.id,
                         username="admin",
@@ -249,67 +242,72 @@ async def startup():
                     db.add(admin_user)
                     db.commit()
                     db.refresh(admin_user)
-                    print(f"✅ Admin user created: {admin_user.email}")
+                    print(f"âœ… Admin user created: {admin_user.email}")
 
                 print("\n" + "="*60)
-                print("✅ DATABASE INITIALIZATION COMPLETE!")
+                print("âœ… DATABASE INITIALIZATION COMPLETE!")
                 print("="*60)
-                print("\n📌 DEMO CREDENTIALS (DEBUG mode only):")
+                print("\nðŸ“Œ DEMO CREDENTIALS (DEBUG mode only):")
                 print("   Email: admin@school.com")
                 print("   Password: admin123")
                 print("\n" + "="*60 + "\n")
 
             except Exception as e:
-                print(f"❌ Error creating demo data: {e}")
+                print(f"âŒ Error creating demo data: {e}")
                 db.rollback()
             finally:
                 db.close()
         else:
-            print("✅ Database initialization complete (production mode — demo account skipped)")
+            print("âœ… Database initialization complete (production mode â€” demo account skipped)")
 
     except Exception as e:
-        print(f"❌ Database initialization failed: {e}")
+        print(f"âŒ Database initialization failed: {e}")
         print(traceback.format_exc())
 
-print("🔄 Loading routes...")
+
+print("ðŸ”„ Loading routes...")
 app.include_router(auth.router, tags=["auth"])
-print("✅ Auth routes loaded")
+print("âœ… Auth routes loaded")
 app.include_router(schools.router, tags=["schools"])
-print("✅ Schools routes loaded")
+print("âœ… Schools routes loaded")
 app.include_router(students.router, tags=["students"])
-print("✅ Students routes loaded")
+print("âœ… Students routes loaded")
 app.include_router(attendance.router, tags=["attendance"])
-print("✅ Attendance routes loaded")
+print("âœ… Attendance routes loaded")
 app.include_router(grades.router, tags=["grades"])
-print("✅ Grades routes loaded")
+print("âœ… Grades routes loaded")
 app.include_router(fees.router, tags=["fees"])
-print("✅ Fees routes loaded")
+print("âœ… Fees routes loaded")
 app.include_router(dashboard.router, tags=["dashboard"])
-print("✅ Dashboard routes loaded")
+print("âœ… Dashboard routes loaded")
 app.include_router(reports.router, tags=["reports"])
-print("✅ Reports routes loaded")
+print("âœ… Reports routes loaded")
 app.include_router(announcements.router, tags=["announcements"])
-print("✅ Announcements routes loaded")
+print("âœ… Announcements routes loaded")
 app.include_router(staff.router, tags=["staff"])
-print("✅ Staff routes loaded")
+print("âœ… Staff routes loaded")
 app.include_router(filters_router, tags=["filters"])
-print("✅ Filters routes loaded")
+print("âœ… Filters routes loaded")
 app.include_router(settings_router, tags=["settings"])
-print("✅ Settings routes loaded")
+print("âœ… Settings routes loaded")
 app.include_router(superadmin_router, tags=["superadmin"])
-print("✅ Super admin routes loaded")
+print("âœ… Super admin routes loaded")
 app.include_router(ai_router, tags=["ai"])
-print("✅ AI routes loaded")
+print("âœ… AI routes loaded")
 app.include_router(uploads_router, tags=["student-documents"])
-print("✅ Student document upload routes loaded")
+print("âœ… Student document upload routes loaded")
 app.include_router(test_records_router, tags=["test-records"])
-print("✅ Test record routes loaded")
+print("âœ… Test record routes loaded")
 app.include_router(teacher_router, tags=["teacher-portal"])
-print("✅ Teacher portal routes loaded")
+print("âœ… Teacher portal routes loaded")
 app.include_router(backup_router, tags=["backup"])
-print("✅ Backup routes loaded")
+print("âœ… Backup routes loaded")
 app.include_router(parent_router, tags=["parent-portal"])
-print("✅ Parent portal routes loaded")
+print("âœ… Parent portal routes loaded")
+app.include_router(imports_router, tags=["imports"])
+print("âœ… Bulk import routes loaded")
+app.include_router(exams_router.router, tags=["exams"])
+print("✅ Exam routes loaded")
 
 @app.get("/health")
 async def health_check():
@@ -319,36 +317,34 @@ async def health_check():
         "cors": "enabled"
     }
 
+
 @app.get("/keep-alive")
 async def keep_alive(db: Session = Depends(get_db)):
     """
     Touches the database with a trivial query. Exists purely so an external
-    uptime pinger (e.g. UptimeRobot, free) can hit this every few days and
-    keep a free-tier Supabase project from auto-pausing due to inactivity.
-    /health above does NOT query the database, so it wouldn't count as
-    activity from Supabase's perspective — this endpoint specifically does.
+    uptime pinger can hit this every few days and keep a free-tier Supabase
+    project from auto-pausing due to inactivity.
     """
     db.execute(text("SELECT 1"))
     return {"status": "alive"}
+
 
 @app.options("/{full_path:path}")
 async def preflight_handler(full_path: str):
     return {"message": "OK"}
 
-# ==================== SERVE FRONTEND (same origin as API) ====================
-# Mounted LAST and at "/" so it never shadows the API routes registered above —
-# FastAPI matches routes in registration order, and this is a catch-all fallback.
-# Serving frontend + API from one origin means the browser's window.location.origin
-# always equals the API base, so no hardcoded URLs and no CORS issues in production.
+
+# ==================== SERVE FRONTEND ====================
 import os
 from fastapi.staticfiles import StaticFiles
 
 _frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
 if os.path.isdir(_frontend_dir):
     app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
-    print(f"✅ Frontend mounted from {_frontend_dir}")
+    print(f"âœ… Frontend mounted from {_frontend_dir}")
 else:
-    print(f"⚠️  Frontend directory not found at {_frontend_dir} — API-only mode")
+    print(f"âš ï¸  Frontend directory not found at {_frontend_dir} â€” API-only mode")
+
 
 if __name__ == "__main__":
     import uvicorn

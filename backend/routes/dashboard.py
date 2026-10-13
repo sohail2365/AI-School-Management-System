@@ -281,6 +281,41 @@ def recent_teacher_activity(
     return {"activities": events}
 
 
+def _safe_str(value, default="") -> str:
+    """Coerce any value to string safely."""
+    if value is None:
+        return default
+    return str(value)
+
+
+def _natural_class_sort_key(class_name) -> tuple:
+    """
+    Natural sort for class names, section-aware:
+      KG / KG-i / KG-ii           → (0, 0, "KG...")
+      1 / 1-A / 1-B               → (1, 1, "")
+      5 / 5-A / 5-B               → (1, 5, ...)
+      10 / 10-A / 10-B            → (1, 10, ...)
+      other strings                → (2, 0, lower)
+    """
+    import re as _re
+    s = _safe_str(class_name).strip()
+    if not s:
+        return (999, 0, "")
+    upper = s.upper()
+    # KG-family
+    if upper.startswith("KG") or upper.startswith("NURSERY") \
+       or upper.startswith("PLAYGROUP") or upper.startswith("PREP"):
+        return (0, 0, upper)
+    # Numeric classes (with optional section suffix)
+    m = _re.match(r"^(\d+)", s)
+    if m:
+        num = int(m.group(1))
+        rest = s[m.end():].lstrip("-_ ").lower()
+        return (1, num, rest)
+    # Fallback
+    return (2, 0, s.lower())
+
+
 @router.get("/charts")
 def dashboard_charts(
     class_name: str | None = Query(default=None, description="Filter attendance trend to one class"),
@@ -289,81 +324,159 @@ def dashboard_charts(
     db: Session = Depends(get_db),
 ):
     """
-    Aggregated data for the main dashboard's charts. Kept as one endpoint
-    (rather than one per chart) so the dashboard loads its visuals in a
-    single round-trip.
+    Aggregated data for the main dashboard's charts.
+    Fully defensive — each section wrapped in try/except so one bad row
+    can't 500 the entire dashboard.
     """
     school_id = token["school_id"]
 
-    # ---- Attendance trend: last N calendar days, % present per day, optionally filtered to one class ----
-    from datetime import timedelta
-    today = date.today()
-    start_date = today - timedelta(days=days - 1)
-
-    trend_query = db.query(Attendance).filter(
-        Attendance.school_id == school_id,
-        Attendance.date >= start_date,
-        Attendance.date <= today,
-    )
-    if class_name:
-        class_student_ids_filter = [
-            s.id for s in db.query(Student.id).filter(
-                Student.school_id == school_id, Student.class_name == class_name
-            )
-        ]
-        trend_query = trend_query.filter(Attendance.student_id.in_(class_student_ids_filter))
-
-    attendance_records = trend_query.all()
-    by_day: dict[str, list[int]] = {}
-    for a in attendance_records:
-        key = a.date.isoformat()
-        by_day.setdefault(key, []).append(1 if a.is_present else 0)
-
-    attendance_trend = []
-    for i in range(days):
-        d = (start_date + timedelta(days=i)).isoformat()
-        marks = by_day.get(d, [])
-        pct = round((sum(marks) / len(marks)) * 100, 1) if marks else None
-        attendance_trend.append({"date": d, "attendance_rate": pct})
-
-    # ---- Fee collection: last 6 months, due vs collected ----
-    fees = db.query(Fee).filter(Fee.school_id == school_id).all()
-    month_totals: dict[str, dict[str, float]] = {}
-    for f in fees:
-        key = f.month or (f.created_at.strftime("%Y-%m") if f.created_at else "unknown")
-        bucket = month_totals.setdefault(key, {"due": 0.0, "paid": 0.0})
-        bucket["due"] += f.amount or 0
-        bucket["paid"] += f.paid_amount or 0
-
-    months_sorted = sorted(k for k in month_totals.keys() if k != "unknown")[-6:]
-    fee_trend = [
-        {
-            "month": m,
-            "due": round(month_totals[m]["due"], 2),
-            "collected": round(month_totals[m]["paid"], 2),
-        }
-        for m in months_sorted
-    ]
-
-    # ---- Class-wise average grade ----
-    students = db.query(Student).filter(Student.school_id == school_id).all()
-    class_student_ids: dict[str, list[int]] = {}
-    for s in students:
-        class_student_ids.setdefault(s.class_name or "Unassigned", []).append(s.id)
-
-    all_grades = db.query(Grade).filter(Grade.school_id == school_id).all()
-    grades_by_student: dict[int, list[float]] = {}
-    for g in all_grades:
-        grades_by_student.setdefault(g.student_id, []).append(g.percentage)
-
-    class_averages = []
-    for class_name, sids in sorted(class_student_ids.items()):
-        pcts = [p for sid in sids for p in grades_by_student.get(sid, [])]
-        if pcts:
-            class_averages.append({"class_name": class_name, "average_percentage": round(sum(pcts) / len(pcts), 1)})
-
-    return {
-        "attendance_trend": attendance_trend,
-        "fee_trend": fee_trend,
-        "class_averages": class_averages,
+    result = {
+        "attendance_trend": [],
+        "fee_trend": [],
+        "class_averages": [],
     }
+
+    # ============================================================
+    # 1. ATTENDANCE TREND
+    # ============================================================
+    try:
+        from datetime import timedelta
+        today = date.today()
+        start_date = today - timedelta(days=days - 1)
+
+        trend_query = db.query(Attendance).filter(
+            Attendance.school_id == school_id,
+            Attendance.date >= start_date,
+            Attendance.date <= today,
+        )
+
+        if class_name:
+            class_student_ids_filter = [
+                row[0] for row in db.query(Student.id).filter(
+                    Student.school_id == school_id,
+                    Student.class_name == _safe_str(class_name),
+                ).all()
+            ]
+            if class_student_ids_filter:
+                trend_query = trend_query.filter(
+                    Attendance.student_id.in_(class_student_ids_filter)
+                )
+            else:
+                trend_query = trend_query.filter(False)  # no students → empty
+
+        attendance_records = trend_query.all()
+
+        by_day: dict[str, list[int]] = {}
+        for a in attendance_records:
+            if not a.date:
+                continue
+            key = a.date.isoformat()
+            by_day.setdefault(key, []).append(1 if a.is_present else 0)
+
+        attendance_trend = []
+        for i in range(days):
+            d = (start_date + timedelta(days=i)).isoformat()
+            marks = by_day.get(d, [])
+            pct = round((sum(marks) / len(marks)) * 100, 1) if marks else None
+            attendance_trend.append({"date": d, "attendance_rate": pct})
+
+        result["attendance_trend"] = attendance_trend
+    except Exception as e:
+        print(f"⚠️ attendance_trend failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # ============================================================
+    # 2. FEE TREND (last 6 months)
+    # ============================================================
+    try:
+        fees = db.query(Fee).filter(Fee.school_id == school_id).all()
+        month_totals: dict[str, dict[str, float]] = {}
+        for f in fees:
+            # ✅ Always coerce to string
+            key = None
+            if f.month:
+                key = _safe_str(f.month)
+            elif f.created_at:
+                try:
+                    key = f.created_at.strftime("%Y-%m")
+                except Exception:
+                    key = "unknown"
+            else:
+                key = "unknown"
+
+            bucket = month_totals.setdefault(key, {"due": 0.0, "paid": 0.0})
+            try:
+                bucket["due"] += float(f.amount or 0)
+                bucket["paid"] += float(f.paid_amount or 0)
+            except (ValueError, TypeError):
+                continue
+
+        # ✅ Safe sort — all keys coerced to string
+        clean_months = [
+            _safe_str(k)
+            for k in month_totals.keys()
+            if _safe_str(k) not in ("", "unknown")
+        ]
+        months_sorted = sorted(clean_months)[-6:]
+
+        fee_trend = [
+            {
+                "month": m,
+                "due": round(month_totals[m]["due"], 2),
+                "collected": round(month_totals[m]["paid"], 2),
+            }
+            for m in months_sorted
+        ]
+        result["fee_trend"] = fee_trend
+    except Exception as e:
+        print(f"⚠️ fee_trend failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # ============================================================
+    # 3. CLASS AVERAGES
+    # ============================================================
+    try:
+        students = db.query(Student).filter(Student.school_id == school_id).all()
+
+        class_student_ids: dict[str, list[int]] = {}
+        for s in students:
+            # ✅ Coerce class name to string
+            cls = _safe_str(s.class_name, default="Unassigned").strip() or "Unassigned"
+            class_student_ids.setdefault(cls, []).append(s.id)
+
+        all_grades = db.query(Grade).filter(Grade.school_id == school_id).all()
+        grades_by_student: dict[int, list[float]] = {}
+        for g in all_grades:
+            try:
+                pct = float(g.percentage or 0)
+            except (ValueError, TypeError):
+                continue
+            grades_by_student.setdefault(g.student_id, []).append(pct)
+
+        class_averages = []
+        # ✅ Sort by natural class key — no more int vs str crash
+        sorted_classes = sorted(
+            class_student_ids.items(),
+            key=lambda item: _natural_class_sort_key(item[0]),
+        )
+
+        for cls_name, sids in sorted_classes:
+            pcts = [
+                p for sid in sids
+                for p in grades_by_student.get(sid, [])
+            ]
+            if pcts:
+                class_averages.append({
+                    "class_name": cls_name,
+                    "average_percentage": round(sum(pcts) / len(pcts), 1),
+                })
+
+        result["class_averages"] = class_averages
+    except Exception as e:
+        print(f"⚠️ class_averages failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+    return result

@@ -3,55 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+    <title>SchoolHub — Loading...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/dark-mode.css">
     <link rel="stylesheet" href="css/empty-states.css">
     <link rel="stylesheet" href="css/success-anim.css">
+    <link rel="stylesheet" href="css/hope-theme.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
+        body.hope-theme.hope-login-page {
+            background: #F7F5FF;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background: linear-gradient(165deg, #0a5a54, #0c6e6b 70%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
         .loader {
             text-align: center;
+            position: relative;
+            z-index: 2;
+            color: #fff;
         }
-        .spinner {
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid white;
+        .loader .ht-spinner {
+            border: 4px solid rgba(255,255,255,0.25);
+            border-top: 4px solid var(--ht-accent, #F5A55C);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            width: 48px;
+            height: 48px;
+            animation: htSpin 1s linear infinite;
+            margin: 0 auto 24px;
         }
-        @keyframes spin {
+        @keyframes htSpin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        h1 {
-            font-size: 28px;
-            margin: 0 0 10px 0;
+        .loader h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            color: #fff;
+            letter-spacing: 0.5px;
         }
-        p {
+        .loader h1 .accent { color: var(--ht-accent, #F5A55C); }
+        .loader p {
             margin: 0;
-            font-size: 16px;
+            font-size: 15px;
             opacity: 0.9;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        .loader .loader-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFF8F0, #FFE6C7);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(245, 165, 92, 0.5), 0 0 0 8px rgba(255, 255, 255, 0.1);
+            animation: htLogoPulse 3s ease-in-out infinite;
+        }
+        .loader .loader-logo svg {
+            width: 40px;
+            height: 40px;
+        }
+        @keyframes htLogoPulse {
+            0%, 100% { box-shadow: 0 8px 32px rgba(245, 165, 92, 0.5), 0 0 0 8px rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 8px 40px rgba(245, 165, 92, 0.75), 0 0 0 14px rgba(255, 255, 255, 0.15); }
         }
     </style>
 </head>
-<body>
+<body class="hope-theme hope-login-page">
     <div class="loader">
-        <div class="spinner"></div>
-        <h1>🎓 SchoolHub</h1>
+        <div class="loader-logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v2M10 5h4M9 8a3 3 0 016 0v3a4 4 0 01-1 2.65V15h-4v-1.35A4 4 0 019 11V8z" stroke="#7C5CE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 18h6M10 20h4" stroke="#F5A55C" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="16.5" cy="9.5" r="1.6" fill="#F5A55C"/>
+                <path d="M16.5 8.2v-.6M16.5 11.4v-.6M15.2 9.5h-.6M18.4 9.5h-.6M15.6 8.6l-.4-.4M17.8 10.8l-.4-.4M15.6 10.4l-.4.4M17.8 8.2l-.4.4" stroke="#F5A55C" stroke-width="0.9" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="ht-spinner"></div>
+        <h1>School<span class="accent">Hub</span></h1>
         <p>Professional Dashboard Loading...</p>
     </div>
 
@@ -65,5 +106,6 @@
     <script src="js/skeleton.js"></script>
     <script src="js/empty-states.js"></script>
     <script src="js/success-anim.js"></script>
+    <script src="js/hope-theme.js"></script>
 </body>
 </html>

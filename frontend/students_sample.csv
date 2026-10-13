@@ -1,0 +1,11 @@
+name,father_name,class_name,roll_number,gender,date_of_birth,phone,parent_email,address
+Ahmed Khan,Muhammad Khan,1,101,Male,2018-05-15,03001234567,parent1@example.com,Street 1 Lahore
+Fatima Bibi,Ali Akbar,1,102,Female,2018-08-22,03001234568,parent2@example.com,Street 2 Lahore
+Bilal Ahmed,Tariq Mehmood,2,201,Male,2017-03-10,03001234569,parent3@example.com,Street 3 Lahore
+Ayesha Siddiqui,Imran Ali,2,202,Female,2017-11-05,03001234570,parent4@example.com,Street 4 Lahore
+Hassan Raza,Nadeem Ahmed,3,301,Male,2016-07-20,03001234571,parent5@example.com,Street 5 Lahore
+Zainab Fatima,Kamran Khan,3,302,Female,2016-09-12,03001234572,parent6@example.com,Street 6 Lahore
+Usman Ghani,Asif Iqbal,4,401,Male,2015-01-18,03001234573,parent7@example.com,Street 7 Lahore
+Maryam Noor,Shahid Ali,4,402,Female,2015-04-25,03001234574,parent8@example.com,Street 8 Lahore
+Ali Hamza,Rashid Mehmood,5,501,Male,2014-06-30,03001234575,parent9@example.com,Street 9 Lahore
+Sara Ahmed,Javed Iqbal,5,502,Female,2014-12-08,03001234576,parent10@example.com,Street 10 Lahore

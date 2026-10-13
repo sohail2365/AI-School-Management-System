@@ -17,11 +17,8 @@ class School(Base):
     address: Mapped[str | None] = mapped_column(Text, nullable=True)
     principal_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-
-    # Background image (Supabase Storage path) shown across admin/teacher/
-    # parent portal pages. Optional — pages fall back to the plain paper
-    # background when unset.
     background_image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     background_image_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Overlay intensity for portal background (40-95). Higher = more readable
@@ -42,6 +39,7 @@ class School(Base):
     # Fee settings
     fee_structure: Mapped[str | None] = mapped_column(Text, nullable=True)
     fee_due_day: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
+    custom_fields: Mapped[str | None] = mapped_column(Text, nullable=True)
     late_fee_percent: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
 
     # Parent Portal — admin-controlled visibility. Each toggle gates what a

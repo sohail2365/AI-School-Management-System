@@ -5,42 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Student Documents - SchoolHub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/animations.css">
 <link rel="stylesheet" href="css/dark-mode.css">
 <link rel="stylesheet" href="css/empty-states.css">
 <link rel="stylesheet" href="css/success-anim.css">
+<link rel="stylesheet" href="css/hope-theme.css">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
-  :root {
-    --teal-900: #0a5a54; --teal-700: #0c6e6b; --teal-500: #14958c; --teal-100: #e3f3f1;
-    --clay-500: #c87757; --ink-900: #1a2b29; --ink-500: #5c6b69;
-    --paper: #fbfaf7; --card: #ffffff; --line: #e6e8e5;
-    --success: #1a8c5c; --danger: #c4453b;
+  body.hope-theme.hope-portal-page { background: #F7F5FF; color: var(--ht-dark, #1E1B4B); }
+
+  .topbar {
+    background: linear-gradient(135deg, #7C5CE0 0%, #6D4DC7 100%);
+    color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 24px rgba(124, 92, 224, 0.25);
+    position: sticky; top: 0; z-index: 50; overflow: hidden;
   }
-  * { box-sizing: border-box; }
-  body { background: var(--paper); margin: 0; font-family: 'Inter', sans-serif; color: var(--ink-900); }
-  .topbar { background: linear-gradient(165deg, var(--teal-900), var(--teal-700) 70%); color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-  .topbar h1 { font-family: 'Poppins', sans-serif; }
-  .container { max-width: 800px; margin: 1.5rem auto; padding: 0 1rem; }
-  .card { background: var(--card); border-radius: 14px; padding: 1.3rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 2px 12px rgba(10,90,84,0.06); border: 1px solid var(--line); }
-  select, input, button { padding: 0.55rem 0.75rem; border: 1.5px solid var(--line); border-radius: 8px; font-size: 0.9rem; font-family: inherit; }
-  select:focus, input:focus { outline: none; border-color: var(--teal-500); box-shadow: 0 0 0 3px var(--teal-100); }
+  .topbar::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
+    background-size: 200% 100%; animation: htHeaderShine 5s linear infinite; pointer-events: none;
+  }
+  @keyframes htHeaderShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .topbar h1 {
+    font-family: 'Poppins', sans-serif; font-size: 1.1rem; margin: 0; position: relative; z-index: 1;
+    background: linear-gradient(90deg, #ffffff 0%, #FFD4AC 50%, #ffffff 100%);
+    background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: htTitleGradient 4s ease-in-out infinite;
+  }
+  @keyframes htTitleGradient { 0%, 100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+  .topbar a.back { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; font-weight: 600; position: relative; z-index: 1; }
+  .topbar a.back:hover { color: var(--ht-accent, #F5A55C); }
+
+  .container { max-width: 840px; margin: 1.5rem auto; padding: 0 1rem; position: relative; z-index: 2; }
+
+  .card { background: #fff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 4px 20px rgba(124, 92, 224, 0.08); border: 1px solid rgba(124, 92, 224, 0.08); }
+  .card h2 { font-family: 'Poppins', sans-serif; font-size: 1rem; margin: 0 0 1rem; color: var(--ht-primary-dark, #6244C7); }
+
+  select, input[type="text"], input[type="file"] {
+    padding: 0.6rem 0.8rem; border: 1.5px solid var(--ht-border, #E5E1F5); border-radius: 10px;
+    font-size: 0.9rem; font-family: inherit; background: #fff; color: var(--ht-dark, #1E1B4B);
+    transition: all 0.15s;
+  }
+  select:focus, input:focus { outline: none; border-color: #7C5CE0; box-shadow: 0 0 0 4px rgba(124, 92, 224, 0.12); }
+
   .row-form { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-  .row-form button { background: var(--teal-700); color: #fff; border: none; cursor: pointer; font-weight: 600; }
-  .row-form button:hover { background: var(--teal-900); }
+  .row-form label { font-weight: 700; font-size: 0.88rem; color: var(--ht-primary-dark, #6244C7); }
+  .row-form button {
+    padding: 0.6rem 1.2rem; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(124, 92, 224, 0.3); font-family: inherit;
+  }
+  .row-form button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124, 92, 224, 0.45); }
+
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); }
-  th { color: var(--ink-500); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
-  .msg { font-size: 0.85rem; margin-top: 0.5rem; }
-  .msg.error { color: var(--danger); } .msg.ok { color: var(--success); }
-  .doc-tag { display:inline-block; padding:0.15rem 0.6rem; border-radius:999px; background:var(--teal-100); color:var(--teal-900); font-size:0.78rem; font-weight: 600; }
-  a.back { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid rgba(124, 92, 224, 0.06); }
+  th { color: var(--ht-primary-dark, #6244C7); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  tbody tr:hover { background: rgba(124, 92, 224, 0.03); }
+
+  table button { padding: 0.4rem 0.85rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.82rem; font-family: inherit; }
+  table button:first-child { background: linear-gradient(135deg, #7C5CE0, #6244C7); color: #fff; }
+  table button:last-child { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; }
+  table button:hover { transform: translateY(-1px); }
+
+  .msg { font-size: 0.85rem; margin-top: 0.5rem; font-weight: 500; }
+  .msg.error { color: #991B1B; }
+  .msg.ok { color: #065F46; }
+
+  .doc-tag { display: inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; background: var(--ht-primary-lighter, #EDE9FE); color: var(--ht-primary-dark, #6244C7); font-size: 0.78rem; font-weight: 700; }
 </style>
 </head>
-<body>
+<body class="hope-theme hope-portal-page">
   <div class="topbar">
-    <h1 style="font-size:1.1rem;margin:0;">Student Documents</h1>
+    <h1>Student Documents</h1>
     <a class="back" href="professional_dashboard.html">← Back to dashboard</a>
   </div>
 
@@ -55,7 +92,7 @@
     </div>
 
     <div class="card">
-      <h2 style="font-size:1rem;">Upload Document / Photo</h2>
+      <h2>📤 Upload Document / Photo</h2>
       <div class="row-form">
         <select id="docType">
           <option value="profile_photo">Card Photo (profile)</option>
@@ -72,7 +109,7 @@
     </div>
 
     <div class="card">
-      <h2 style="font-size:1rem;">Uploaded Documents</h2>
+      <h2>📁 Uploaded Documents</h2>
       <table>
         <thead><tr><th>Type</th><th>Label</th><th>File</th><th>Uploaded</th><th></th><th></th></tr></thead>
         <tbody id="docTable"></tbody>
@@ -82,8 +119,7 @@
 
 <script>
 const API_BASE = (window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null")
-    ? "http://127.0.0.1:8000"
-    : window.location.origin;
+    ? "http://127.0.0.1:8000" : window.location.origin;
 
 const token = localStorage.getItem("access_token");
 if (!token) window.location.href = "login.html";
@@ -101,15 +137,13 @@ let allStudents = [];
 async function init() {
   allStudents = await authFetch("/students");
   const classes = [...new Set(allStudents.map(s => s.class_name))].sort();
-  document.getElementById("classSelect").innerHTML =
-    `<option value="">Select class</option>` + classes.map(c => `<option value="${c}">${c}</option>`).join("");
+  document.getElementById("classSelect").innerHTML = `<option value="">Select class</option>` + classes.map(c => `<option value="${c}">${c}</option>`).join("");
 }
 
 document.getElementById("classSelect").addEventListener("change", (e) => {
   const cls = e.target.value;
   const filtered = allStudents.filter(s => s.class_name === cls);
-  document.getElementById("studentSelect").innerHTML =
-    `<option value="">Select student</option>` +
+  document.getElementById("studentSelect").innerHTML = `<option value="">Select student</option>` +
     filtered.map(s => `<option value="${s.id}">${s.roll_number} - ${s.name}</option>`).join("");
   document.getElementById("docTable").innerHTML = "";
 });
@@ -127,7 +161,7 @@ async function loadDocs() {
       <td>${d.file_name || "—"}</td>
       <td>${new Date(d.created_at).toLocaleDateString()}</td>
       <td><button onclick="viewDoc(${studentId}, ${d.id})">View</button></td>
-      <td><button onclick="deleteDoc(${studentId}, ${d.id})" style="background:#dc2626;color:#fff;border:none;">Delete</button></td>
+      <td><button onclick="deleteDoc(${studentId}, ${d.id})">Delete</button></td>
     </tr>`).join("") || "<tr><td colspan='6'>No documents uploaded yet.</td></tr>";
 }
 
@@ -136,40 +170,26 @@ async function uploadDoc() {
   msg.textContent = ""; msg.className = "msg";
   const studentId = document.getElementById("studentSelect").value;
   if (!studentId) { msg.textContent = "Select a student first."; msg.classList.add("error"); return; }
-
   const file = document.getElementById("docFile").files[0];
   if (!file) { msg.textContent = "Choose a file first."; msg.classList.add("error"); return; }
-
   const docType = document.getElementById("docType").value;
   const label = document.getElementById("docLabel").value;
-
   const form = new FormData();
   form.append("file", file);
-
   const params = new URLSearchParams({ doc_type: docType });
   if (label) params.append("label", label);
-
   try {
-    await authFetch(`/students/${studentId}/documents?${params.toString()}`, {
-      method: "POST",
-      body: form,
-    });
+    await authFetch(`/students/${studentId}/documents?${params.toString()}`, { method: "POST", body: form });
     msg.textContent = "Uploaded successfully."; msg.classList.add("ok");
     document.getElementById("docFile").value = "";
     document.getElementById("docLabel").value = "";
     await loadDocs();
-  } catch (err) {
-    msg.textContent = err.message; msg.classList.add("error");
-  }
+  } catch (err) { msg.textContent = err.message; msg.classList.add("error"); }
 }
 
 async function viewDoc(studentId, docId) {
-  try {
-    const { url } = await authFetch(`/students/${studentId}/documents/${docId}/url`);
-    window.open(url, "_blank");
-  } catch (err) {
-    alert(err.message);
-  }
+  try { const { url } = await authFetch(`/students/${studentId}/documents/${docId}/url`); window.open(url, "_blank"); }
+  catch (err) { alert(err.message); }
 }
 
 async function deleteDoc(studentId, docId) {
@@ -177,9 +197,7 @@ async function deleteDoc(studentId, docId) {
   try {
     await authFetch(`/students/${studentId}/documents/${docId}`, { method: "DELETE" });
     await loadDocs();
-  } catch (err) {
-    alert(err.message);
-  }
+  } catch (err) { alert(err.message); }
 }
 
 init();
@@ -190,5 +208,6 @@ init();
     <script src="js/skeleton.js"></script>
     <script src="js/empty-states.js"></script>
     <script src="js/success-anim.js"></script>
+    <script src="js/hope-theme.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 from datetime import date as dt_date
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -10,7 +10,7 @@ from backend.models.grade import Grade
 from backend.models.parent_message import ParentMessage
 from backend.models.school import School
 from backend.models.student import Student
-from backend.models.student_document import StudentDocument
+from backend.models.student_document import DocumentType, StudentDocument
 from backend.models.test_record import TestRecord
 from backend.schemas.attendance import AttendanceOut
 from backend.schemas.fee import FeeOut
@@ -19,20 +19,13 @@ from backend.schemas.student import StudentOut
 from backend.schemas.student_document import StudentDocumentOut
 from backend.schemas.test_record import TestRecordOut
 from backend.utils.rbac import require_roles
-from backend.utils.storage import get_signed_url
+from backend.utils.storage import delete_file, get_signed_url, upload_student_file
 
 router = APIRouter(prefix="/parent", tags=["parent-portal"])
 
 
 def _my_child(token: dict, db: Session) -> Student:
-    """
-    Resolves the ONE student linked to the logged-in parent's account.
-    Every route below depends on this — it is what keeps a parent's access
-    limited to their own child, regardless of what student_id (if any) they
-    might try to pass. There is currently one child per parent account (a
-    parent with multiple kids at the school gets one login per the auto-
-    provisioning logic, so this covers the common case cleanly).
-    """
+    """Resolves the ONE student linked to the logged-in parent's account."""
     student = (
         db.query(Student)
         .filter(Student.parent_user_id == token["user_id"], Student.school_id == token["school_id"])
@@ -235,3 +228,95 @@ def send_my_message(
     db.commit()
     db.refresh(msg)
     return {"id": msg.id, "created_at": msg.created_at.isoformat()}
+
+
+# ==================== PARENT: DOCUMENT UPLOAD ====================
+# Parent apne bachche ke documents upload aur delete kar sakta hai.
+# Security: _my_child() se verify hota hai ke student parent ka bachcha hai.
+# Storage: Same helper as admin/teacher (works on Vercel via cloud storage).
+
+@router.post(
+    "/documents/upload",
+    response_model=StudentDocumentOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def parent_upload_document(
+    doc_type: str = Query(..., description="id_card | b_form | test_paper | profile_photo | other"),
+    label: str | None = Query(default=None, max_length=150),
+    file: UploadFile = File(...),
+    token: dict = Depends(require_roles(["parent"])),
+    db: Session = Depends(get_db),
+):
+    """
+    Parent apne bachche ka document upload karein.
+    Uses same cloud storage helper as admin/teacher document upload.
+    """
+    school = _my_school(token, db)
+    if not school.parent_show_documents:
+        raise HTTPException(status_code=403, detail="Documents are not enabled for parents at this school.")
+
+    # Verify parent owns this student
+    student = _my_child(token, db)
+
+    # Validate doc_type using same enum as student-documents
+    try:
+        parsed_type = DocumentType(doc_type)
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail="doc_type must be one of: id_card, b_form, test_paper, profile_photo, other",
+        )
+
+    # ✅ Use SAME cloud storage helper as admin/teacher
+    path = upload_student_file(file, token["school_id"], student.id, subfolder=parsed_type.value)
+
+    doc = StudentDocument(
+        school_id=token["school_id"],
+        student_id=student.id,
+        doc_type=parsed_type,
+        file_url=path,
+        file_name=file.filename,
+        label=label,
+        uploaded_by_user_id=token.get("user_id"),
+    )
+    db.add(doc)
+
+    # Profile photo also updates the canonical card photo (same as admin flow)
+    if parsed_type == DocumentType.profile_photo:
+        student.photo_url = path
+
+    db.commit()
+    db.refresh(doc)
+    return doc
+
+
+@router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+def parent_delete_document(
+    document_id: int,
+    token: dict = Depends(require_roles(["parent"])),
+    db: Session = Depends(get_db),
+):
+    """Parent apne bachche ka document delete kar sake."""
+    school = _my_school(token, db)
+    if not school.parent_show_documents:
+        raise HTTPException(status_code=403, detail="Documents are not enabled for parents.")
+
+    student = _my_child(token, db)
+
+    doc = (
+        db.query(StudentDocument)
+        .filter(
+            StudentDocument.id == document_id,
+            StudentDocument.student_id == student.id,
+            StudentDocument.school_id == token["school_id"],
+        )
+        .first()
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # ✅ Use SAME cloud delete helper
+    delete_file(doc.file_url)
+    db.delete(doc)
+    db.commit()
+    return None
