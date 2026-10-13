@@ -17,7 +17,6 @@ from backend.schemas.staff import (
     StaffSalaryPaymentCreate,
     StaffSalaryPaymentOut,
     StaffUpdate,
-    StaffStatus as StaffStatusSchema,
 )
 from backend.utils.password import hash_password
 from backend.utils.rbac import require_roles
